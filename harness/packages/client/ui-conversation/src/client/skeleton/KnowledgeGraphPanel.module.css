@@ -1,0 +1,111 @@
+/* Knowledge Graph panel: the shared renderer makes the narrow view readable instead of showing a 150-node preview. */
+
+.panel {
+  display: flex;
+  flex: 0 0 var(--dsh-knowledge-graph-panel-width, clamp(300px, 38%, 460px));
+  flex-direction: column;
+  width: var(--dsh-knowledge-graph-panel-width, clamp(300px, 38%, 460px));
+  min-width: 280px;
+  min-height: 0;
+  border-left: 1px solid var(--dsw-alias-border-l2);
+  background: var(--dsw-alias-bg-layer-1);
+}
+
+.panel[hidden] { display: none; }
+
+.header {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 36px;
+  padding: 4px 8px 4px 12px;
+  border-bottom: 1px solid var(--dsw-alias-border-l2);
+}
+
+.title {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--dsw-alias-label-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 18px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.headerActions {
+  display: flex;
+  flex: none;
+  gap: 2px;
+}
+
+.iconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  color: var(--dsw-alias-label-secondary);
+  background: transparent;
+  cursor: pointer;
+}
+
+.iconButton:hover:not(:disabled) { color: var(--dsw-alias-label-primary); background: var(--dsw-alias-interactive-bg-hover); }
+.iconButton:disabled { cursor: wait; opacity: 0.6; }
+.iconButton:focus-visible { outline: 2px solid var(--dsw-alias-state-business-primary); outline-offset: 2px; }
+
+.body {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+  padding: 10px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  color: var(--dsw-alias-label-tertiary);
+  font-size: 10px;
+  line-height: 15px;
+}
+
+.warning { color: var(--dsw-alias-state-warn-label); }
+
+.graphFrame {
+  display: flex;
+  flex: 1 1 0;
+  min-height: 360px;
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 8px;
+  background: var(--dsw-alias-bg-base);
+  overflow: hidden;
+}
+
+.graphFrameView { display: block; flex: 1 1 0; width: 100%; min-width: 0; min-height: 360px; border: 0; background: var(--dsw-alias-bg-base); }
+
+.status { margin: 0; color: var(--dsw-alias-label-tertiary); font-size: 11px; line-height: 17px; }
+.note { margin: 0; color: var(--dsw-alias-label-tertiary); font-size: 10px; line-height: 15px; }
+
+@media (max-width: 760px) {
+  .panel {
+    flex: 0 0 var(--dsh-knowledge-graph-panel-height, min(460px, 52vh));
+    width: auto;
+    height: var(--dsh-knowledge-graph-panel-height, min(460px, 52vh));
+    min-width: 0;
+    min-height: 280px;
+    border-top: 1px solid var(--dsw-alias-border-l2);
+    border-left: 0;
+  }
+
+  .graphFrame, .graphFrameView { min-height: 300px; }
+}

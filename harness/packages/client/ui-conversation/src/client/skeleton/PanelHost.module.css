@@ -1,0 +1,59 @@
+/* Panel chrome stays usable at 360px: every action is a real 36px target for touch and stylus. */
+
+.host {
+  display: flex;
+  flex: 0 1 auto;
+  flex-direction: column;
+  min-width: 280px;
+  min-height: 0;
+  border-left: 1px solid var(--dsw-alias-border-l2, #3a3a3c);
+  background: var(--dsw-alias-bg-layer-1, #202124);
+}
+
+.host[hidden] { display: none; }
+.host[data-panel-detached] { visibility: hidden; }
+
+.header {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  min-height: 40px;
+  padding: 2px 4px 2px 10px;
+  border-bottom: 1px solid var(--dsw-alias-border-l2, #3a3a3c);
+}
+
+.title {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--dsw-alias-label-secondary, #a6a6aa);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 16px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.actions { display: flex; flex: none; gap: 2px; }
+.button {
+  min-width: 36px;
+  min-height: 36px;
+  padding: 4px 7px;
+  border: 0;
+  border-radius: 6px;
+  color: var(--dsw-alias-label-secondary, #a6a6aa);
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  font-size: 10px;
+}
+.button:hover:not(:disabled), .button[aria-pressed='true'] { color: var(--dsw-alias-label-primary, #f4f4f5); background: var(--dsw-alias-interactive-bg-hover, #2c2d30); }
+.button:focus-visible { outline: 2px solid var(--dsw-alias-state-business-primary, #a882ff); outline-offset: 1px; }
+.button:disabled { cursor: default; opacity: .55; }
+.body { display: flex; flex: 1 1 0; min-width: 0; min-height: 0; overflow: hidden; }
+
+@media (max-width: 760px) {
+  .host { min-width: 0; border-top: 1px solid var(--dsw-alias-border-l2, #3a3a3c); border-left: 0; }
+  .header { min-height: 40px; }
+}

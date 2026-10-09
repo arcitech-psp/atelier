@@ -1,0 +1,14 @@
+packages:
+  - harness/packages/*/*
+  - harness/vendor/*
+  - harness/apps/*
+  - harness/native/landlock-run/packages/*
+  - public/*
+linkWorkspacePackages: true
+allowBuilds:
+  esbuild: true
+  node-pty: true
+  koffi: true
+  '@google/genai': false
+  protobufjs: false
+  node-addon-require-builtin: false

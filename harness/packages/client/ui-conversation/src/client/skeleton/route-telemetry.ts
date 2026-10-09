@@ -1,0 +1,2 @@
+export interface RouteTelemetry { tokensPerSecond:number|null; rollingTokensPerSecond:number|null; running:number; waiting:number; scope:string|undefined; available:boolean; }
+export function useRouteTelemetry(_sessionId: string | undefined, _enabled: boolean, _intervalMs=1000): RouteTelemetry { return {tokensPerSecond:null,rollingTokensPerSecond:null,running:0,waiting:0,scope:undefined,available:false}; }

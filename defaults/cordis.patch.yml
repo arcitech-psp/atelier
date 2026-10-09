@@ -1,0 +1,18 @@
+- id: agent-default-model
+  config:
+    provider: atelier-openai
+    model: YOUR_MODEL_ID
+- id: agent-presets
+  config:
+    default: vitruvius
+- id: session-title-llm
+  disabled: true
+- id: session-telemetry-otel
+  disabled: true
+- id: llm-deepseek
+  disabled: true
+- id: ui-brand-official
+  disabled: true
+- insert:
+    - id: atelier-canvas
+      name: '@arcitech/atelier-canvas'

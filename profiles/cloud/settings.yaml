@@ -1,0 +1,66 @@
+# Atelier "Cloud" profile: no local model needed. Optional; the default profile stays "bring your own endpoint".
+# Chosen with ATELIER_PROFILE=cloud on the first run (see QUICKSTART.md, "No GPU? Use cloud AI").
+#
+# Two routes, both through the small local bridge that the launcher starts (127.0.0.1:18345, loopback only):
+#   omniroute-cloud  OmniRoute (https://github.com/diegosouzapw/OmniRoute) on 127.0.0.1:20128, started on demand.
+#                    Its combos try free tiers first, then any API keys you added in OmniRoute, then fallbacks.
+#   chatgpt-plan     your ChatGPT plan through OpenAI's official "Sign in with ChatGPT" for open-source local apps
+#                    (https://developers.openai.com/siwc/token-sharing-open-source). Sign in once at
+#                    http://127.0.0.1:18345/signin. The suffix picks the reasoning level (@none is fastest).
+llm-pi-ai:
+  catalogProviders: []
+  providers:
+    omniroute-cloud:
+      displayName: Cloud via OmniRoute (free tiers + your keys)
+      apiKeyEnv: ATELIER_OMNIROUTE_KEY
+      api: openai-completions
+      baseURL: http://127.0.0.1:18345/omniroute/v1
+      defaultContextWindow: 128000
+      defaultMaxTokens: 8192
+      defaultInput: [ text, image ]
+      compat:
+        supportsDeveloperRole: false
+        supportsStore: false
+        supportsReasoningEffort: false
+        supportsUsageInStreaming: true
+        supportsFinishReason: true
+        maxTokensField: max_tokens
+      models:
+        - id: combo/atelier-brain
+          name: Cloud brain (free-tier chain)
+          contextWindow: 128000
+          input: [ text, image ]
+          reasoningEfforts: false
+        - id: combo/atelier-fast
+          name: Cloud fast helper
+          contextWindow: 128000
+          input: [ text ]
+          reasoningEfforts: false
+        - id: combo/atelier-vision
+          name: Cloud vision
+          contextWindow: 128000
+          input: [ text, image ]
+          reasoningEfforts: false
+    chatgpt-plan:
+      displayName: ChatGPT plan (Sign in with ChatGPT)
+      apiKeyEnv: ATELIER_CHATGPT_BRIDGE_KEY
+      api: openai-responses
+      baseURL: http://127.0.0.1:18345/v1
+      defaultContextWindow: 272000
+      defaultMaxTokens: 32000
+      defaultInput: [ text, image ]
+      cacheRetention: none
+      models:
+        - { id: gpt-6-luna@none, name: GPT-6 Luna - no reasoning (ChatGPT plan), reasoningEfforts: false }
+        - { id: gpt-6-luna@low, name: GPT-6 Luna - low reasoning (ChatGPT plan), reasoningEfforts: false }
+        - { id: gpt-6-luna@medium, name: GPT-6 Luna - medium reasoning (ChatGPT plan), reasoningEfforts: false }
+        - { id: gpt-6-luna@high, name: GPT-6 Luna - high reasoning (ChatGPT plan), reasoningEfforts: false }
+        - { id: gpt-6.1-sol@none, name: GPT-6.1 Sol - no reasoning (ChatGPT plan), reasoningEfforts: false }
+        - { id: gpt-6.1-sol@low, name: GPT-6.1 Sol - low reasoning (ChatGPT plan), reasoningEfforts: false }
+        - { id: gpt-6.1-sol@medium, name: GPT-6.1 Sol - medium reasoning (ChatGPT plan), reasoningEfforts: false }
+        - { id: gpt-6.1-sol@high, name: GPT-6.1 Sol - high reasoning (ChatGPT plan), reasoningEfforts: false }
+agent-default-model:
+  provider: omniroute-cloud
+  model: combo/atelier-brain
+agent-presets:
+  default: vitruvius

@@ -1,0 +1,18 @@
+llm-pi-ai:
+  catalogProviders: []
+  providers:
+    atelier-openai:
+      displayName: Your OpenAI-compatible endpoint
+      api: openai-completions
+      baseURL: https://YOUR_OPENAI_COMPATIBLE_HOST/v1
+      apiKeyEnv: ATELIER_API_KEY
+      models:
+        - id: YOUR_MODEL_ID
+          name: Your model
+          contextWindow: 32768
+          maxTokens: 4096
+agent-default-model:
+  provider: atelier-openai
+  model: YOUR_MODEL_ID
+agent-presets:
+  default: vitruvius

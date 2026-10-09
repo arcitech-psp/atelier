@@ -1,0 +1,16 @@
+/**
+ * Hide the Cordis service identity behind bound schema callbacks.
+ * @param service - settings-owned schema service available in the apply context.
+ * @returns callbacks that cannot expose the service context to React components.
+ */
+export function createSettingsSchemaOperations(service) {
+    return {
+        rehydrate: serialized => service.rehydrate(serialized),
+        validate: (schema, draft) => service.validate(schema, draft),
+        nodeAtPath: (root, path) => service.nodeAtPath(root, path),
+        getPath: (value, path) => service.getPath(value, path),
+        hasPath: (value, path) => service.hasPath(value, path),
+        setPath: (root, path, value) => service.setPath(root, path, value),
+        deletePath: (root, path) => service.deletePath(root, path),
+    };
+}

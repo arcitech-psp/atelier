@@ -1,0 +1,47 @@
+export const inject = ['tools', 'atelierCanvas'];
+export const name = 'atelier-design-tools';
+const sceneSchema = {type: 'object', additionalProperties: false, required: ['title', 'cards'], properties: {
+  title: {type: 'string', maxLength: 160}, cards: {type: 'array', minItems: 1, maxItems: 32, items: {
+    type: 'object', additionalProperties: false, required: ['label'], properties: {
+      label: {type: 'string', maxLength: 160}, note: {type: 'string', maxLength: 800}, color: {type: 'string', pattern: '^#[a-fA-F0-9]{6}$'},
+      x: {type: 'number', minimum: 0, maximum: 1600}, y: {type: 'number', minimum: 0, maximum: 1600},
+      width: {type: 'number', minimum: 1, maximum: 800}, height: {type: 'number', minimum: 1, maximum: 800}
+    }
+  }}
+}};
+const output = {schema: {type: 'object', required: ['status', 'title', 'cards', 'imagesAvailable'], properties: {
+  status: {type: 'string'}, title: {type: 'string'}, cards: {type: 'integer'}, imagesAvailable: {type: 'boolean'}
+}}, render: (_args, value) => [{type: 'text', text: JSON.stringify(value)}]};
+export function apply(ctx, config = {}) {
+  const endpoint = config.imageEndpoint;
+  const save = async (args, exec, moodboard) => {
+    const sid = String(exec.agent?.session?.header?.id ?? '');
+    if (!sid) throw Error('A canvas requires an owning chat.');
+    const scene = await ctx.atelierCanvas.put(sid, args);
+    return {status: moodboard && !endpoint ? 'Moodboard saved as colour and material cards. No image endpoint is configured; no images were generated.' : 'Saved to the editable canvas.', title: scene.title, cards: scene.cards.length, imagesAvailable: Boolean(endpoint)};
+  };
+  for (const [tool, description, moodboard] of [
+    ['board_draw', 'Draw a plan or design diagram on the editable canvas. Cards can be rooms with scaled x/y/width/height, or steps with default grid placement. Include dimensions, circulation and assumptions in notes. Concept drawings are not permit documents.', false],
+    ['moodboard_create', 'Create a moodboard on the canvas using colour swatches and descriptive material, texture and lighting cards. This works without an image endpoint and never claims generated images.', true]
+  ]) ctx.effect(() => ctx.tools.register({name: tool, description, parameters: sceneSchema, output, execute: (args, exec) => save(args, exec, moodboard)}));
+  if (endpoint) {
+    const url = new URL(endpoint); if (!['http:', 'https:'].includes(url.protocol)) throw Error('Image endpoint must use HTTP or HTTPS.');
+    ctx.effect(() => ctx.tools.register({name: 'image_generate', description: 'Generate one image using the configured OpenAI-compatible image endpoint, then place it on this chat canvas. Use only when the user requests an image.',
+      parameters: {type: 'object', required: ['prompt'], additionalProperties: false, properties: {prompt: {type: 'string', maxLength: 4000}}}, output,
+      async execute(args, exec) {
+        const key = config.imageKeyEnv ? process.env[config.imageKeyEnv] : undefined;
+        const response = await fetch(url, {method: 'POST', headers: {'content-type': 'application/json', ...(key ? {Authorization: `Bearer ${key}`} : {})},
+          body: JSON.stringify({model: config.imageModel ?? 'IMAGE_MODEL', prompt: args.prompt, n: 1, response_format: 'b64_json'}),
+          signal: AbortSignal.any([exec.signal, AbortSignal.timeout(120000)]), redirect: 'error'});
+        if (!response.ok) throw Error(`Image endpoint returned HTTP ${response.status}.`);
+        const bytes = await response.arrayBuffer(); if (bytes.byteLength > 12 * 1024 * 1024) throw Error('Image response exceeds the admitted limit.');
+        const body = JSON.parse(new TextDecoder().decode(bytes)); const b64 = body.data?.[0]?.b64_json;
+        if (typeof b64 !== 'string' || !/^[A-Za-z0-9+/=]+$/.test(b64)) throw Error('The endpoint did not return an inline image.');
+        const sid = String(exec.agent?.session?.header?.id ?? ''); if (!sid) throw Error('An image requires an owning chat.');
+        const previous = await ctx.atelierCanvas.get(sid);
+        const scene = await ctx.atelierCanvas.put(sid, {...(previous ?? {title: 'Design image', cards: []}), image: `data:image/png;base64,${b64}`});
+        return {status: 'Image saved to the canvas.', title: scene.title, cards: scene.cards.length, imagesAvailable: true};
+      }
+    }));
+  }
+}

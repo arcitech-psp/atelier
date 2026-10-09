@@ -1,0 +1,64 @@
+/* Session stats row: 13/20 tertiary text (the secondary content tier) under
+   the flow, aligned to the shared message column axis
+   (--dsh-chat-content-width). */
+
+.root {
+  /* Block, not flex: text-overflow only elides a block's inline content, so
+     an overlong line ends in … instead of a mid-glyph clip. */
+  display: block;
+  text-align: center;
+  max-width: var(--dsh-chat-content-width);
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+  padding: 4px calc(var(--dsh-composer-side-clearance) + 16px) 0px;
+  font-size: var(--dsh-content-font-size-secondary, 13px);
+  line-height: calc(20px + var(--dsh-content-font-delta-secondary, 0px));
+  color: var(--dsw-alias-label-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sep {
+  color: var(--dsw-alias-separator-primary);
+  margin: 0 10px; /* carries the former flex gap */
+}
+
+.live {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 2px 10px;
+  width: 100%;
+  max-width: var(--dsh-chat-content-width);
+  box-sizing: border-box;
+  margin: 0 auto;
+  padding: 3px 16px 2px;
+  color: var(--dsw-alias-label-caption);
+  font-size: 11px;
+  line-height: 16px;
+  font-variant-numeric: tabular-nums;
+}
+
+.live > span { white-space: nowrap; }
+.status { display: inline-flex; align-items: center; gap: 7px; }
+.statusDot { width: 8px; height: 8px; border-radius: 50%; background: var(--dsw-alias-label-tertiary); }
+.status[data-working='true'] .statusDot { background: var(--dsw-alias-state-success-primary); }
+.details {
+  min-width: 44px;
+  min-height: 32px;
+  padding: 4px 8px;
+  color: var(--dsw-alias-label-caption);
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.details:hover { background: var(--dsw-alias-button-floating-hover); }
+
+@media (max-width: 700px) {
+  .live { gap: 2px 8px; padding-inline: 8px; }
+}

@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Atelier SKILL.md frontmatter",
+  "description": "Upstream DSH fields (name, description, whenToUse, metadata, disable-model-invocation, user-invocable) plus Atelier extensions under metadata.atelier. A skill with no metadata.atelier is a plain instruction skill and still works.",
+  "type": "object",
+  "required": ["name", "description"],
+  "properties": {
+    "name": {"type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"},
+    "description": {"type": "string", "maxLength": 160, "description": "One line; this is the catalogue entry every turn, so keep it under ~25 tokens."},
+    "whenToUse": {"type": "string", "maxLength": 240},
+    "disable-model-invocation": {"type": "boolean"},
+    "user-invocable": {"type": "boolean"},
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "atelier": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "version": {"type": "integer", "minimum": 1},
+            "profiles": {"type": "array", "items": {"type": "string"}, "description": "Profiles whose catalogue lists this skill; omitted = every profile that mounts the skills root."},
+            "mode": {"type": "string", "enum": ["schema", "proxy"], "default": "schema", "description": "schema: reveal the listed tool schemas (appended at the end of the tool list, once). proxy: no tool-list change; the model calls skill_call(skill, tool, args)."},
+            "tools": {"type": "array", "items": {"type": "string"}, "description": "Tool names or prefixes (name*) revealed when the skill is active. Tools listed by no skill are always visible."},
+            "keywords": {"type": "string", "description": "Case-insensitive regex; a match in the user's latest request pre-activates the skill before step 1."},
+            "preactivate": {"type": "string", "description": "One YES/NO question for the fast System 1 router. Asked only when keywords did not decide and the message is not content-free."},
+            "pin": {"type": "boolean", "default": true, "description": "Pin the body as a harness message; re-pin after compaction."},
+            "budget_tokens": {"type": "integer", "minimum": 200, "maximum": 6000, "description": "Ceiling for body + revealed schemas; the loader warns in the log above it and refuses above 2x."},
+            "references": {"type": "array", "items": {"type": "string"}, "description": "Files under the skill folder readable with skill_read(name, file); never loaded automatically."},
+            "requires": {"type": "array", "items": {"type": "string"}, "description": "Skills activated together with this one."},
+            "trust": {"type": "string", "enum": ["owner", "approved", "unreviewed"], "default": "unreviewed", "description": "unreviewed skills are never listed in a catalogue."},
+            "legacy_group": {"type": "string", "description": "Migration only: the lean-surface group id this skill replaces; the generator must produce the same group bytes."}
+          }
+        }
+      }
+    }
+  }
+}

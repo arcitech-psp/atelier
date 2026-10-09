@@ -1,0 +1,19 @@
+# Atelier "Cloud" profile (ATELIER_PROFILE=cloud): same plugins as the default profile, cloud brain by default.
+- id: agent-default-model
+  config:
+    provider: omniroute-cloud
+    model: combo/atelier-brain
+- id: agent-presets
+  config:
+    default: vitruvius
+- id: session-title-llm
+  disabled: true
+- id: session-telemetry-otel
+  disabled: true
+- id: llm-deepseek
+  disabled: true
+- id: ui-brand-official
+  disabled: true
+- insert:
+    - id: atelier-canvas
+      name: '@arcitech/atelier-canvas'

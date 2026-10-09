@@ -1,0 +1,260 @@
+/**
+ * Host transport for the settings-namespace scope contract. This file owns the
+ * per-namespace derivation over the shared {@link SettingsDescribeMirror} and
+ * the serialized write path. Reads never touch the wire here: the
+ * mirror is the one `settings.describe` reader, and every scope is a selector
+ * over its snapshot.
+ */
+import { Service } from '@deepseek-ai/cordis';
+import { createSnapshotStore } from '@deepseek-ai/dsh-client-store';
+/**
+ * One namespace's derived view over the shared describe mirror, plus that
+ * namespace's serialized Host writes. Writes carry the latest known namespace
+ * revision, fold their answers back into the mirror, and teardown waits for
+ * the operation already crossing the wire.
+ */
+export class SettingsScopeController {
+    api;
+    spec;
+    mirror;
+    persistence;
+    schema;
+    store;
+    tail = Promise.resolve();
+    writeGeneration = 0;
+    disposed = false;
+    unsubscribe;
+    /**
+     * Revision answered by a superseded write still ahead of the mirror: the
+     * mirror only folds the LATEST settlement in, so a queued successor takes
+     * its fence from here first.
+     */
+    pendingRevision;
+    /**
+     * @param api - settings wire face (writes only; reads ride the mirror).
+     * @param spec - namespace identity and optional narrowing decoder.
+     * @param mirror - the shared describe mirror this scope derives from.
+     * @param persistence - client-selected Host persistence; non-loopback pages may remain process-local.
+     * @param schema - settings-owned schema operations.
+     */
+    constructor(api, spec, mirror, persistence, schema) {
+        this.api = api;
+        this.spec = spec;
+        this.mirror = mirror;
+        this.persistence = persistence;
+        this.schema = schema;
+        this.store = createSnapshotStore({
+            status: persistence === 'host' ? 'loading' : 'unavailable',
+            value: undefined,
+            base: undefined,
+            user: undefined,
+            revision: undefined,
+            writable: false,
+            mode: persistence,
+        });
+        if (persistence === 'host') {
+            this.unsubscribe = mirror.subscribe(() => { this.derive(); });
+            this.derive();
+        }
+    }
+    /** @returns the current sync snapshot (stable reference until the next change). */
+    getSnapshot() {
+        return this.store.getSnapshot();
+    }
+    /**
+     * Observe snapshot replacements.
+     * @param listener - invoked after each snapshot change.
+     * @returns the disposer removing this listener.
+     */
+    subscribe(listener) {
+        return this.store.subscribe(listener);
+    }
+    /**
+     * Queue one field write; see {@link SettingsScope.set} for the ordering,
+     * revision, and recovery contract.
+     * @param field - scalar field inside the namespace section.
+     * @param value - JSON-shaped value selected by the user.
+     * @returns settlement after the write and any latest-write recovery read.
+     */
+    set(field, value) {
+        return this.mutate([{ op: 'set', path: [field], value: value }]);
+    }
+    /**
+     * Queue one field clear; see {@link SettingsScope.unset} for the ordering,
+     * revision, and recovery contract.
+     * @param field - scalar field inside the namespace section.
+     * @returns settlement after the clear and any latest-write recovery read.
+     */
+    unset(field) {
+        return this.mutate([{ op: 'unset', path: [field] }]);
+    }
+    /**
+     * Queue one atomic namespace mutation; see {@link SettingsScope.mutate}.
+     * @param ops - ordered field operations copied when queued.
+     * @param expectedRevision - optional fixed revision read by the domain editor.
+     * @returns settlement after the mutation and any latest-write recovery read.
+     */
+    mutate(ops, expectedRevision) {
+        const ownedOps = structuredClone(ops);
+        const generation = ++this.writeGeneration;
+        return this.enqueue(async () => {
+            const revision = expectedRevision ?? this.pendingRevision ?? this.getSnapshot().revision;
+            let response;
+            try {
+                response = await this.api.settings.mutate(this.spec.namespace, ownedOps, revision);
+            }
+            catch (_settingsWriteFailure) {
+                await this.recover(generation);
+                return;
+            }
+            if (!response.ok) {
+                await this.recover(generation);
+                return;
+            }
+            if (this.disposed)
+                return;
+            if (generation === this.writeGeneration) {
+                this.pendingRevision = undefined;
+                this.mirror.acceptView(response.value);
+            }
+            else {
+                this.pendingRevision = response.value.revision;
+            }
+        });
+    }
+    /** Reload Host state for the latest failed write; superseded failures leave recovery to it. */
+    async recover(generation) {
+        if (this.disposed || generation !== this.writeGeneration)
+            return;
+        this.pendingRevision = undefined;
+        await this.mirror.load();
+    }
+    /**
+     * Stop queued operations, stop deriving, and wait for the current wire call
+     * to settle.
+     * @returns settlement after the controller reaches quiescence.
+     */
+    async dispose() {
+        this.disposed = true;
+        this.writeGeneration += 1;
+        this.unsubscribe?.();
+        await this.tail;
+    }
+    enqueue(operation) {
+        if (this.persistence === 'memory' || this.disposed)
+            return Promise.resolve();
+        const task = this.tail.then(async () => {
+            if (this.disposed)
+                return;
+            await operation();
+        });
+        // The returned task carries its own settlement to the caller; the queue
+        // tail is kept fulfilled so one failed subscriber cannot strand later operations.
+        this.tail = task.catch(() => { });
+        return task;
+    }
+    derive() {
+        if (this.disposed)
+            return;
+        const mirrored = this.mirror.getSnapshot();
+        if (mirrored.view === undefined)
+            return;
+        const { writable } = mirrored.view;
+        const view = mirrored.view.namespaces.find(candidate => candidate.ns === this.spec.namespace);
+        if (view === undefined) {
+            this.store.update((draft) => {
+                draft.status = 'unavailable';
+                draft.writable = writable;
+            });
+            return;
+        }
+        const decoded = this.decode(view);
+        this.store.update((draft) => {
+            draft.revision = view.revision;
+            draft.base = view.base;
+            draft.user = view.user;
+            draft.writable = writable;
+            if (decoded === undefined)
+                return;
+            draft.status = 'ready';
+            draft.value = decoded;
+        });
+    }
+    decode(view) {
+        if (this.spec.decode !== undefined)
+            return this.spec.decode(view.value);
+        // Sections are plain objects by construction; schemastery alone would
+        // resolve null or an array through object defaults instead of refusing.
+        if (typeof view.value !== 'object' || view.value === null || Array.isArray(view.value))
+            return undefined;
+        let failure;
+        try {
+            failure = this.schema.validate(this.schema.rehydrate(view.schema), view.value);
+        }
+        catch (_malformedSchemaEnvelope) {
+            // A schema envelope this client cannot rehydrate vouches for no section;
+            // the value is treated exactly like a schema-invalid one.
+            return undefined;
+        }
+        return failure === undefined ? view.value : undefined;
+    }
+}
+/**
+ * The settings domain's base service. Features that own a preference reach the
+ * settings transport through this service rather than a shared function: the
+ * client bundle purity gate forbids cross-plugin value imports and directs
+ * cross-plugin collaboration through cordis services
+ * (`packages/client/tsdown.client.ts`).
+ */
+export class SettingsScopeBinder extends Service {
+    mirror;
+    schema;
+    wire;
+    /**
+     * @param ctx - the providing plugin's context.
+     * @param config - the shared describe mirror every bound scope derives from,
+     * the settings-owned schema operations, and the settings Remote namespace the
+     * bound scopes write through. The namespace is captured here rather than read
+     * inside {@link bind}, because a Service reads `ctx` as its *consumer's*
+     * fiber: reading it there would make every caller declare `remote.settings`
+     * in its own `inject`.
+     */
+    constructor(ctx, config) {
+        super(ctx, 'settingsScope');
+        this.mirror = config.mirror;
+        this.schema = config.schema;
+        this.wire = config.wire;
+    }
+    /**
+     * The shared mirror's read/fold face for cross-namespace surfaces (schema
+     * introspection, the served-namespace directory). Per-namespace consumers
+     * use {@link bind}; both derive from the same snapshot, so they can never
+     * disagree about the document.
+     * @returns the describe face over the shared mirror.
+     */
+    describe() {
+        return this.mirror;
+    }
+    /**
+     * Bind one namespace scope on the CALLER's plugin lifecycle — the service
+     * proxy binds `this.ctx` to the caller at call time, so the scope's disposer
+     * belongs to the calling fiber. The scope derives from the shared mirror
+     * (whose invalidation subscriptions live with the providing plugin), so
+     * binding adds no wire read of its own and activation never blocks on the
+     * settings transport.
+     * @param spec - domain-owned namespace contract.
+     * @returns the bound scope consumed by the domain's services and rows.
+     */
+    bind(spec) {
+        const ctx = this.ctx;
+        const connection = ctx.get('connection');
+        const controller = new SettingsScopeController(this.wire, spec, this.mirror, connection.isLoopback ? 'host' : 'memory', this.schema);
+        ctx.effect(() => {
+            void this.mirror.ensure();
+            return async () => {
+                await controller.dispose();
+            };
+        }, `ui-settings: ${spec.namespace} settings scope`);
+        return controller;
+    }
+}

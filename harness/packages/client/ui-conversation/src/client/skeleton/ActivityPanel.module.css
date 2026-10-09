@@ -1,0 +1,317 @@
+/* Activity panel: this chat's subagents, one card each. Sits on the right edge
+   of the view area, matching the Trajectory panel's side and chrome. */
+
+.panel {
+  display: flex;
+  /* Shrinkable, so the conversation keeps its floor before this panel keeps its width. The
+     basis follows the width the user dragged to, when they have set one. */
+  flex: 0 1 var(--dsh-activity-panel-width, 300px);
+  width: var(--dsh-activity-panel-width, 300px);
+  flex-direction: column;
+  width: 300px;
+  min-width: 264px;
+  min-height: 0;
+  border-left: 1px solid var(--dsw-alias-border-l2);
+  background: var(--dsw-alias-bg-layer-1);
+}
+
+/* A flex item's author display wins over the browser's [hidden] rule. */
+.panel[hidden] {
+  display: none;
+}
+
+/* Matches .trajectoryPanelHeader so both side panels share one header rhythm. */
+.header {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 36px;
+  padding: 4px 8px 4px 12px;
+  border-bottom: 1px solid var(--dsw-alias-border-l2);
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--dsw-alias-label-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 18px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.count {
+  flex: none;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--dsw-alias-interactive-bg-hover);
+  color: var(--dsw-alias-label-tertiary);
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+}
+
+.closeButton {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  color: var(--dsw-alias-label-secondary);
+  background: transparent;
+  cursor: pointer;
+}
+
+.closeButton:hover {
+  color: var(--dsw-alias-label-primary);
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.closeButton:focus-visible {
+  outline: 2px solid var(--dsw-alias-state-business-primary);
+  outline-offset: 2px;
+}
+
+/* Content starts at the top and scrolls; nothing is pinned to the bottom, so a
+   short list leaves plain empty space rather than a stranded footer. */
+.body {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 8px;
+  align-content: flex-start;
+  min-height: 0;
+  padding: 10px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* One subagent. The tint variable carries the idle-to-working colour so the
+   meter, the status dot and the reading stay in one visual family. */
+.card {
+  --activity-tint: rgb(52, 168, 116);
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 8px;
+  background: var(--dsw-alias-bg-base);
+}
+
+.cardWorking {
+  border-color: color-mix(in srgb, var(--activity-tint) 45%, var(--dsw-alias-border-l2));
+}
+
+.identity {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+
+.dot {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--activity-tint);
+}
+
+/* Only a working subagent pulses; an idle one stays a steady dot. */
+.dotWorking {
+  animation: activityPulse 1.4s ease-in-out infinite;
+}
+
+@keyframes activityPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+.name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--dsw-alias-label-primary);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 18px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.status {
+  flex: none;
+  padding: 0 6px;
+  border-radius: 4px;
+  background: var(--dsw-alias-interactive-bg-hover);
+  color: var(--dsw-alias-label-tertiary);
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 16px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.statusRunning {
+  background: color-mix(in srgb, var(--activity-tint) 22%, transparent);
+  color: var(--activity-tint);
+}
+
+.statusDone {
+  color: var(--dsw-alias-label-secondary);
+}
+
+.statusIdle {
+  color: var(--dsw-alias-label-tertiary);
+}
+
+.meter {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.meterHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--dsw-alias-label-tertiary);
+  font-size: 11px;
+  line-height: 16px;
+}
+
+.reading {
+  color: var(--activity-tint);
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+}
+
+.readingIdle {
+  color: var(--dsw-alias-label-tertiary);
+}
+
+.contextValue {
+  color: var(--dsw-alias-label-primary);
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+}
+
+/* Decode-rate track. The fill follows the live rate against this worker's own
+   observed peak, so a slow and a fast model each read across the full width. */
+.track {
+  position: relative;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--activity-tint);
+  transition: width 420ms cubic-bezier(0.22, 0.61, 0.36, 1), background-color 420ms ease;
+}
+
+.thumb {
+  position: absolute;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  margin-left: -5px;
+  border: 2px solid var(--dsw-alias-bg-base);
+  border-radius: 999px;
+  background: var(--activity-tint);
+  transform: translateY(-50%);
+  transition: left 420ms cubic-bezier(0.22, 0.61, 0.36, 1), background-color 420ms ease;
+}
+
+.contextTrack {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--dsw-alias-interactive-bg-hover);
+  overflow: hidden;
+}
+
+.contextFill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--dsw-alias-label-tertiary);
+  transition: width 420ms ease;
+}
+
+/* Context pressure is its own axis; warn independently of decode activity. */
+.contextFillHigh {
+  background: rgb(230, 145, 56);
+}
+
+.contextFillCritical {
+  background: rgb(214, 69, 69);
+}
+
+/* Provenance rows: what this worker is and where it ran. */
+.facts {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin: 0;
+  padding-top: 2px;
+  border-top: 1px solid var(--dsw-alias-border-l2);
+}
+
+.fact {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 3px;
+  font-size: 11px;
+  line-height: 16px;
+}
+
+.fact dt {
+  flex: none;
+  color: var(--dsw-alias-label-tertiary);
+}
+
+.fact dd {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  color: var(--dsw-alias-label-secondary);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.empty {
+  margin: 0;
+  padding: 2px;
+  color: var(--dsw-alias-label-tertiary);
+  font-size: 11px;
+  line-height: 17px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fill,
+  .thumb,
+  .contextFill {
+    transition: none;
+  }
+
+  .dotWorking {
+    animation: none;
+  }
+}

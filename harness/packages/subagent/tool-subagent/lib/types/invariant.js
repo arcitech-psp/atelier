@@ -1,0 +1,35 @@
+/**
+ * Package-owned invariant companion for `@deepseek-ai/dsh-tool-subagent`.
+ * @module @deepseek-ai/dsh-tool-subagent/invariant
+ */
+import { subagentModelSelectionPolicy } from "./model-selection-state.js";
+const PACKAGE_NAME = '@deepseek-ai/dsh-tool-subagent';
+/** Cordis companion plugin name. */
+export const name = 'tool-subagent-invariant';
+/** Service required before the companion can reserve package ownership. */
+export const inject = ['invariants'];
+/** Assert that model-selectable definitions are complete and reconstructable. */
+const install = Object.assign((ctx, fail) => {
+    ctx.on('agent/pre-step', async ({ agent }, next) => {
+        const schemas = ctx.tools.schemas(agent);
+        const selectable = schemas.some((schema) => {
+            const properties = schema.parameters.properties;
+            return properties?.['provider'] !== undefined
+                && properties['model'] !== undefined
+                && properties['reasoning_effort'] !== undefined;
+        });
+        const discoverable = schemas.some(schema => schema.name === 'list_subagent_models');
+        if ((selectable || discoverable)
+            && (subagentModelSelectionPolicy(agent.session) === undefined || !selectable || !discoverable)) {
+            fail('model-selectable subagent definitions require a durable policy, route fields, and list_subagent_models');
+        }
+        return next();
+    }, { global: true });
+}, { inject: ['tools'] });
+/**
+ * Register this package's invariant companion.
+ * @param ctx - Cordis context carrying the invariant service.
+ * @returns the installed registration's disposer after setup succeeds.
+ */
+export const apply = (ctx) => Promise.resolve(ctx.invariants.register(PACKAGE_NAME, install));
+/* jscpd:ignore-end */

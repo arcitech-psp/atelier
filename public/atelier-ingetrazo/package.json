@@ -1,0 +1,16 @@
+{
+  "name": "@arcitech/atelier-ingetrazo",
+  "version": "0.1.0-preview",
+  "private": true,
+  "type": "module",
+  "license": "PolyForm-Shield-1.0.0",
+  "exports": {
+    ".": "./index.mjs",
+    "./package.json": "./package.json"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "workspace:^",
+    "@deepseek-ai/dsh-tools": "workspace:^",
+    "@deepseek-ai/dsh-mcp-client": "workspace:^"
+  }
+}

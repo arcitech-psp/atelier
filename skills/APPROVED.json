@@ -1,0 +1,17 @@
+{
+  "canvas-moodboard": {
+    "path": "public/canvas-moodboard",
+    "sha256": "715f10ec50670c7a02c0cfd66aed0902babaae80a188805166986e49d7756c18",
+    "approvedAt": "2026-10-09"
+  },
+  "ingetrazo-live": {
+    "path": "public/ingetrazo-live",
+    "sha256": "1712c44a51237f4f4ef4c4b6e41f527b2ca43cbfcc688db7a9a1aaf81ce25991",
+    "approvedAt": "2026-10-09"
+  },
+  "design-review": {
+    "path": "public/design-review",
+    "sha256": "73a1b549a949d76b9372a84b4d1c17f7cdf2e48844578ea36757229902d79710",
+    "approvedAt": "2026-10-09"
+  }
+}
