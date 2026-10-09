@@ -34,7 +34,7 @@ ATELIER_BASE_URL=http://localhost:8000/v1 ATELIER_MODEL=your-model-id pnpm start
 
 On Windows PowerShell, set the variables first: `$env:ATELIER_BASE_URL="http://localhost:8000/v1"; $env:ATELIER_MODEL="your-model-id"; pnpm start`.
 
-Atelier checks that your endpoint answers, then prints a local address. Open it in your browser (add `-- --open` to `pnpm start` to open it for you), choose a workspace folder, and ask Vitruvius a design question. Full details, settings and the optional extras are in [QUICKSTART.md](QUICKSTART.md).
+Atelier checks that your endpoint answers, then prints a local address. Open it in your browser (add `-- --open` to `pnpm start` to open it for you), choose a workspace folder, and ask Vitruvius a design question. Full details, settings and the optional extras are in [QUICKSTART.md](QUICKSTART.md), and the step-by-step guides (models, IngeTrazo, saving your work, exporting to Unreal Engine, skills, troubleshooting) are in [docs/](docs/README.md).
 
 ## What runs where
 
