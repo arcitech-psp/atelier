@@ -11,6 +11,7 @@ Atelier is a fork of [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-
 ## What is in this preview
 
 - **Vitruvius**: general design help, editable concept plans on a canvas, and material/colour moodboards.
+- **Vitruvius Zero**: the same assistant with the lightest start (about half the startup text), for small local models and modest computers. Chosen automatically for small models.
 - The four stock DeepSeek Harness agent presets (Standard, PTC, Minimal and Creator modes) and its launcher profiles (web, headless, acp, sdk, sdk-minimal).
 - Works with **any OpenAI-compatible model endpoint**, on your computer or elsewhere.
 - Optional: generated moodboard images through your own image endpoint (for example ComfyUI).

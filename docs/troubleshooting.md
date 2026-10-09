@@ -26,7 +26,7 @@ Check `node --version` (24) and `pnpm --version` (10 or newer). Run the command 
 Press Stop and send the message again. Small local models and busy free tiers are the usual cause. A larger context than your model supports also causes failures; set `ATELIER_CONTEXT` to the model's real context length.
 
 ### Vitruvius cannot see my image
-The model must be vision-capable. In the cloud profile, use the `atelier-vision` route.
+The model must be vision-capable, and its entry must say it reads images. For your own endpoint, start once with `ATELIER_VISION=1` (delete `settings.yaml` and `cordis.patch.yml` in your home folder first), or add `input: [ text, image ]` under your model in `settings.yaml`. The same applies to IngeTrazo screenshots. In the cloud profile, use the `atelier-vision` route.
 
 ### The moodboard says images are unavailable
 No image service is connected. Moodboards still work as cards. See [Choosing a model](choosing-a-model.md#optional-images-for-moodboards).
@@ -46,6 +46,9 @@ The sign-in uses port 1455 and falls back to 1456 to 1459. Close whatever holds 
 
 ### IngeTrazo tools do not appear in the chat
 Turn on the bridge in IngeTrazo (AI tab, AI Bridge (MCP), Start bridge), then open a **new** chat. The check runs when a chat opens.
+
+### IngeTrazo tools are missing in a second chat
+IngeTrazo's bridge serves one client at a time, and an earlier chat keeps its connection open. In IngeTrazo, stop and start the bridge (AI tab, AI Bridge (MCP)), or restart Atelier, then open a new chat.
 
 ### The chat waits forever on an IngeTrazo step
 IngeTrazo is probably showing a dialog. Answer it in IngeTrazo; the bridge cannot respond while a dialog is open. The bridge also serves one client at a time, so close other programs that use it.

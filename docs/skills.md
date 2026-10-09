@@ -4,6 +4,8 @@ A model works best when it is not reading a long manual before every answer. Vit
 
 This keeps each step small, which makes answers faster and lets one graphics card serve more people.
 
+**Vitruvius Zero** goes one step further for small models: tools that belong to a skill stay out of the list until that skill loads. The canvas and moodboard tools, for example, appear once `canvas-moodboard` loads. See [Choosing a model](choosing-a-model.md#small-model-or-modest-computer-use-vitruvius-zero).
+
 ## The skills in this preview
 
 | Skill | What it adds | Loads when you ask for |

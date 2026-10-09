@@ -10,7 +10,7 @@ Read in this order the first time:
 4. [Connecting IngeTrazo](ingetrazo.md): live modelling in a real 3D drawing.
 5. [Saving and reopening work](saving-and-reopening.md): where chats, boards and geometry are kept.
 6. [Exporting to Unreal Engine](export-to-unreal.md): IngeTrazo to GLB to Unreal, at real scale.
-7. [Skills on demand](skills.md): how Vitruvius stays light, and how to write your own skill.
+7. [Skills on demand](skills.md): how Vitruvius (and Vitruvius Zero) stays light, and how to write your own skill.
 8. [Troubleshooting](troubleshooting.md)
 9. [Licence in plain words](licence.md)
 10. [Credits](credits.md): the projects Atelier is built on.
@@ -20,6 +20,7 @@ Read in this order the first time:
 | Part | State in 0.1.0-preview |
 |---|---|
 | Atelier app and the Vitruvius profile | Ready. Fresh install and a first chat tested on Windows 11. |
+| Vitruvius Zero (light profile for small models) | New. About half the startup text of Vitruvius. Tested on a 27B model; small-model runs still to come. |
 | Canvas: concept plans, alternatives, moodboards | Ready. Schematic design aids, not drawings. |
 | Local model, model on your network, any OpenAI-compatible API | Ready. Atelier ships no model; you bring one. |
 | Cloud profile (OmniRoute free tiers and your own keys) | Ready. Tested with free tiers. |

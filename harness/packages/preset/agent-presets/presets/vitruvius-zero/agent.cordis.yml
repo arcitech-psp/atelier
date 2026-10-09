@@ -1,0 +1,109 @@
+# Vitruvius Zero: the smallest startup context that still works well, for small local models (4B-9B) and modest hardware.
+# Same Vitruvius, configured lighter (no code fork):
+#   - a short complete persona (no runtime context blobs);
+#   - a core tool set: read/write files, run a command, ask the user, load a skill, and the official IngeTrazo tools;
+#   - the canvas tools appear only after the canvas-moodboard skill is loaded (atelier-tool-diet onDemand);
+#   - short tool descriptions and no parameter descriptions (atelier-tool-diet).
+# Long instructions live in the public skills (./skills/public) and load on demand.
+- id: persona
+  name: '@deepseek-ai/dsh-persona'
+  config:
+    complete: true
+    includeRuntimeContext: false
+    text: |
+      You are Vitruvius Zero, the light design assistant in Atelier by ArciTech. Be brief and work step by step.
+      Think with the triad in this order: Venustas (beauty), Firmitas (soundness), Utilitas (usefulness). When you organise advice by the triad, use exactly those three headings.
+      You know nothing about the user's computer, projects or files until you read them. Never invent tools, files or results.
+      Skills: when a task matches a listed skill, call `skill` with its exact name first, then follow it. ingetrazo-live = 3D modelling in IngeTrazo. canvas-moodboard = plans, diagrams and moodboards on the canvas (loading it adds the canvas tools). design-review = layout critiques.
+      IngeTrazo is optional: its mcp__ingetrazo tools exist only if IngeTrazo was open with its AI bridge on when this chat started. If they are missing, say so and explain: open IngeTrazo, turn on the AI bridge, start a new chat. When the tools are there, "make", "build" or "model" means real geometry: load ingetrazo-live, check the document with query_model, build with run_python (metres, Z up), then read back the real bounds and report them.
+      Honesty: something is done only when a tool result shows it. Report sizes as measured or unverified. Never call a design code-compliant; advise qualified local review for structure, life safety, accessibility and permits.
+      Use ask_user only when a missing fact blocks you; otherwise choose sensible defaults and say which. Read and write files only in the user's workspace; run commands only when the user asks.
+      End with a short summary: what you made, the measured numbers, what is still unchecked.
+
+# Core tools. Files and the shell stay on the host plane (its sandbox and approvals apply), as in the stock presets.
+- id: tool-fs
+  name: '@deepseek-ai/dsh-tool-fs'
+- id: tool-bash
+  name: '@deepseek-ai/dsh-tool-bash'
+  disabled: !!js process.platform === 'win32'
+  config:
+    enableRunInBackground: false
+- id: tool-pwsh
+  name: '@deepseek-ai/dsh-tool-pwsh'
+  disabled: !!js process.platform !== 'win32'
+  config:
+    enableRunInBackground: false
+- id: tool-ask-user
+  name: '@deepseek-ai/dsh-tool-ask-user'
+
+# Canvas and moodboard tools (shown after the canvas-moodboard skill loads; see tool-diet below).
+- id: atelier-design-tools
+  name: '@arcitech/atelier-canvas/tools'
+  config:
+    imageEndpoint: !!js process.env.ATELIER_IMAGE_ENDPOINT || undefined
+    imageKeyEnv: ATELIER_IMAGE_API_KEY
+    imageModel: !!js process.env.ATELIER_IMAGE_MODEL || undefined
+
+# Official IngeTrazo MCP tools, only when the local bridge answers as the chat opens.
+- id: optional-ingetrazo
+  name: '@arcitech/atelier-ingetrazo'
+
+# Skills on demand: one catalogue line per skill; the body loads with the `skill` tool (or /name).
+- id: skill-filesystem
+  name: '@deepseek-ai/dsh-skill-filesystem'
+  config:
+    includeDefaultRoots: false
+    customSkillDirs: !!js (process.env.ATELIER_SKILLS_DIR || process.cwd() + '/skills/public;' + process.cwd() + '/skills/community').split(';')
+- id: tool-skill
+  name: '@deepseek-ai/dsh-tool-skill'
+  config:
+    catalogDescriptionMaxLength: 240
+
+# What the model sees of the tool list. Hidden tools still run if called by name; required parameters are never removed.
+- id: tool-diet
+  name: '@arcitech/atelier-canvas/diet'
+  config:
+    stripParameterDescriptions: true
+    hide:
+      - edit
+      - read_image
+      - mcp__ingetrazo__redo
+    onDemand:
+      canvas-moodboard:
+        - board_draw
+        - moodboard_create
+        - image_generate
+    tools:
+      skill:
+        description: Load a skill's full instructions by its exact name from the skill list.
+      read:
+        description: Read a text file. Returns numbered lines.
+        keep: [offset, limit]
+      write:
+        description: Write a text file (creates or replaces it).
+        keep: []
+      pwsh:
+        description: Run one PowerShell command and return its output. Only when the user asks.
+        keep: [timeoutMs]
+      bash:
+        description: Run one bash command and return its output. Only when the user asks.
+        keep: [timeoutMs]
+      ask_user_question:
+        description: Ask the user a short question, optionally with choices, and wait for the answer.
+      mcp__ingetrazo__run_python:
+        description: >-
+          Run Python in the live IngeTrazo document (metres, Z up, radians); print() what you need to see.
+          In scope: extrude([(x,y),...], z0, z1, name=, color=(r,g,b,1)) for boxes and plan outlines;
+          revolve([(r,z),...], name=, segments=32) for round parts; prism([(x,y,z),...], (dx,dy,dz), name=) for slabs;
+          wall((x,y), (x,y), height=, thickness=, openings=[(offset, sill, width, height)]); g.material = {"color": (r,g,b), "opacity": 1.0}.
+          Each call is one undo step and variables persist. Load the ingetrazo-live skill for the full reference.
+      mcp__ingetrazo__query_model:
+        description: Overview of the IngeTrazo document - groups, materials, bounds.
+      mcp__ingetrazo__screenshot:
+        description: Render the IngeTrazo viewport and look at it.
+      mcp__ingetrazo__undo:
+        description: Undo your last IngeTrazo step.
+      board_draw:
+        description: Draw a plan or diagram on the canvas. Cards are rooms (scaled x, y, width, height) or steps; put sizes and assumptions in notes.
+      moodboard_create:
+        description: Make a colour and material moodboard on the canvas (swatches plus material, texture and lighting cards). Works without images.

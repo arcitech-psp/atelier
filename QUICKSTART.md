@@ -12,7 +12,9 @@ Atelier ships no model. Start any OpenAI-compatible server you like (vLLM, llama
 - the base URL, ending in `/v1` (for example `http://localhost:8000/v1`, or `http://localhost:11434/v1` for Ollama);
 - the model id the server lists at `<base URL>/models`.
 
-Choose a model, quantisation and context length that fit your hardware. A vision-capable model lets Vitruvius read images you attach.
+Choose a model, quantisation and context length that fit your hardware. A vision-capable model lets Vitruvius read images you attach; start once with `ATELIER_VISION=1` so Atelier knows.
+
+Small model (about 14B parameters or fewer, or a 32K context)? Atelier starts you in **Vitruvius Zero**, the lightest profile. Set `ATELIER_TIER=zero` or `ATELIER_TIER=full` on the first start to choose yourself; the profile picker switches at any time.
 
 ## 3. Start Atelier
 

@@ -7,7 +7,8 @@
     "minimal",
     "ptc",
     "cordis",
-    "vitruvius"
+    "vitruvius",
+    "vitruvius-zero"
   ],
   "launcherProfiles": [
     "web",
@@ -12337,6 +12338,58 @@
             "bytes": 5059
           }
         }
+      },
+      {
+        "at": "2026-10-09",
+        "by": "zero-tier",
+        "summary": "Vitruvius Zero preset (light profile for small models: short persona, core tools, canvas tools on demand via the canvas-moodboard skill, compact tool schemas through @arcitech/atelier-canvas/diet); launcher picks Zero for small models (ATELIER_TIER, ATELIER_CONTEXT<=32768 or a <=14B model id) and declares image input with ATELIER_VISION=1; ingetrazo-live skill gains an English helper reference (re-approved); README/QUICKSTART notes.",
+        "files": [
+          {
+            "path": "harness/packages/preset/agent-presets/presets/vitruvius-zero/agent.cordis.yml",
+            "bytes": 6393,
+            "sha256": "aaca8132a7cf33599d68fae564dec38ab5e051877cf705e5fd2a99d5a25097a1"
+          },
+          {
+            "path": "harness/packages/preset/agent-presets/presets/vitruvius-zero/preset.yml",
+            "bytes": 194,
+            "sha256": "39fc96047d80eb4c36311766675f304fa9969e4bf0ed679023d3bc6c28f69568"
+          },
+          {
+            "path": "public/atelier-canvas/diet.mjs",
+            "bytes": 3732,
+            "sha256": "8fc8233f746e5b964223076a0f42f7a03deabfee0f62f72828daa187750d1c19"
+          },
+          {
+            "path": "public/atelier-canvas/package.json",
+            "bytes": 820,
+            "sha256": "782093dfa8f1534a33701b348c32fc5255b63f8015da8c9eac61c83901a082ef"
+          },
+          {
+            "path": "skills/public/ingetrazo-live/SKILL.md",
+            "bytes": 3926,
+            "sha256": "96751e5928eea7c2800f1bc5a40c5a40298955ac0272010c0f1b21ba2e2e3b86"
+          },
+          {
+            "path": "skills/APPROVED.json",
+            "bytes": 536,
+            "sha256": "1ec499f0677dd6eca115be2e6b51586d1ad1812cf5a4c6f04a7443ac75ad902f"
+          },
+          {
+            "path": "start-preview.mjs",
+            "bytes": 8172,
+            "sha256": "16b309959425d14e8755604a74666f558976e21e56ed9856c9dd95681b9202e3"
+          },
+          {
+            "path": "README.md",
+            "bytes": 5610,
+            "sha256": "388370b6082fc390b861386c587089c3b9bd165228633a1e67e44bac1b2925a5"
+          },
+          {
+            "path": "QUICKSTART.md",
+            "bytes": 8880,
+            "sha256": "3ed4bf73820b05effe4ccb10d021cf27a7105df3c8e97a75197dff4f6752c018"
+          }
+        ]
       }
     ]
   }

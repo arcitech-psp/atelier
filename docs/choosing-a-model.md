@@ -31,10 +31,30 @@ A vision-capable model lets Vitruvius look at images you attach.
 |---|---|---|
 | 32 GB | A 27B vision-capable open-weight model, 4-bit, on vLLM. Three chats at once with long context. | Measured in the studio |
 | 16 GB | The same 27B family as a 3-bit GGUF on llama.cpp, about 98K context. Slower. | Measured in the studio |
-| 8 to 12 GB | A 7 to 9B vision-capable instruct model at 4-bit, 32K context, on llama.cpp, LM Studio or Ollama. | Suggestion only, not measured. Expect weaker tool use. |
+| 8 to 12 GB | A 7 to 9B instruct model with tool calling at 4-bit, 32K context, on llama.cpp, LM Studio or Ollama, with **Vitruvius Zero** (below). | A 9B model loaded and answered tool calls on a 12 GB laptop card (about 6 GB used). Full design tasks on it are not measured yet. Expect weaker tool use. |
 | No GPU | Use a cloud route below. | |
 
 Atelier is tuned for Holo-style models, but every model goes through the same path. Each model keeps its own licence; check that it fits how you work.
+
+If your model reads images, add `$env:ATELIER_VISION = "1"` on the first start. Vitruvius can then see the images you attach and its own IngeTrazo screenshots. Without it, the model gets text only.
+
+## Small model or modest computer? Use Vitruvius Zero
+
+**Vitruvius Zero** is the same design assistant with the lightest possible start. Before your first word, every model reads a block of instructions and tool descriptions. A small model has less room and less attention to spare, so Zero keeps that block short:
+
+| Profile | What the model reads before your first message |
+|---|---|
+| Vitruvius Zero | about 1,900 tokens |
+| Vitruvius | about 3,400 tokens |
+| Standard (stock DeepSeek Harness mode) | about 9,200 tokens |
+
+Measured with IngeTrazo connected, on a Qwen-family tokenizer. Fewer tokens mean a faster first answer and more room for your project in a 32K context.
+
+What Zero starts with: a short identity built on the triad; reading and writing files in your workspace; running a single command when you ask; asking you a question; loading a skill; and IngeTrazo's official tools when the bridge is on. Everything else arrives with its [skill](skills.md) when the task needs it. For example, the canvas and moodboard tools appear once the `canvas-moodboard` skill loads, which happens when you ask for a plan, a diagram or a moodboard.
+
+**When Zero is used.** On the first start, Atelier picks Zero for you when the model id names 14B parameters or fewer (for example `qwen3.8-9b` or `llama-3.1-8b`), or when you set `ATELIER_CONTEXT` to 32768 or less. Choose it yourself with `$env:ATELIER_TIER = "zero"`, or keep the full profile with `$env:ATELIER_TIER = "full"`. You can switch at any time in the profile picker; the choice applies to new chats.
+
+**Honest status.** On a 27B model, Zero built and measured the pergola test (about 50 seconds) and the spiral stair with handrail (about 2 minutes). Runs of the same tasks on a 9B model are still to come. With any small model, check what it reports against the drawing.
 
 ## 2. A model server on your network
 

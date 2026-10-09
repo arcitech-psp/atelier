@@ -12,6 +12,8 @@ Choose **Vitruvius** in the profile picker. Vitruvius is the design assistant of
 - **Firmitas**: soundness, structure, durability;
 - **Utilitas**: use, circulation, clearances, the brief.
 
+**Vitruvius Zero** sits next to it: the same assistant with the lightest start, for small models and modest computers. Atelier picks it for you when your model is small; see [Choosing a model](choosing-a-model.md#small-model-or-modest-computer-use-vitruvius-zero).
+
 The four stock DeepSeek Harness modes (Standard, PTC, Minimal and Creator) are there too, for general work.
 
 ## 3. Ask a design question

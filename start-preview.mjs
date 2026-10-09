@@ -5,6 +5,8 @@
 //   ATELIER_BASE_URL   your OpenAI-compatible endpoint, e.g. http://localhost:8000/v1 (used on first run)
 //   ATELIER_MODEL      the model id that endpoint serves (used on first run)
 //   ATELIER_CONTEXT    the model's context window in tokens (used on first run, default 32768)
+//   ATELIER_TIER       "zero" or "full": which Vitruvius new chats start in (first run; small models get Zero automatically)
+//   ATELIER_VISION     "1" if your model reads images (first run): Vitruvius then sees attached images and IngeTrazo screenshots
 //   ATELIER_API_KEY    the endpoint's API key; leave unset for local servers that need none
 //   ATELIER_PORT       the local web port (default 3081)
 //   ATELIER_PROFILE    "cloud" for no local model: cloud AI through OmniRoute and/or your ChatGPT plan (first run)
@@ -26,16 +28,29 @@ const cloud = (process.env.ATELIER_PROFILE ?? '').toLowerCase() === 'cloud';
 const defaultsDir = cloud ? join(here, 'profiles', 'cloud') : join(here, 'defaults');
 // First run: copy the defaults into your home, filling in any endpoint details given by environment.
 const context = Number.parseInt(process.env.ATELIER_CONTEXT ?? '', 10);
+// Small models start in Vitruvius Zero, the lightest profile: ATELIER_TIER=zero, or a context window of 32K tokens or
+// less given in ATELIER_CONTEXT, or a model id that names 14B parameters or fewer (e.g. "qwen3.8-9b", "llama-3.1-8b").
+// ATELIER_TIER=full keeps the normal Vitruvius. Either profile can be picked in the chat's profile list at any time.
+const vision = /^(1|yes|on|true)$/i.test(process.env.ATELIER_VISION ?? '');
+const tier = (process.env.ATELIER_TIER ?? '').toLowerCase();
+const smallModel = tier === 'zero' || (tier !== 'full' && ((context > 0 && context <= 32768)
+  || /(^|[^0-9.])(0?\.\d+|[1-9]|1[0-4])(\.\d+)?b(?![a-z])/i.test(process.env.ATELIER_MODEL ?? '')));
 const fill = text => text
   .replaceAll(HOST, process.env.ATELIER_BASE_URL || HOST)
   .replaceAll(MODEL, process.env.ATELIER_MODEL || MODEL)
-  .replace('contextWindow: 32768', `contextWindow: ${context > 0 ? context : 32768}`);
+  .replace('contextWindow: 32768', `contextWindow: ${context > 0 ? context : 32768}`)
+  // A vision model only sees screenshots and attached images when its entry declares image input.
+  .replace(/^(\s*)contextWindow: (\d+)(\r?\n)/m, (line, indent, _n, eol) => vision && !cloud ? `${line}${indent}input: [ text, image ]${eol}` : line)
+  .replace(/(default: vitruvius)(?=\r?$)/gm, smallModel ? '$1-zero' : '$1');
+const say = line => process.stdout.write(`[atelier] ${line}\n`);
 for (const file of ['settings.yaml', 'cordis.patch.yml']) {
   const target = join(home, file);
-  if (!existsSync(target)) writeFileSync(target, fill(readFileSync(join(defaultsDir, file), 'utf8')));
+  if (!existsSync(target)) {
+    writeFileSync(target, fill(readFileSync(join(defaultsDir, file), 'utf8')));
+    if (smallModel && file === 'settings.yaml') say('Small model: new chats start in Vitruvius Zero, the lightest profile. Pick "Vitruvius" in the profile list for the full one.');
+  }
 }
 
-const say = line => process.stdout.write(`[atelier] ${line}\n`);
 const settings = readFileSync(join(home, 'settings.yaml'), 'utf8');
 const key = process.env.ATELIER_API_KEY || 'not-needed';
 const cloudSettings = settings.includes('127.0.0.1:18345');
