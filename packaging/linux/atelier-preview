@@ -115,10 +115,20 @@ start() {
 stop() {
   if ! running; then say "Atelier is not running."; rm -f "$PIDFILE" "$URLFILE"; return; fi
   pid=$(read_file "$PIDFILE")
-  # The supervisor leads its own session (setsid), so this stops Atelier and everything it started.
-  kill -TERM -- "-$pid" 2>/dev/null || kill -TERM "$pid" 2>/dev/null || true
-  i=0; while kill -0 "$pid" 2>/dev/null && [ $i -lt 20 ]; do sleep 0.5; i=$((i + 1)); done
-  kill -KILL -- "-$pid" 2>/dev/null || true
+  # The supervisor leads its own session (setsid): stop it and every process in that session (Atelier's web
+  # server and anything it started), found by session id, so nothing else on the computer is touched.
+  leader=0; [ "$(ps -o sid= -p "$pid" 2>/dev/null | tr -d ' ')" = "$pid" ] && leader=1
+  members() {
+    if [ "$leader" = "1" ]; then ps -o pid= -s "$pid" 2>/dev/null | tr -d ' ' | grep -v '^$' || true
+    elif kill -0 "$pid" 2>/dev/null; then echo "$pid"; fi
+  }
+  list=$(members); [ -n "$list" ] || list=$pid
+  # shellcheck disable=SC2086
+  kill -TERM $list 2>/dev/null || true
+  i=0; while [ -n "$(members)" ] && [ $i -lt 20 ]; do sleep 0.5; i=$((i + 1)); done
+  list=$(members)
+  # shellcheck disable=SC2086
+  [ -z "$list" ] || kill -KILL $list 2>/dev/null || true
   rm -f "$PIDFILE" "$URLFILE"
   say "Atelier stopped."
 }
