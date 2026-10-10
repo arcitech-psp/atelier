@@ -1,0 +1,14 @@
+#!/bin/sh
+# The `atelier` command on Linux and WSL (install.sh links ~/.local/bin/atelier to this file).
+# `atelier update check|apply|rollback` and `atelier version` always work; other commands run the Atelier CLI.
+set -eu
+self=$(readlink -f "$0")
+ROOT="${ATELIER_INSTALL_ROOT:-$(dirname "$(dirname "$self")")}"
+export ATELIER_INSTALL_ROOT="$ROOT"
+export ATELIER_HOME="${ATELIER_HOME:-${ATELIER_DATA_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/atelier-preview}}"
+version=$(tr -d ' \r\n' < "$ROOT/current" 2>/dev/null || true)
+dir="$ROOT/versions/$version"
+if [ -z "$version" ] || [ ! -x "$dir/runtime/bin/node" ]; then
+  echo "[atelier] Atelier is not installed completely in $ROOT. Run install.sh again." >&2; exit 1
+fi
+exec "$dir/runtime/bin/node" "$dir/app/packaging/cli-entry.mjs" "$@"

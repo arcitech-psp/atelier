@@ -1,0 +1,21 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Atelier Preview
+GenericName=Design assistant
+Comment=Atelier by ARCITECH, a design assistant for architects (powered by DSH)
+Exec=@BIN@/atelier-preview start
+Icon=atelier-preview
+Terminal=false
+Categories=Graphics;Office;
+Keywords=architecture;design;AI;assistant;
+StartupNotify=false
+Actions=Setup;Stop;
+
+[Desktop Action Setup]
+Name=Set up model endpoint
+Exec=@BIN@/atelier-preview setup
+
+[Desktop Action Stop]
+Name=Stop Atelier
+Exec=@BIN@/atelier-preview stop

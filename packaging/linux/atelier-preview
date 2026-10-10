@@ -1,0 +1,152 @@
+#!/bin/sh
+# Atelier launcher for Linux and WSL. Installed as ~/.local/bin/atelier-preview by install.sh.
+#
+#   atelier-preview            start Atelier (if needed) and open it in your browser
+#   atelier-preview setup      open the model endpoint setup
+#   atelier-preview stop       stop Atelier
+#   atelier-preview status     is it running, which version, where are the files
+#   atelier-preview logs       show the end of the current log
+#   atelier-preview update     check GitHub Releases and install a newer version beside this one
+#   atelier-preview rollback   go back to the previous version (on the next start)
+#   atelier-preview restart    restart (applies an installed update or rollback)
+#   atelier-preview uninstall  remove Atelier (your chats and settings stay unless you add --purge)
+#
+# Environment: ATELIER_PORT, ATELIER_LISTEN, ATELIER_NO_BROWSER=1, ATELIER_INSTALL_ROOT, ATELIER_DATA_DIR,
+# and the model variables in QUICKSTART.md (ATELIER_BASE_URL, ATELIER_MODEL, ATELIER_API_KEY, ...).
+set -eu
+
+ROOT="${ATELIER_INSTALL_ROOT:-${XDG_DATA_HOME:-$HOME/.local/share}/atelier-preview}"
+DATA="${ATELIER_DATA_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/atelier-preview}"
+RUN="$DATA/run"
+LOGS="$DATA/logs"
+URLFILE="$RUN/url.json"
+PIDFILE="$RUN/supervisor.pid"
+mkdir -p "$RUN" "$LOGS"
+chmod 700 "$DATA" "$RUN" 2>/dev/null || true
+
+say() { printf '%s\n' "[atelier] $*"; }
+is_wsl() { grep -qi microsoft /proc/version 2>/dev/null; }
+read_file() { [ -f "$1" ] && tr -d ' \r\n' < "$1" || true; }
+usable() { [ -n "$1" ] && [ -f "$ROOT/versions/$1/app/start-preview.mjs" ] && [ -x "$ROOT/versions/$1/runtime/bin/node" ]; }
+
+# A staged update or rollback becomes current on start; the old current is kept as previous.
+promote() {
+  current=$(read_file "$ROOT/current")
+  pending=$(read_file "$ROOT/pending")
+  if [ -n "$pending" ]; then
+    if usable "$pending" && [ "$pending" != "$current" ]; then
+      [ -n "$current" ] && printf '%s' "$current" > "$ROOT/previous"
+      printf '%s' "$pending" > "$ROOT/current"
+      say "switched from ${current:-nothing} to $pending" >&2
+      current=$pending
+    fi
+    rm -f "$ROOT/pending"
+  fi
+  if ! usable "$current"; then
+    previous=$(read_file "$ROOT/previous")
+    if usable "$previous"; then say "version $current is incomplete; using $previous" >&2; current=$previous; fi
+  fi
+  printf '%s' "$current"
+}
+
+running() { pid=$(read_file "$PIDFILE"); [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; }
+
+json_field() { sed -n "s/.*\"$1\":\"\([^\"]*\)\".*/\1/p" "$URLFILE" 2>/dev/null; }
+
+open_url() {
+  url=$1
+  if [ "${ATELIER_NO_BROWSER:-}" = "1" ]; then say "Open this address in your browser (keep it private; it carries your login token):"; printf '%s\n' "$url"; return; fi
+  if is_wsl; then
+    if command -v wslview >/dev/null 2>&1; then wslview "$url" >/dev/null 2>&1 && return; fi
+    explorer.exe "$url" >/dev/null 2>&1 || true
+    return
+  fi
+  if command -v xdg-open >/dev/null 2>&1; then xdg-open "$url" >/dev/null 2>&1 &
+  else say "Open this address in your browser:"; printf '%s\n' "$url"; fi
+}
+
+open_app() {
+  setup=${1:-}
+  if grep -q '"setupNeeded":true' "$URLFILE" 2>/dev/null; then setup=1; fi
+  if [ -n "$setup" ]; then open_url "$(json_field setupUrl)"; else open_url "$(json_field url)"; fi
+}
+
+supervise() {
+  # Runs in the background: restart after an update (exit code 75), stop on anything else.
+  while :; do
+    version=$(promote)
+    if ! usable "$version"; then say "Atelier is not installed completely in $ROOT. Run install.sh again."; exit 1; fi
+    dir="$ROOT/versions/$version"
+    rm -f "$URLFILE"
+    say "starting Atelier $version at $(date '+%Y-%m-%d %H:%M:%S')"
+    code=0
+    ATELIER_HOME="$DATA" ATELIER_INSTALL_ROOT="$ROOT" DSH_TELEMETRY_DISABLED=1 \
+      "$dir/runtime/bin/node" "$dir/app/start-preview.mjs" --url-file "$URLFILE" || code=$?
+    rm -f "$URLFILE"
+    if [ "$code" -ne 75 ]; then say "Atelier exited with code $code"; exit "$code"; fi
+    say "restarting for an update or rollback"
+  done
+}
+
+start() {
+  if running && [ -f "$URLFILE" ]; then open_app "${1:-}"; return; fi
+  if running; then say "Atelier is starting; waiting for it..."
+  else
+    # WSL: listen on 127.0.0.1 so the Windows browser reaches it through WSL's localhost forwarding.
+    if is_wsl && [ -z "${ATELIER_LISTEN:-}" ]; then ATELIER_LISTEN=127.0.0.1; export ATELIER_LISTEN; fi
+    log="$LOGS/atelier-$(date '+%Y%m%d-%H%M%S').log"
+    ls -1t "$LOGS"/atelier-*.log 2>/dev/null | tail -n +10 | while read -r old; do rm -f "$old"; done
+    if command -v setsid >/dev/null 2>&1; then setsid "$0" __supervise >> "$log" 2>&1 < /dev/null &
+    else nohup "$0" __supervise >> "$log" 2>&1 < /dev/null & fi
+    printf '%s' "$!" > "$PIDFILE"
+    say "starting Atelier (log: $log)"
+  fi
+  waited=0
+  while [ ! -s "$URLFILE" ]; do
+    if ! running; then say "Atelier stopped while starting. The end of the log:"; tail -n 15 "$(ls -1t "$LOGS"/atelier-*.log | head -n 1)"; exit 1; fi
+    if [ "$waited" -ge 480 ]; then say "Atelier is taking unusually long to start; see $LOGS"; exit 1; fi
+    sleep 0.5; waited=$((waited + 1))
+  done
+  port=$(sed -n 's/.*"port":\([0-9]*\).*/\1/p' "$URLFILE")
+  say "Atelier is running on http://localhost:$port/"
+  open_app "${1:-}"
+}
+
+stop() {
+  if ! running; then say "Atelier is not running."; rm -f "$PIDFILE" "$URLFILE"; return; fi
+  pid=$(read_file "$PIDFILE")
+  # The supervisor leads its own session (setsid), so this stops Atelier and everything it started.
+  kill -TERM -- "-$pid" 2>/dev/null || kill -TERM "$pid" 2>/dev/null || true
+  i=0; while kill -0 "$pid" 2>/dev/null && [ $i -lt 20 ]; do sleep 0.5; i=$((i + 1)); done
+  kill -KILL -- "-$pid" 2>/dev/null || true
+  rm -f "$PIDFILE" "$URLFILE"
+  say "Atelier stopped."
+}
+
+updater() {
+  version=$(promote)
+  usable "$version" || { say "Atelier is not installed in $ROOT."; exit 1; }
+  ATELIER_HOME="$DATA" ATELIER_INSTALL_ROOT="$ROOT" \
+    "$ROOT/versions/$version/runtime/bin/node" "$ROOT/versions/$version/app/public/atelier-updates/cli.mjs" "$@"
+}
+
+command=${1:-start}
+case "$command" in
+  start|open) start ;;
+  setup) start 1 ;;
+  stop) stop ;;
+  restart) stop; start ;;
+  status)
+    if running; then say "running (supervisor $(read_file "$PIDFILE"))"; else say "not running"; fi
+    updater status
+    say "your chats and settings: $DATA" ;;
+  logs) tail -n 60 "$(ls -1t "$LOGS"/atelier-*.log 2>/dev/null | head -n 1)" ;;
+  update) shift; updater "${1:-install}" ;;
+  rollback) updater rollback ;;
+  auto-update) shift; updater auto "${1:-}" ;;
+  version) updater status | head -n 1 ;;
+  uninstall) shift; stop >/dev/null 2>&1 || true; sh "$ROOT/versions/$(promote)/uninstall.sh" "$@" ;;
+  __supervise) supervise ;;
+  -h|--help|help) sed -n '2,16p' "$0" | sed 's/^# \{0,1\}//' ;;
+  *) say "unknown command: $command (try atelier-preview help)"; exit 2 ;;
+esac
