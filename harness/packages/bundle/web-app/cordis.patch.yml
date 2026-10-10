@@ -80,6 +80,11 @@
     - id: ui-directory-picker-browse
       name: '@deepseek-ai/dsh-client-ui-directory-picker-browse'
 
+    # Atelier: Settings > About and updates (version, DSH credit, Check for updates, opt-in automatic
+    # updates, roll back). It contacts GitHub only when the person asks or turns automatic updates on.
+    - id: atelier-updates
+      name: '@arcitech/atelier-updates'
+
     # Read-only projection of current Loader entries for trusted client RPCs.
     - id: plugin-inventory
       name: '@deepseek-ai/dsh-host-plugin-inventory'
