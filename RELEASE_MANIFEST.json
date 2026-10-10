@@ -31,6 +31,12 @@
       "license": "PolyForm-Shield-1.0.0"
     },
     {
+      "name": "@arcitech/atelier-roles",
+      "version": "0.1.0-preview",
+      "path": "public/atelier-roles",
+      "license": "PolyForm-Shield-1.0.0"
+    },
+    {
       "name": "@deepseek-ai/cordis",
       "version": "4.0.1",
       "path": "harness/vendor/cordis",
@@ -12388,6 +12394,103 @@
             "path": "QUICKSTART.md",
             "bytes": 8880,
             "sha256": "3ed4bf73820b05effe4ccb10d021cf27a7105df3c8e97a75197dff4f6752c018"
+          }
+        ]
+      },
+      {
+        "at": "2026-10-10",
+        "by": "model-roles",
+        "summary": "Model roles: Settings > Model roles shows each model Atelier uses (brain, vision, speech to text, text to speech, embeddings, image generation, small helper) with status, Test and Use default; bring your own OpenAI-compatible endpoint per role, keys in the local credentials store; dictation, Read aloud, look_at_image and search_project_files appear only when their role is connected; opt-in Set me up kit (pinned llama.cpp b11552 + Qwen3-VL GGUF + EmbeddingGemma 2, optional whisper.cpp) with space check, resume, cancel and SHA-256 checks; first-run route #model-roles and pnpm roles; docs/ROLES_SETUP.md.",
+        "files": [
+          {
+            "path": "public/atelier-roles/package.json",
+            "bytes": 1000,
+            "sha256": "cac928657b2e39eba6af1e13a69a5917537ceda1a0590f688a105bd822c5b638"
+          },
+          {
+            "path": "public/atelier-roles/roles.mjs",
+            "bytes": 13824,
+            "sha256": "c61451cecef7e97bc8316e7a53ba0ed9fb65601e5ecd66acb95de907b5323787"
+          },
+          {
+            "path": "public/atelier-roles/index.mjs",
+            "bytes": 20879,
+            "sha256": "12a917dcd9ee36d2578f191ee03859f6b59990d259fce86d60dd4909e9e72cbb"
+          },
+          {
+            "path": "public/atelier-roles/setup.mjs",
+            "bytes": 16940,
+            "sha256": "810e034fc3121222918f8fd1f97e97c8127740d7b0e1261a7a415bb77d04a67d"
+          },
+          {
+            "path": "public/atelier-roles/tools.mjs",
+            "bytes": 8775,
+            "sha256": "f223a6929bcf99f666e0c59139d513ce862c940d79b3797bb89fb6b93ef1e5e6"
+          },
+          {
+            "path": "public/atelier-roles/client.js",
+            "bytes": 26229,
+            "sha256": "283974dc43f269e25745b3e90e4ec952b793cf4583bcd7f0ccc3dcc212f2a9aa"
+          },
+          {
+            "path": "public/atelier-roles/cli.mjs",
+            "bytes": 4560,
+            "sha256": "98463e4dda0034d4ee37531a2c25a84ba3577522d02ac1968d1362fd2e25bb89"
+          },
+          {
+            "path": "public/atelier-canvas/tools.mjs",
+            "bytes": 4797,
+            "sha256": "a1b4a4a410ae3b2e6aa844be083dca4441506b84990feaec3291e10ece524267"
+          },
+          {
+            "path": "defaults/cordis.patch.yml",
+            "bytes": 552,
+            "sha256": "483d6def77ee5eadb28e01353c7f61f1ec24a277ec0cbb8701368cb7813ae1eb"
+          },
+          {
+            "path": "profiles/cloud/cordis.patch.yml",
+            "bytes": 671,
+            "sha256": "c000422384a47ea3f841f1ce6ef14daa8bfd1a239d01f42d7a01e1869f1f4ea8"
+          },
+          {
+            "path": "harness/packages/preset/agent-presets/presets/vitruvius/agent.cordis.yml",
+            "bytes": 5226,
+            "sha256": "0e4c2d1a78e2b4852373685dfb84d73eb53db09a24461f065573da5bfbb578ac"
+          },
+          {
+            "path": "harness/packages/preset/agent-presets/presets/vitruvius-zero/agent.cordis.yml",
+            "bytes": 6452,
+            "sha256": "c6a93b6dc3dfd93669634617ad8b4ec9e9df53a1d37db4704cb81438dcd7d223"
+          },
+          {
+            "path": "package.json",
+            "bytes": 12589,
+            "sha256": "737d28cefa18c60a8c9ce27336daa6d48c673103ccf57f3f32407d1d480228fe"
+          },
+          {
+            "path": "harness/apps/cli/package.json",
+            "bytes": 4417,
+            "sha256": "0962fdf017871931007bcb7d75f3e9782eb771bc697015da15b95a8cb9c9afab"
+          },
+          {
+            "path": "pnpm-lock.yaml",
+            "bytes": 356287,
+            "sha256": "a1f25dc25b7b9a41fc3abbaf227ace0a83e6132ab883dbaf95c0eace8d2aeb09"
+          },
+          {
+            "path": "docs/ROLES_SETUP.md",
+            "bytes": 10796,
+            "sha256": "ccf26b082ae400e9a9c67b6cf7d4f1e4a6f653641c0260542ef4868bf7294120"
+          },
+          {
+            "path": "docs/README.md",
+            "bytes": 2899,
+            "sha256": "95810c92fcebb0d0aac1f6fd9330232f6687d619df4c5835b6ebe1bd9eec48fa"
+          },
+          {
+            "path": "README.md",
+            "bytes": 6980,
+            "sha256": "19524a463f60578fe37c73f6bd1fab0344efcf3859e5198614bde6d332533071"
           }
         ]
       }

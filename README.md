@@ -17,11 +17,24 @@ Atelier is a fork of [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-
 - Optional: generated moodboard images through your own image endpoint (for example ComfyUI).
 - Optional: live modelling in IngeTrazo, which you install separately.
 
-Not in this preview: voice, search over your own files (RAG), wind studies, the tablet app and the full brief-to-board workflow. They follow as each piece is proven.
+New and optional: dictation, "Read aloud" and meaning-based search over your project folder, each switched on when you connect the model for it (see below). Not in this preview: wind studies, the tablet app and the full brief-to-board workflow. They follow as each piece is proven.
 
-## Bring your own model
+## Bring your own models
 
-Atelier does not include or require any particular model. Run whichever LLM you like behind an OpenAI-compatible endpoint (vLLM, llama.cpp, Ollama, LM Studio, a hosted API) and point Atelier at it. A vision-capable model lets Vitruvius read images you attach. Atelier is tuned for Holo-style models, but every model works through the same default path. Each model keeps its own licence; check it fits how you work.
+Atelier does not include or require any particular model. It uses a few models, each for one job, and you choose every one of them under **Settings > Model roles**:
+
+| Role | What it does | Needed? |
+|---|---|---|
+| Brain | Talks with you, plans and uses the tools. Vision-capable is best. | Yes |
+| Vision | Looks at images, only if your brain cannot. | Optional |
+| Speech to text / Text to speech | Dictation and "Read aloud". | Optional |
+| Embeddings | Finds the right notes and documents in your project by meaning. | Optional |
+| Image generation | Concept images for moodboards (for example through ComfyUI). | Optional |
+| Small helper | A fast small model for quick side jobs. | Optional |
+
+Each role takes any OpenAI-compatible address (Ollama, LM Studio, llama.cpp, vLLM, OmniRoute for cloud models, whisper.cpp, Kokoro and others), shows whether it is connected, and has a **Test** button. Keys stay on your computer. A role you leave empty just switches its feature off.
+
+No model server yet? **Set me up** downloads a small working set (official llama.cpp servers, a Qwen3-VL brain sized for your graphics card and EmbeddingGemma 2, from 1.9 GB) into a folder you choose, after showing the sizes and checking your disk space, verifies every file and connects the roles. It is opt-in and nothing downloads until you press the button. Atelier is tuned for the ARCITECH recommended brain on Hugging Face, but every model works through the same path. Each model keeps its own licence; check it fits how you work. Full guide: [docs/ROLES_SETUP.md](docs/ROLES_SETUP.md).
 
 ## Quick start
 
