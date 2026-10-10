@@ -4,16 +4,17 @@ Atelier is a studio assistant for architects, interior designers and students. Y
 
 Read in this order the first time:
 
-1. [Getting started](getting-started.md): install on Windows, what you need, what was tested.
-2. [Choosing a model](choosing-a-model.md): your own graphics card, a model server on your network, free cloud tiers, your own API keys, or your ChatGPT plan.
+1. [Installing Atelier](INSTALL.md): Windows installer, Linux and WSL, updates, uninstalling. ([Getting started](getting-started.md) is the short version.)
+2. [Add your endpoint](add-your-endpoint.md): connect Ollama, LM Studio, llama.cpp, vLLM, a URL with a key, free cloud tiers or your ChatGPT plan; which model for which graphics card. More in [Choosing a model](choosing-a-model.md).
 3. [Your first chat](first-chat.md): workspace, Vitruvius, the canvas and moodboards.
 4. [Connecting IngeTrazo](ingetrazo.md): live modelling in a real 3D drawing.
 5. [Saving and reopening work](saving-and-reopening.md): where chats, boards and geometry are kept.
 6. [Exporting to Unreal Engine](export-to-unreal.md): IngeTrazo to GLB to Unreal, at real scale.
 7. [Skills on demand](skills.md): how Vitruvius (and Vitruvius Zero) stays light, and how to write your own skill.
-8. [Troubleshooting](troubleshooting.md)
+8. [Troubleshooting](troubleshooting.md) and the [FAQ](FAQ.md)
 9. [Licence in plain words](licence.md)
 10. [Credits](credits.md): the projects Atelier is built on.
+11. For maintainers: [Following DSH releases](UPSTREAM_SYNC.md).
 
 ## What is in this preview, honestly
 

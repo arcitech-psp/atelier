@@ -89,7 +89,7 @@ export const en = {
     create: 'Create provider',
     creating: 'Creating\u2026',
     welcomeTitle: 'Welcome to the Atelier preview',
-    welcomeBody: "Atelier is a public preview built on DeepSeek Harness (MIT) by DeepSeek-AI. It ships no model: it talks only to the OpenAI-compatible endpoint you configure, on your computer or elsewhere. What you type goes to that endpoint and nowhere else.\n\nPlans, moodboards and images are design aids, not engineering. Check dimensions and clearances as you would a junior's drawing, and get qualified local review for structure, life safety, accessibility and permits. Tell us what breaks: arcitech.team@outlook.com.",
+    welcomeBody: "Atelier is a public preview built on DeepSeek Harness (MIT) by DeepSeek-AI. It ships no model: it talks only to the OpenAI-compatible endpoint you configure, on your computer or elsewhere. What you type goes to that endpoint and nowhere else.\n\nPlans, moodboards and images are design aids, not engineering. Check dimensions and clearances as you would a junior's drawing, and get qualified local review for structure, life safety, accessibility and permits. Tell us what breaks: parthpatel266@gmail.com.",
     welcomeContinue: 'Continue',
     welcomeError: 'The acknowledgement could not be saved. Please try again.',
     onboardingTitle: 'Add an API key to get started',

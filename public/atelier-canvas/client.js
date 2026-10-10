@@ -38,7 +38,7 @@ window.__ModuleLoader__.load({id: '@arcitech/atelier-canvas', factory: require =
     };
     ctx.slots.inject('conversation.session.header.utilities', () => ctx.slots.register({name: 'conversation.session.header.utilities', id: 'atelier-canvas', order: 80}, Header));
     ctx.slots.inject('conversation.session.side-panel', () => ctx.slots.register({name: 'conversation.session.side-panel', priority: 80}, Panel));
-    const Brand = () => h('span', {title: 'Atelier by ArciTech, built on DSH'}, 'Atelier by ArciTech');
+    const Brand = () => h('span', {title: 'Atelier by ARCITECH — powered by DSH (DeepSeek Harness)'}, 'Atelier by ARCITECH');
     const Mark = () => h('span', {'aria-label': 'Atelier'}, 'AT');
     ctx.slots.inject('sidebar.brand.name', () => ctx.slots.register({name: 'sidebar.brand.name', priority: 100}, Brand));
     ctx.slots.inject('sidebar.brand.mark', () => ctx.slots.register({name: 'sidebar.brand.mark', priority: 100}, Mark));

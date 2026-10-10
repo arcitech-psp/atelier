@@ -1,6 +1,6 @@
-# Notices for Atelier by ArciTech
+# Notices for Atelier by ARCITECH
 
-Atelier by ArciTech (public preview 0.1.0-preview) is built on DeepSeek Harness.
+Atelier by ARCITECH (public preview 0.1.0-preview) is built on DeepSeek Harness.
 
 ## DeepSeek Harness
 
@@ -28,17 +28,17 @@ install IngeTrazo yourself, Atelier starts its official MCP server as a separate
 
 The optional panel in `ingetrazo-plugin/atelier_panel` is a separate work licensed
 GPL-3.0-or-later, with its full licence text beside it. That grant applies to the panel only. The folder `ingetrazo-plugin/` stays GPL-3.0-or-later whichever licence
-is chosen for the rest of ArciTech's additions, and its contributors keep that licence.
+is chosen for the rest of ARCITECH's additions, and its contributors keep that licence.
 
 ## Models
 
 No model weights are included. Every model you connect keeps its own licence.
 
-## ArciTech additions
+## ARCITECH additions
 
 Vitruvius, the Atelier canvas and brand plugin (`public/atelier-canvas`) and the IngeTrazo
-connector (`public/atelier-ingetrazo`) are by ArciTech. See `LICENSE` for their terms.
+connector (`public/atelier-ingetrazo`) are by ARCITECH. See `LICENSE` for their terms.
 
-"Atelier", "ArciTech" and the AT logo are reserved for the official build; see `TRADEMARK.md`. How to contribute: `CONTRIBUTING.md`.
+"Atelier", "ARCITECH" and the AT logo are reserved for the official build; see `TRADEMARK.md`. How to contribute: `CONTRIBUTING.md`.
 
-Contact: arcitech.team@outlook.com
+Contact: parthpatel266@gmail.com

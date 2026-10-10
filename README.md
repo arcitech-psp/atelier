@@ -1,11 +1,30 @@
-# Atelier by ArciTech
+# Atelier by ARCITECH
 
-**A local AI studio assistant for architects, interior designers and students.**
+**A design assistant for architects, interior designers and students, on your own computer.**
+*Atelier by ARCITECH — powered by DSH (DeepSeek Harness).*
 
-You describe the project; Atelier works through it with you, one visible step at a time, on your own computer. You can stop it, change the plan or take over at any time.
+[![Download for Windows](https://img.shields.io/badge/Download-Windows%2010%2F11-2b2b2b?style=for-the-badge&logo=windows)](https://github.com/arcitech-psp/atelier/releases/latest/download/Atelier-Preview-0.1.0-Setup.exe)
+[![Download for Linux and WSL](https://img.shields.io/badge/Download-Linux%20%26%20WSL-2b2b2b?style=for-the-badge&logo=linux)](https://github.com/arcitech-psp/atelier/releases/latest/download/atelier-preview-0.1.0-linux-x64.tar.gz)
+[![All releases](https://img.shields.io/github/v/release/arcitech-psp/atelier?include_prereleases&style=for-the-badge&label=release)](https://github.com/arcitech-psp/atelier/releases)
+
+You describe the project; Atelier works through it with you, one visible step at a time. You can stop it, change the plan or take over at any time.
 
 > **Status: public preview (0.1.0-preview).** Expect rough edges, and please tell us what breaks.
 
+## Install in two minutes
+
+- **Windows 10/11:** download the installer above, open it, click through. It installs for your user only (no administrator rights), adds a Start menu entry (ARCITECH > Atelier Preview) and a desktop icon, and brings everything it needs. Not code-signed yet: if SmartScreen warns, choose **More info > Run anyway**.
+- **Linux and WSL2 (Ubuntu 22.04/24.04):** download the archive, then `tar -xzf atelier-preview-0.1.0-linux-x64.tar.gz && cd atelier-preview-0.1.0-linux-x64 && ./install.sh`.
+- Then **connect your model** on the Model roles page that opens the first time: Ollama, LM Studio, llama.cpp, vLLM, any OpenAI-compatible URL with a key, free cloud tiers through OmniRoute, or your ChatGPT plan.
+
+Step by step with pictures: [Installing Atelier](docs/INSTALL.md) · [Add your endpoint](docs/add-your-endpoint.md) · [FAQ](docs/FAQ.md) · [Troubleshooting](docs/troubleshooting.md). Updates are in Settings > Updates: you check when you like (automatic updates are off unless you turn them on), and every update can be rolled back.
+
+## Name and credits
+
+- **Atelier** is the product. **ARCITECH** is the studio that makes it; "AT" is ARCITECH's mark, not a product name.
+- Atelier is built on **[DSH (DeepSeek Harness)](https://github.com/deepseek-ai/deepseek-harness)** by DeepSeek-AI, MIT licence: the agent engine, tools, sessions and web app. The About box says which DSH release is inside (now 0.1.2-alpha.1), and Atelier follows new DSH releases ([how](docs/UPSTREAM_SYNC.md)). Package names keep their upstream `@deepseek-ai/dsh-*` names so that following DSH stays easy.
+- **[IngeTrazo](https://github.com/ingelibre/ingetrazo)** by Marco Sumari Tellez and contributors (GPL-3.0-or-later) is the optional modelling program Atelier can drive. It is installed separately, never bundled.
+- Contact: parthpatel266@gmail.com, or GitHub Issues.
 Atelier is a fork of [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) by DeepSeek-AI (MIT licence). We added **Vitruvius**, a design-assistant profile built on the classic triad *Venustas* (beauty), *Firmitas* (soundness) and *Utilitas* (usefulness), a design canvas with material and colour moodboards, and an optional bridge to [IngeTrazo](https://github.com/ingelibre/ingetrazo) for live modelling.
 
 ## What is in this preview
@@ -21,11 +40,11 @@ Not in this preview: voice, search over your own files (RAG), wind studies, the 
 
 ## Bring your own model
 
-Atelier does not include or require any particular model. Run whichever LLM you like behind an OpenAI-compatible endpoint (vLLM, llama.cpp, Ollama, LM Studio, a hosted API) and point Atelier at it. A vision-capable model lets Vitruvius read images you attach. Atelier is tuned for Holo-style models, but every model works through the same default path. Each model keeps its own licence; check it fits how you work.
+Atelier does not include or require any particular model. Run whichever LLM you like behind an OpenAI-compatible endpoint (vLLM, llama.cpp, Ollama, LM Studio, a hosted API) and point Atelier at it. A vision-capable model lets Vitruvius read images you attach. Atelier is tuned for 27B-class vision models such as Qwen3.8-27B (Apache-2.0), but every model works through the same path. Each model keeps its own licence; check it fits how you work.
 
-## Quick start
+## Run from the source code
 
-You need [Node.js 24](https://nodejs.org/) and pnpm 10 or newer (`npm install -g pnpm`).
+For developers. You need [Node.js 24](https://nodejs.org/) (the tested version is in `.node-version`); `corepack enable` provides the pinned pnpm 10.34.6.
 
 ```sh
 pnpm install --frozen-lockfile
@@ -48,7 +67,7 @@ Atelier checks that your endpoint answers, then prints a local address. Open it 
 
 ## Privacy
 
-Atelier sends no telemetry. The upstream DeepSeek Harness telemetry and session-title plugins are switched off in the shipped defaults, and the launcher sets `DSH_TELEMETRY_DISABLED=1`. Atelier talks only to the model and image endpoints you configure, to IngeTrazo on your own computer, and to web pages the agent fetches when you ask it to. The stock web-search tool calls DeepSeek's search API only if you set your own `DEEPSEEK_API_KEY`.
+Atelier sends no telemetry. The upstream DeepSeek Harness telemetry and session-title plugins are switched off in the shipped defaults, and the launcher sets `DSH_TELEMETRY_DISABLED=1`. Atelier talks only to the model and image endpoints you configure, to IngeTrazo on your own computer, and to web pages the agent fetches when you ask it to. The stock web-search tool calls DeepSeek's search API only if you set your own `DEEPSEEK_API_KEY`. Atelier contacts GitHub only when you press **Check for updates** in Settings > Updates, or if you turn automatic updates on (off by default).
 
 ## Honest limits
 
@@ -72,4 +91,4 @@ The optional IngeTrazo panel in `ingetrazo-plugin/atelier_panel` is a separate G
 
 ## Community
 
-Issues and ideas: GitHub Issues. Email: arcitech.team@outlook.com.
+Issues and ideas: GitHub Issues. Email: parthpatel266@gmail.com.

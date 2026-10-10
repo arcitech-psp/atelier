@@ -2,8 +2,26 @@
 
 ## Starting Atelier
 
-### "No model endpoint is set yet"
-Set `ATELIER_BASE_URL` and `ATELIER_MODEL` for the first run, or edit `settings.yaml` in your Atelier home folder. For the cloud routes, start with `ATELIER_PROFILE=cloud`.
+### The installer or SmartScreen warns about the file
+The installer is not code-signed yet. Check its fingerprint ([how](INSTALL.md#is-the-download-genuine)), then choose **More info > Run anyway**.
+
+### Nothing seems to happen when I start Atelier (Windows)
+The first start takes about half a minute. Look for the AT icon next to the clock (click the arrow to show hidden icons). If Atelier stops, it shows a message with the end of its log; the full log is in `%APPDATA%\Atelier-Preview\logs` (tray icon > **Open logs folder**). On Linux and WSL: `atelier-preview logs`.
+
+### `atelier` is not recognised in a terminal
+Open a **new** terminal after installing (the installer adds the command to your PATH). In Windows PowerShell, if scripts are disabled, `atelier.cmd` still works, or run `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` once. On Linux and WSL, check that `~/.local/bin` is on your PATH.
+
+### "Atelier needs Node.js 24"
+Only when you run from the source code: install Node.js 24 LTS, or use the installer, which brings its own.
+
+### "No model is connected yet"
+Connect your model on the Model roles page (Settings > Model roles), see [Add your endpoint](add-your-endpoint.md). From a terminal you can instead set `ATELIER_BASE_URL` and `ATELIER_MODEL` for the first run. For the cloud routes, start with `ATELIER_PROFILE=cloud`.
+
+### Update check: "No public releases found"
+The release page has nothing published for your system yet, or GitHub cannot be reached. Try again later; nothing on your computer changed.
+
+### After an update something is wrong
+Settings > Updates > **Roll back to** the previous version (or `atelier update rollback`), then restart Atelier. Please tell us what broke.
 
 ### "Could not reach ..."
 Start the model server first. Check that the address ends in `/v1` and that the port is right (Ollama uses 11434, many others 8000). For a server on another machine, check that it listens on the network and not only on itself.
@@ -15,10 +33,10 @@ The model id does not match. Copy one of the ids Atelier lists into `settings.ya
 Set `ATELIER_API_KEY`. Local servers usually need none.
 
 ### Port already in use
-Something else is using port 3081. Start with `$env:ATELIER_PORT = "3082"; pnpm start`. If you use the IngeTrazo panel, change its port to match.
+Atelier normally takes port 3081 and moves to the next free port by itself (it says which). If you set `ATELIER_PORT` and that port is busy, it stops and tells you; choose another, e.g. `ATELIER_PORT=3082`. If you use the IngeTrazo panel, change its port to match.
 
-### `pnpm install` fails
-Check `node --version` (24) and `pnpm --version` (10 or newer). Run the command from the Atelier folder itself.
+### `pnpm install` fails (source code only)
+Check `node --version` (24). Run `corepack enable` once so the pinned pnpm (10.34.6) is used, then `pnpm install --frozen-lockfile` from the Atelier folder itself.
 
 ## Chatting
 
@@ -92,4 +110,4 @@ Turn Nanite off for that static mesh and adjust the glass material instance. See
 
 ## Still stuck
 
-Open an issue on GitHub with your Windows version, `node --version`, `pnpm --version`, the model route you use and the exact message. Never paste API keys, tokens, login addresses or client material into an issue. Email: arcitech.team@outlook.com.
+Open an issue on GitHub with your Windows version, `node --version`, `pnpm --version`, the model route you use and the exact message. Never paste API keys, tokens, login addresses or client material into an issue. Email: parthpatel266@gmail.com.
