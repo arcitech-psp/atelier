@@ -16,3 +16,5 @@
 - insert:
     - id: atelier-canvas
       name: '@arcitech/atelier-canvas'
+    - id: atelier-start
+      name: '@arcitech/atelier-start'
