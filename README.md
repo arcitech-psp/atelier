@@ -37,6 +37,19 @@ On Windows PowerShell, set the variables first: `$env:ATELIER_BASE_URL="http://l
 
 Atelier checks that your endpoint answers, then prints a local address. Open it in your browser (add `-- --open` to `pnpm start` to open it for you), choose a workspace folder, and ask Vitruvius a design question. Full details, settings and the optional extras are in [QUICKSTART.md](QUICKSTART.md), and the step-by-step guides (models, IngeTrazo, saving your work, exporting to Unreal Engine, skills, troubleshooting) are in [docs/](docs/README.md).
 
+## In the terminal
+
+Prefer the keyboard? `atelier` opens a terminal UI on the same engine as the web app, so your chats, profiles and model roles are shared with the browser. The terminal UI has a chats sidebar, streaming answers, collapsible tool steps and a `/` command palette. Other commands:
+
+- `atelier chat "..."` answers one prompt; add `--json` for scripts.
+- `atelier sessions list|open|export` lists, opens and saves your chats.
+- `atelier roles list|set|test` shows, changes and checks your model roles.
+- `atelier profile use vitruvius|vitruvius-zero|cloud` chooses the profile new chats start in.
+- `atelier update check|apply|rollback` updates Atelier or goes back a version.
+- `atelier doctor` checks your setup and tells you how to fix problems.
+
+The installer puts `atelier` on your PATH (Windows, Linux and WSL). From a checkout, run `pnpm exec atelier`. See [docs/CLI.md](docs/CLI.md) for the keys, the commands and scripting examples. Atelier is made by ARCITECH.
+
 ## What runs where
 
 | Part | Where it runs | Needed? | Notes |

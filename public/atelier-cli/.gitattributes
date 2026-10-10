@@ -1,0 +1,3 @@
+shims/atelier.sh text eol=lf
+shims/atelier.cmd text eol=crlf
+bin/*.mjs text eol=lf
