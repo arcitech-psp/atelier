@@ -14,6 +14,9 @@ importers:
       '@arcitech/atelier-ingetrazo':
         specifier: workspace:*
         version: link:public/atelier-ingetrazo
+      '@arcitech/atelier-roles':
+        specifier: workspace:*
+        version: link:public/atelier-roles
       '@deepseek-ai/cordis':
         specifier: workspace:*
         version: link:harness/vendor/cordis
@@ -689,6 +692,9 @@ importers:
       '@arcitech/atelier-ingetrazo':
         specifier: workspace:*
         version: link:../../../public/atelier-ingetrazo
+      '@arcitech/atelier-roles':
+        specifier: workspace:*
+        version: link:../../../public/atelier-roles
       '@deepseek-ai/cordis':
         specifier: workspace:^
         version: link:../../vendor/cordis
@@ -7050,6 +7056,27 @@ importers:
       '@deepseek-ai/dsh-mcp-client':
         specifier: workspace:^
         version: link:../../harness/packages/mcp/mcp-client
+      '@deepseek-ai/dsh-tools':
+        specifier: workspace:^
+        version: link:../../harness/packages/core/tools
+
+  public/atelier-roles:
+    dependencies:
+      '@deepseek-ai/cordis':
+        specifier: workspace:^
+        version: link:../../harness/vendor/cordis
+      '@deepseek-ai/dsh-client-connection':
+        specifier: workspace:^
+        version: link:../../harness/packages/client/connection
+      '@deepseek-ai/dsh-credentials':
+        specifier: workspace:^
+        version: link:../../harness/packages/credentials/credentials
+      '@deepseek-ai/dsh-home-paths':
+        specifier: workspace:^
+        version: link:../../harness/packages/util/home-paths
+      '@deepseek-ai/dsh-settings':
+        specifier: workspace:^
+        version: link:../../harness/packages/settings/settings
       '@deepseek-ai/dsh-tools':
         specifier: workspace:^
         version: link:../../harness/packages/core/tools

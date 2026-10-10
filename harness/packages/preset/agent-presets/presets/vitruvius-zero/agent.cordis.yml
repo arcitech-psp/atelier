@@ -44,6 +44,10 @@
     imageKeyEnv: ATELIER_IMAGE_API_KEY
     imageModel: !!js process.env.ATELIER_IMAGE_MODEL || undefined
 
+# Tools backed by model roles (Settings > Model roles); each appears only when its role is connected.
+- id: atelier-role-tools
+  name: '@arcitech/atelier-roles/tools'
+
 # Official IngeTrazo MCP tools, only when the local bridge answers as the chat opens.
 - id: optional-ingetrazo
   name: '@arcitech/atelier-ingetrazo'

@@ -13,7 +13,10 @@ const output = {schema: {type: 'object', required: ['status', 'title', 'cards', 
   status: {type: 'string'}, title: {type: 'string'}, cards: {type: 'integer'}, imagesAvailable: {type: 'boolean'}
 }}, render: (_args, value) => [{type: 'text', text: JSON.stringify(value)}]};
 export function apply(ctx, config = {}) {
-  const endpoint = config.imageEndpoint;
+  // The Image generation role (Settings > Model roles) is used when no endpoint is configured here.
+  const roles = config.imageEndpoint ? undefined : ctx.get('atelierRoles');
+  const role = roles?.peek('image');
+  const endpoint = config.imageEndpoint ?? role?.baseURL;
   const save = async (args, exec, moodboard) => {
     const sid = String(exec.agent?.session?.header?.id ?? '');
     if (!sid) throw Error('A canvas requires an owning chat.');
@@ -30,9 +33,11 @@ export function apply(ctx, config = {}) {
       parameters: {type: 'object', required: ['prompt'], additionalProperties: false, properties: {prompt: {type: 'string', maxLength: 4000}}}, output,
       async execute(args, exec) {
         const key = config.imageKeyEnv ? process.env[config.imageKeyEnv] : undefined;
-        const response = await fetch(url, {method: 'POST', headers: {'content-type': 'application/json', ...(key ? {Authorization: `Bearer ${key}`} : {})},
-          body: JSON.stringify({model: config.imageModel ?? 'IMAGE_MODEL', prompt: args.prompt, n: 1, response_format: 'b64_json'}),
-          signal: AbortSignal.any([exec.signal, AbortSignal.timeout(120000)]), redirect: 'error'});
+        const request = JSON.stringify({model: config.imageModel ?? (role?.model || 'IMAGE_MODEL'), prompt: args.prompt, n: 1, response_format: 'b64_json'});
+        const response = role
+          ? await roles.fetch('image', '', {method: 'POST', headers: {'content-type': 'application/json'}, body: request, signal: exec.signal})
+          : await fetch(url, {method: 'POST', headers: {'content-type': 'application/json', ...(key ? {Authorization: `Bearer ${key}`} : {})},
+            body: request, signal: AbortSignal.any([exec.signal, AbortSignal.timeout(120000)]), redirect: 'error'});
         if (!response.ok) throw Error(`Image endpoint returned HTTP ${response.status}.`);
         const bytes = await response.arrayBuffer(); if (bytes.byteLength > 12 * 1024 * 1024) throw Error('Image response exceeds the admitted limit.');
         const body = JSON.parse(new TextDecoder().decode(bytes)); const b64 = body.data?.[0]?.b64_json;

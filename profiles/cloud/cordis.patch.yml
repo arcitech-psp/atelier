@@ -17,3 +17,6 @@
 - insert:
     - id: atelier-canvas
       name: '@arcitech/atelier-canvas'
+    # Model roles: one endpoint per job (brain, vision, speech, embeddings, images, helper) and "Set me up".
+    - id: atelier-roles
+      name: '@arcitech/atelier-roles'
