@@ -61,8 +61,9 @@ if (ready) {
   check('web app answers with the token', page.status === 200 || page.status === 302 || page.status === 303, `HTTP ${page.status}`);
   const anonymous = await fetch(url.replace(/\?.*$/, 'api/'), {redirect: 'manual'}).catch(() => ({status: 0}));
   check('web app refuses requests without the token', anonymous.status === 401 || anonymous.status === 403 || anonymous.status === 404, `HTTP ${anonymous.status}`);
-  const plugin = await fetch(new URL('/plugins/atelier-updates/client.js', url), {headers: {cookie: page.headers?.get?.('set-cookie') ?? ''}}).catch(() => ({status: 0}));
-  check('updates plugin is served', plugin.status === 200 || plugin.status === 401, `HTTP ${plugin.status}`);
+  const cookie = (page.headers?.getSetCookie?.() ?? []).map(value => value.split(';')[0]).join('; ');
+  const boot = await fetch(new URL('/', url), {headers: {cookie}}).then(r => r.text()).catch(() => '');
+  check('Atelier plugins are in the page (canvas, updates)', boot.includes('atelier-canvas') && boot.includes('atelier-updates'));
 }
 // Stop exactly what we started: the launcher, then its web-server child (found by parent process id on Windows).
 const serverPid = ready ? JSON.parse(readFileSync(urlFile, 'utf8')).serverPid : undefined;

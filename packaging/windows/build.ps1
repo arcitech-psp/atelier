@@ -102,7 +102,8 @@ if ($LASTEXITCODE -ne 0) { throw "payload tar failed" }
 
 Step "NSIS"
 $setup = "$OutDir\Atelier-Preview-$version-Setup.exe"
-& $Makensis /V2 "/DVERSION=$version" "/DDSH_VERSION=$dshVersion" "/DSTAGE=$stage" "/DOUTFILE=$setup" "$repo\packaging\windows\installer.nsi"
+$sizeKb = [int]((Get-ChildItem "$stage\versions\$version" -Recurse -File | Measure-Object Length -Sum).Sum / 1KB)
+& $Makensis /V2 "/DSIZE_KB=$sizeKb" "/DVERSION=$version" "/DDSH_VERSION=$dshVersion" "/DSTAGE=$stage" "/DOUTFILE=$setup" "$repo\packaging\windows\installer.nsi"
 if ($LASTEXITCODE -ne 0) { throw "makensis failed" }
 $size = [math]::Round((Get-Item $setup).Length / 1MB, 1)
 Write-Host "== Built $setup ($size MB)"

@@ -12,6 +12,10 @@ SHARE="${XDG_DATA_HOME:-$HOME/.local/share}"
 say() { printf '%s\n' "[atelier] $*"; }
 
 [ -x "$BIN/atelier-preview" ] && "$BIN/atelier-preview" stop >/dev/null 2>&1 || true
+version=$(tr -d ' \r\n' < "$ROOT/current" 2>/dev/null || true)
+if [ -n "$version" ] && [ -f "$ROOT/versions/$version/app/public/atelier-cli/install-shims.mjs" ]; then
+  "$ROOT/versions/$version/runtime/bin/node" "$ROOT/versions/$version/app/public/atelier-cli/install-shims.mjs" --install-root "$ROOT" --bin-dir "$BIN" --remove || true
+fi
 # rm -rf removes symlinks themselves and never follows them, so nothing outside these folders is touched.
 case "$ROOT" in */atelier-preview*) rm -rf "$ROOT" ;; *) say "Refusing to remove unexpected folder $ROOT"; exit 1 ;; esac
 rm -f "$BIN/atelier-preview" "$SHARE/applications/atelier-preview.desktop"

@@ -72,6 +72,10 @@ mkdir -p "$ROOT/bin"
 cp "$target/app/packaging/linux/atelier" "$ROOT/bin/atelier"
 chmod 755 "$ROOT/bin/atelier"
 ln -sf "$ROOT/bin/atelier" "$BIN/atelier"
+# The atelier CLI, when this version ships one, installs its own command in place of the basic one.
+if [ -f "$target/app/public/atelier-cli/install-shims.mjs" ]; then
+  "$target/runtime/bin/node" "$target/app/public/atelier-cli/install-shims.mjs" --install-root "$ROOT" --bin-dir "$BIN" || true
+fi
 
 if [ "$desktop" = "1" ]; then
   mkdir -p "$SHARE/applications"

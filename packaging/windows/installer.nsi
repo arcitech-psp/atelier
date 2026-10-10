@@ -21,6 +21,9 @@ RequestExecutionLevel user
 !ifndef OUTFILE
   !define OUTFILE "Atelier-Preview-${VERSION}-Setup.exe"
 !endif
+!ifndef SIZE_KB
+  !define SIZE_KB 900000
+!endif
 !ifndef DSH_VERSION
   !define DSH_VERSION "0.1.2-alpha.1"
 !endif
@@ -204,8 +207,14 @@ Section "Atelier" SecApp
   WriteRegStr HKCU "${UNINSTKEY}" "Comments" "Powered by DSH (DeepSeek Harness) by DeepSeek-AI, MIT"
   WriteRegDWORD HKCU "${UNINSTKEY}" "NoModify" 1
   WriteRegDWORD HKCU "${UNINSTKEY}" "NoRepair" 1
-  ${GetSize} "$INSTDIR\versions" "/S=0K" $0 $1 $2
-  WriteRegDWORD HKCU "${UNINSTKEY}" "EstimatedSize" $0
+  ; Size measured at build time: walking the installed folder would follow pnpm's junctions again and again.
+  WriteRegDWORD HKCU "${UNINSTKEY}" "EstimatedSize" ${SIZE_KB}
+
+  ; The atelier CLI, when this version ships one, writes its own command shims into bin\ (replacing the basic ones).
+  ${If} ${FileExists} "$INSTDIR\versions\${VERSION}\app\public\atelier-cli\install-shims.mjs"
+    nsExec::ExecToLog '"$INSTDIR\versions\${VERSION}\runtime\node.exe" "$INSTDIR\versions\${VERSION}\app\public\atelier-cli\install-shims.mjs" --install-root "$INSTDIR"'
+    Pop $0
+  ${EndIf}
 SectionEnd
 
 Section "Desktop shortcut" SecDesktop
@@ -241,11 +250,16 @@ Section "un.Atelier" UnSecApp
       CopyFiles /SILENT "$INSTDIR\versions\$1\runtime\node.exe" "$PLUGINSDIR\node.exe"
       CopyFiles /SILENT "$INSTDIR\versions\$1\app\packaging\links.mjs" "$PLUGINSDIR\links.mjs"
       StrCpy $3 "ok"
+      StrCpy $4 $1
     ${EndIf}
     FindNext $0 $1
   ${Loop}
   FindClose $0
   ${If} $3 == "ok"
+    ${If} ${FileExists} "$INSTDIR\versions\$4\app\public\atelier-cli\install-shims.mjs"
+      nsExec::ExecToLog '"$PLUGINSDIR\node.exe" "$INSTDIR\versions\$4\app\public\atelier-cli\install-shims.mjs" --install-root "$INSTDIR" --remove'
+      Pop $2
+    ${EndIf}
     nsExec::ExecToLog '"$PLUGINSDIR\node.exe" "$PLUGINSDIR\links.mjs" unlink "${DATADIR}\profiles"'
     Pop $2
     nsExec::ExecToLog '"$PLUGINSDIR\node.exe" "$PLUGINSDIR\links.mjs" remove "$INSTDIR\versions"'

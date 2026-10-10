@@ -36,7 +36,8 @@ if (-not $SkipLinux) {
   $toWsl = { param($p) (& wsl.exe -d $WslDistro -- wslpath -a ($p -replace '\\', '/')).Trim() }
   $wslTar = & $toWsl $srcTar; $wslOut = & $toWsl $out; $wslScript = & $toWsl "$repo\packaging\linux\build.sh"
   # Build in the WSL home folder (fast Linux file system), then copy the archive back.
-  & wsl.exe -d $WslDistro -- sh -c "tr -d '\r' < '$wslScript' > /tmp/atelier-build.sh && sh /tmp/atelier-build.sh '$wslTar' '$wslOut'"
+  # (build.sh keeps LF line endings through .gitattributes.)
+  & wsl.exe -d $WslDistro -- sh $wslScript $wslTar $wslOut
   if ($LASTEXITCODE -ne 0) { throw "Linux build failed" }
 }
 
