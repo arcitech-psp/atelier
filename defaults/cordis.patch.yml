@@ -21,3 +21,6 @@
       name: '@arcitech/atelier-roles'
     - id: atelier-start
       name: '@arcitech/atelier-start'
+    # Mission Control for this computer: tokens, graphics card use, energy cost at your price, and which model is loaded now.
+    - id: atelier-mission
+      name: '@arcitech/atelier-mission'

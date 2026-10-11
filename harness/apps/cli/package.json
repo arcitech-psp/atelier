@@ -102,6 +102,7 @@
     "@arcitech/atelier-start": "workspace:*",
     "@arcitech/atelier-ingetrazo": "workspace:*",
     "@arcitech/atelier-updates": "workspace:*",
+    "@arcitech/atelier-mission": "workspace:*",
     "@arcitech/atelier-roles": "workspace:*"
   }
 }
