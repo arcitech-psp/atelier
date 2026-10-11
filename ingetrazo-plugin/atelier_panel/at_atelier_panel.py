@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Public derivative of the Atelier panel by ArciTech.
+# Public derivative of the Atelier panel by ARCITECH.
 """Optional native IngeTrazo panel for Vitruvius.
 
 Uses Atelier's authenticated HTTP RPC; secrets are never logged.

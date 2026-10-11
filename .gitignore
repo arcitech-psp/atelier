@@ -1,0 +1,9 @@
+# Packages installed by pnpm
+node_modules/
+# Your own Atelier home when you run from a checkout (chats, settings, keys)
+user-home/
+# Release builds and their scratch folders
+dist-release/
+packaging/build/
+# Upstream DeepSeek Harness checkout used by scripts/sync-upstream
+.upstream-cache/

@@ -1,8 +1,10 @@
 # Quickstart
 
+This page is for running Atelier from the source code. Most people should use the installers instead: see [docs/INSTALL.md](docs/INSTALL.md) (Windows setup.exe, Linux and WSL archive).
+
 ## 1. Install
 
-1. Install [Node.js 24](https://nodejs.org/) and pnpm 10 or newer (`npm install -g pnpm`).
+1. Install [Node.js 24](https://nodejs.org/) (the tested version is in `.node-version`), then run `corepack enable` once: it provides the pinned pnpm (10.34.6).
 2. In this folder, run `pnpm install --frozen-lockfile`. This fetches the JavaScript packages from the npm registry. No model is downloaded.
 
 ## 2. Have a model endpoint ready
@@ -104,11 +106,11 @@ Duplicate Vitruvius from the preset picker, or use the stock Creator mode to bui
 
 ## If something goes wrong
 
-- **"No model endpoint is set yet"**: set `ATELIER_BASE_URL` and `ATELIER_MODEL`, or edit `settings.yaml` in your home folder.
+- **"No model is connected yet"**: connect it on the Model roles page (Settings > Model roles), or set `ATELIER_BASE_URL` and `ATELIER_MODEL` for the first run.
 - **"Could not reach ..."**: start your model server first, and check the URL ends in `/v1`.
 - **"The endpoint serves ..., not ..."**: copy one of the listed ids into `settings.yaml` and `cordis.patch.yml`.
 - **"refused the API key"**: set `ATELIER_API_KEY`.
-- **Port already in use**: start with `ATELIER_PORT=3082`.
+- **Port already in use**: without `ATELIER_PORT` Atelier moves to the next free port by itself; with it, choose another, e.g. `ATELIER_PORT=3082`.
 
 ## Skills
 

@@ -1,0 +1,5 @@
+# Shell scripts and Linux launcher files must keep LF line endings, even on Windows checkouts.
+*.sh text eol=lf
+packaging/linux/** text eol=lf
+scripts/sync-upstream text eol=lf
+*.desktop text eol=lf

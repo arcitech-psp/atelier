@@ -4,52 +4,33 @@
 
 | | Needed | Notes |
 |---|---|---|
-| Computer | Windows 11, 64-bit | Installed and tested on **Windows 11**. Windows 10, Linux and macOS have not been tested yet. |
-| Node.js | Version 24 | Download from [nodejs.org](https://nodejs.org/). Tested with 24.19.0. |
-| pnpm | Version 10 or newer | `npm install -g pnpm`. Tested with 10.34.6. |
-| A model | One OpenAI-compatible endpoint | Your own GPU, a machine on your network, or a cloud route. See [Choosing a model](choosing-a-model.md). |
-| Disk | About 300 MB for Atelier and its packages | The tested install was 266 MB. Models are separate and take many gigabytes if you run them yourself. |
+| Computer | Windows 10/11 64-bit, Linux x64 (Ubuntu 22.04/24.04), or Ubuntu on WSL2 | Tested on Windows 11, Ubuntu 24.04 and Ubuntu 24.04 on WSL2. |
+| Disk | About 900 MB | Atelier and its own Node.js runtime. Models are separate and take many gigabytes if you run them yourself. |
+| A model | One OpenAI-compatible endpoint | Your own graphics card, a machine on your network, or a cloud route. See [Add your endpoint](add-your-endpoint.md). |
 | IngeTrazo | Optional | Free 3D modelling program, installed separately. See [Connecting IngeTrazo](ingetrazo.md). |
-| A graphics card | Only if you run the model yourself | No GPU is needed for the cloud routes. |
+| A graphics card | Only if you run the model yourself | No graphics card is needed for the cloud routes. |
 
-What we have not tested yet, so you know before you start: Windows 10, a Windows PC with no developer tools on it, Linux, and macOS. If you try one of these, please tell us how it went.
+The installers bring their own Node.js; you do not need to install anything else.
 
 ## Install
 
-1. Install Node.js 24, then open PowerShell and run `npm install -g pnpm`.
-2. Download Atelier and unzip it (or clone the repository) into a folder you will keep, for example `Documents\Atelier`.
-3. In that folder run:
-
-   ```powershell
-   pnpm install --frozen-lockfile
-   ```
-
-   This fetches the JavaScript packages Atelier needs. It does not download any model. On the test machine it took about 40 seconds.
+Follow [Installing Atelier](INSTALL.md): the Windows installer, the Linux/WSL archive, or the source code.
 
 ## Start it for the first time
 
-Tell Atelier where your model is, once. For a model server on this computer:
+Start **Atelier Preview** (desktop icon or Start menu > ARCITECH on Windows; `atelier-preview` on Linux and WSL). The first start takes about half a minute. Atelier:
 
-```powershell
-$env:ATELIER_BASE_URL = "http://localhost:8000/v1"
-$env:ATELIER_MODEL = "your-model-id"
-pnpm start -- --open
-```
+- creates your **home folder** for chats and settings (`%APPDATA%\Atelier-Preview` on Windows, `~/.config/atelier-preview` on Linux and WSL);
+- opens the **Model roles** page so you can connect your model ([Add your endpoint](add-your-endpoint.md));
+- checks later starts against your model and tells you plainly if it cannot reach it, the key is refused, or the model name is wrong.
 
-For the cloud routes, start with `$env:ATELIER_PROFILE = "cloud"; pnpm start -- --open` instead (see [Choosing a model](choosing-a-model.md)).
-
-On the first run Atelier:
-
-- creates your **home folder** (`user-home` inside the Atelier folder, or the folder named by `ATELIER_HOME`);
-- saves your model settings there, so you do not need the variables again;
-- checks that the model answers, and tells you plainly if it cannot reach it, the key is refused, or the model id is wrong;
-- opens the app in your browser at a local address with a private login token. Keep that address to yourself.
-
-Atelier only listens on your own computer (`127.0.0.1`). It sends no telemetry.
+Atelier only listens on your own computer, behind a private login token. It sends no telemetry.
 
 ## Stop and start again
 
-- Stop: press **Ctrl+C** in the PowerShell window.
-- Start again: `pnpm start -- --open` in the same folder. Your chats, boards and settings are still there.
+- Windows: the AT icon next to the clock > **Quit Atelier**; start again from the desktop icon.
+- Linux / WSL: `atelier-preview stop`, then `atelier-preview`.
 
-Next: [Choosing a model](choosing-a-model.md), then [Your first chat](first-chat.md).
+Your chats, boards and settings are still there.
+
+Next: [Your first chat](first-chat.md).

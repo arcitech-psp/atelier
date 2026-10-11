@@ -18,6 +18,10 @@
     # PTC mode is a core execution capability, not a Web component.
     - id: code-runtime
       name: '@deepseek-ai/dsh-code-runtime-worker-thread'
+    # Atelier: the presets' delegation tools need this host row (the Web bundle has it too); without it
+    # `--profile headless` fails to mount the Standard preset.
+    - id: subagent-model-selection-settings
+      name: '@deepseek-ai/dsh-tool-subagent/model-selection-settings'
 
     - id: headless-startup
       name: '@deepseek-ai/dsh-headless/startup'

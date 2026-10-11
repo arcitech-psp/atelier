@@ -1,8 +1,8 @@
-Atelier by ArciTech
-Copyright 2026 ArciTech (Parth Patel)
+Atelier by ARCITECH
+© 2026 ARCITECH (Parth Patel)
 
 WHICH FILES THIS LICENCE COVERS
-ArciTech's own additions, that is:
+ARCITECH's own additions, that is:
   - the Vitruvius agent preset (harness/packages/preset/agent-presets/presets/vitruvius)
   - public/atelier-canvas and public/atelier-ingetrazo
   - profiles/cloud (the Cloud profile, OmniRoute combinations and ChatGPT-plan bridge)
@@ -13,14 +13,14 @@ are licensed under the PolyForm Shield License 1.0.0 (SPDX: PolyForm-Shield-1.0.
 WHAT IT DOES NOT COVER
   - harness/ is DeepSeek Harness (Copyright (c) 2026 DeepSeek) with Atelier's changes, and stays under the
     MIT License, reproduced in full in Part 2 below and in licenses/DSH-MIT.txt.
-  - ingetrazo-plugin/ stays under GPL-3.0-or-later whichever licence is chosen for ArciTech's additions;
+  - ingetrazo-plugin/ stays under GPL-3.0-or-later whichever licence is chosen for ARCITECH's additions;
     its own LICENSE file sits beside it. Contributions to that folder are accepted under that licence.
   - Third-party packages keep their own licences (see NOTICE.md and licenses/).
-  - The names "Atelier" and "ArciTech" and the AT logo are not licensed by this file (see TRADEMARK.md).
+  - The names "Atelier" and "ARCITECH" and the AT logo are not licensed by this file (see TRADEMARK.md).
 
-Required Notice: Copyright 2026 ArciTech (Parth Patel) (arcitech.team@outlook.com)
+Required Notice: © 2026 ARCITECH (Parth Patel) (parthpatel266@gmail.com)
 
-PART 1 - ArciTech additions: PolyForm Shield License 1.0.0
+PART 1 - ARCITECH additions: PolyForm Shield License 1.0.0
 ==============================================================================
 
 # PolyForm Shield License 1.0.0

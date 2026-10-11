@@ -1,6 +1,6 @@
 # Optional Atelier panel for IngeTrazo
 
-This native PySide6 panel is a separate optional download, licensed GPL-3.0-or-later. It is a public derivative of ArciTech's Atelier panel and imports the independently installed IngeTrazo/PySide6 runtime. The full licence is in LICENSE. IngeTrazo itself and its official MCP executable are never included here. Atelier core is licensed separately (PolyForm Shield 1.0.0, see the main LICENSE); this panel stays GPL-3.0-or-later whatever licence the core uses.
+This native PySide6 panel is a separate optional download, licensed GPL-3.0-or-later. It is a public derivative of ARCITECH's Atelier panel and imports the independently installed IngeTrazo/PySide6 runtime. The full licence is in LICENSE. IngeTrazo itself and its official MCP executable are never included here. Atelier core is licensed separately (PolyForm Shield 1.0.0, see the main LICENSE); this panel stays GPL-3.0-or-later whatever licence the core uses.
 
 Copy at_atelier_panel.py into your own IngeTrazo user plugins folder and load it using IngeTrazo's normal extension mechanism. Existing installs may need their normal next start to discover a plugin. The Atelier (Vitruvius) panel has a Settings button. Configure Host, Port, Workspace and Atelier home. Defaults are the local IPv4 loopback host, port 3081 (the Atelier preview default), and an Atelier folder under your Documents. Atelier home is your Atelier home folder (by default the user-home folder inside Atelier, or ATELIER_HOME), where Atelier keeps .browser-launch-token. The panel reads the token locally and never logs the token or login cookie. If you start Atelier on another port (ATELIER_PORT), change the panel Port to match.
 
@@ -8,4 +8,4 @@ New chats use Vitruvius and Atelier's configured default model. There is no fixe
 
 Use the current intended drawing; create a new drawing for experiments. Ask: "Make a 4 by 5 m studio room with a desk and a bookshelf, then show me the plan." Concept geometry needs dimensions and clearance checks before further design decisions.
 
-Attribution: Atelier panel by ArciTech, public derivative prepared in 2026. IngeTrazo by Marco Sumari Tellez and contributors; PySide6 by The Qt Company and contributors. Their own runtime terms apply independently. No IngeTrazo or Qt runtime is redistributed in this download.
+Attribution: Atelier panel by ARCITECH, public derivative prepared in 2026. IngeTrazo by Marco Sumari Tellez and contributors; PySide6 by The Qt Company and contributors. Their own runtime terms apply independently. No IngeTrazo or Qt runtime is redistributed in this download.

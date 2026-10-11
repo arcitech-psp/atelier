@@ -1,0 +1,3 @@
+#!/bin/sh
+# Linux / WSL wrapper: sync Atelier's harness/ with a DSH (DeepSeek Harness) release. See docs/UPSTREAM_SYNC.md.
+exec node "$(dirname "$0")/sync-upstream.mjs" "$@"

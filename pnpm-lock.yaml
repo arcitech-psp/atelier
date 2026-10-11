@@ -14,6 +14,9 @@ importers:
       '@arcitech/atelier-ingetrazo':
         specifier: workspace:*
         version: link:public/atelier-ingetrazo
+      '@arcitech/atelier-updates':
+        specifier: workspace:*
+        version: link:public/atelier-updates
       '@deepseek-ai/cordis':
         specifier: workspace:*
         version: link:harness/vendor/cordis
@@ -689,6 +692,9 @@ importers:
       '@arcitech/atelier-ingetrazo':
         specifier: workspace:*
         version: link:../../../public/atelier-ingetrazo
+      '@arcitech/atelier-updates':
+        specifier: workspace:*
+        version: link:../../../public/atelier-updates
       '@deepseek-ai/cordis':
         specifier: workspace:^
         version: link:../../vendor/cordis
@@ -1239,7 +1245,7 @@ importers:
         version: link:../../../vendor/schemastery
       sharp:
         specifier: 0.35.3
-        version: 0.35.3(@types/node@26.6.4)
+        version: 0.35.3
 
   harness/packages/boot/app-boot:
     dependencies:
@@ -7054,6 +7060,15 @@ importers:
         specifier: workspace:^
         version: link:../../harness/packages/core/tools
 
+  public/atelier-updates:
+    dependencies:
+      '@deepseek-ai/cordis':
+        specifier: workspace:^
+        version: link:../../harness/vendor/cordis
+      '@deepseek-ai/dsh-client-connection':
+        specifier: workspace:^
+        version: link:../../harness/packages/client/connection
+
 packages:
 
   '@agentclientprotocol/sdk@1.4.0':
@@ -9981,7 +9996,7 @@ snapshots:
 
   setprototypeof@1.2.0: {}
 
-  sharp@0.35.3(@types/node@26.6.4):
+  sharp@0.35.3:
     dependencies:
       '@img/colour': 1.1.0
       detect-libc: 2.1.2
@@ -10012,7 +10027,6 @@ snapshots:
       '@img/sharp-win32-arm64': 0.35.3
       '@img/sharp-win32-ia32': 0.35.3
       '@img/sharp-win32-x64': 0.35.3
-      '@types/node': 26.6.4
 
   shebang-command@2.0.0:
     dependencies:
