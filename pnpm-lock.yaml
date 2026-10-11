@@ -17,6 +17,9 @@ importers:
       '@arcitech/atelier-ingetrazo':
         specifier: workspace:*
         version: link:public/atelier-ingetrazo
+      '@arcitech/atelier-mission':
+        specifier: workspace:*
+        version: link:public/atelier-mission
       '@arcitech/atelier-roles':
         specifier: workspace:*
         version: link:public/atelier-roles
@@ -701,6 +704,9 @@ importers:
       '@arcitech/atelier-ingetrazo':
         specifier: workspace:*
         version: link:../../../public/atelier-ingetrazo
+      '@arcitech/atelier-mission':
+        specifier: workspace:*
+        version: link:../../../public/atelier-mission
       '@arcitech/atelier-roles':
         specifier: workspace:*
         version: link:../../../public/atelier-roles
@@ -7108,6 +7114,27 @@ importers:
       '@deepseek-ai/dsh-tools':
         specifier: workspace:^
         version: link:../../harness/packages/core/tools
+
+  public/atelier-mission:
+    dependencies:
+      '@deepseek-ai/cordis':
+        specifier: workspace:^
+        version: link:../../harness/vendor/cordis
+      '@deepseek-ai/dsh-client-connection':
+        specifier: workspace:^
+        version: link:../../harness/packages/client/connection
+      '@deepseek-ai/dsh-credentials':
+        specifier: workspace:^
+        version: link:../../harness/packages/credentials/credentials
+      '@deepseek-ai/dsh-home-paths':
+        specifier: workspace:^
+        version: link:../../harness/packages/util/home-paths
+      '@deepseek-ai/dsh-settings':
+        specifier: workspace:^
+        version: link:../../harness/packages/settings/settings
+      undici:
+        specifier: 8.10.0
+        version: 8.10.0
 
   public/atelier-roles:
     dependencies:

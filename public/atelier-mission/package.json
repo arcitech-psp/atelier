@@ -1,0 +1,40 @@
+{
+  "name": "@arcitech/atelier-mission",
+  "version": "0.1.0-preview",
+  "private": true,
+  "description": "Mission Control for this computer: session timings, tokens, GPU use, energy cost at your own price, and which model is loaded now on a one-GPU setup.",
+  "type": "module",
+  "license": "PolyForm-Shield-1.0.0",
+  "exports": {
+    ".": "./index.mjs",
+    "./energy": "./energy.mjs",
+    "./models": "./models.mjs",
+    "./telemetry": "./telemetry.mjs",
+    "./ledger": "./ledger.mjs",
+    "./client": "./client.js",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "dsh": {
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-renderer",
+        "@deepseek-ai/dsh-client-ui-conversation",
+        "@deepseek-ai/dsh-client-connection"
+      ]
+    }
+  },
+  "dependencies": {
+    "undici": "8.10.0"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "workspace:^",
+    "@deepseek-ai/dsh-client-connection": "workspace:^",
+    "@deepseek-ai/dsh-credentials": "workspace:^",
+    "@deepseek-ai/dsh-home-paths": "workspace:^",
+    "@deepseek-ai/dsh-settings": "workspace:^"
+  }
+}

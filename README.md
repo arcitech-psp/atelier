@@ -36,6 +36,8 @@ Atelier is a fork of [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-
 - **Vitruvius Zero**: the same assistant with the lightest start (about half the startup text), for small local models and modest computers. Chosen automatically for small models.
 - The four stock DeepSeek Harness agent presets (Standard, PTC, Minimal and Creator modes) and its launcher profiles (web, headless, acp, sdk, sdk-minimal).
 - Works with **any OpenAI-compatible model endpoint**, on your computer or elsewhere.
+- **Mission Control** (the chip in the session header): which model is loaded now, graphics card use, tokens and speed, and the energy cost at your own electricity price. See [Mission Control](docs/mission-control.md).
+- Models swapped in and out of one 16 GB graphics card (LM Studio, Ollama, llama-swap): Atelier waits for the load and shows its state. See [One graphics card, several models](docs/ONE_GPU.md).
 - Optional: generated moodboard images through your own image endpoint (for example ComfyUI).
 - Optional: live modelling in IngeTrazo, which you install separately.
 
