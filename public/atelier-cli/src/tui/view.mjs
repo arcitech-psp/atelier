@@ -9,11 +9,22 @@ export const spinner = frame => process.env.ATELIER_ASCII === '1' ? ['.  ', '.. 
 
 const indent = (lines, pad = '  ') => lines.map(l => pad + l);
 
+// The AIT mark for the terminal (ARCITECH brand kit, cli-banner): walls in the accent, ink in the text colour.
+const MARK = [
+  '     ██       ━┯━   ██████████',
+  '    ╱ ██       │       ██',
+  '   ╱───██     ▐▌      ██',
+  ' (●)     ██    │       ██',
+  '━━━━━━━━━━━━━━━━╋━━━━━━━━━━━━━━━',
+];
+const markLine = (line, s) => line.replace(/(█+)|([^█]+)/g, (_, wall, rest) => wall ? s.accentSoft(wall) : s.ink(rest));
+
 /** The calm first screen, before any message. */
 export function welcomeLines(width, s, {profile = 'Vitruvius', brain} = {}) {
   const w = Math.min(width, 72);
   return [
     '',
+    ...(process.env.ATELIER_ASCII === '1' || width < 36 ? [] : [...MARK.map(l => markLine(l, s)), '']),
     s.accent.bold('Atelier') + s.dim(`  by ARCITECH`),
     s.line(GLYPHS.rule.repeat(Math.min(w, 24))),
     '',

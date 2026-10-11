@@ -1,5 +1,7 @@
 # Atelier by ARCITECH
 
+<p align="center"><img src="docs/assets/atelier-header.png" alt="Atelier by ARCITECH — Architecture · Interactive · Technology" width="720"></p>
+
 **A design assistant for architects, interior designers and students, on your own computer.**
 *Atelier by ARCITECH — powered by DSH (DeepSeek Harness).*
 

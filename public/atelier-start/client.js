@@ -81,11 +81,22 @@ window.__ModuleLoader__.load({id: '@arcitech/atelier-start', factory: require =>
       h('circle', {cx: 12.9, cy: 11.75, r: 1.35, fill: 'currentColor', stroke: 'none'}), h('circle', {cx: 3.1, cy: 11.75, r: 1.35, fill: 'currentColor', stroke: 'none'})),
   };
 
-  /** The AT mark (ARCITECH's logo geometry), in the brand tan. Decorative here: the heading carries the meaning. */
+  /** The AIT mark, small-size cut (ARCITECH: Architecture · Interactive · Technology). Walls take the brand tan
+   *  (currentColor), ink follows the theme's text colour. Decorative here: the heading carries the meaning. */
+  const ink = {stroke: 'var(--dsw-alias-label-primary, #eceae6)', fill: 'none'};
   const Mark = () => h('svg', {className: 'ats-mark', viewBox: '0 0 100 100', width: 22, height: 22, 'aria-hidden': true, focusable: 'false'},
-    h('g', {fill: 'none', stroke: 'currentColor', strokeWidth: 11.54, strokeLinecap: 'round'},
-      h('path', {d: 'M11.13 14.44 L52.12 85.52'}), h('path', {d: 'M52.21 14.71 H88.56'}), h('path', {d: 'M88.65 32.69 V85.38'})),
-    h('circle', {cx: 15.77, cy: 81.06, r: 10.14, fill: 'currentColor'}));
+    h('g', {transform: 'translate(10.25 6.34) scale(0.83)'},
+      h('path', {d: 'M14.94 25.37 L47.37 82.86 L54.86 78.63 L22.43 21.14Z', fill: 'currentColor'}),
+      h('path', {d: 'M16.3 30.6L10.35 66.1', strokeWidth: 5.6, ...ink}),
+      h('path', {d: 'M13.57 60L32.27 60', strokeWidth: 5.6, ...ink}),
+      h('circle', {cx: 10, cy: 76, r: 8, strokeWidth: 4.6, ...ink}),
+      h('circle', {cx: 10, cy: 76, r: 3.7, fill: 'var(--dsw-alias-label-primary, #eceae6)'}),
+      h('path', {d: 'M56.5 81.26L66.5 81.26', strokeWidth: 7.2, ...ink}),
+      h('path', {d: 'M56.5 22.74L66.5 22.74', strokeWidth: 7.2, ...ink}),
+      h('path', {d: 'M61.5 22.74L61.5 82.86', strokeWidth: 5.6, ...ink}),
+      h('path', {d: 'M57.5 49.87 L65.5 49.87 L65.5 57.87 L57.5 57.87Z', fill: 'currentColor'}),
+      h('path', {d: 'M67.7 29.74 L96.3 29.74 L96.3 21.14 L67.7 21.14Z', fill: 'currentColor'}),
+      h('path', {d: 'M77.7 37.2 L77.7 82.86 L86.3 82.86 L86.3 37.2Z', fill: 'currentColor'})));
 
   const STATUS_WORDS = {local: 'Local model', network: 'Model on your network', remote: 'Hosted model', cloud: 'Cloud'};
   const statusLine = status => {
