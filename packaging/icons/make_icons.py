@@ -1,4 +1,4 @@
-"""Build the Atelier Preview icon set from the AT mark (black disc, white mark).
+"""Build the Atelier Preview icon set from the AIT mark (kit app icon).
 
 Usage: python make_icons.py <source.png> <out_dir>
 Writes atelier.ico (16-256), atelier-<n>.png for Linux hicolor sizes, and a 512/1024 PNG.

@@ -12,9 +12,9 @@ const indent = (lines, pad = '  ') => lines.map(l => pad + l);
 // The AIT mark for the terminal (ARCITECH brand kit, cli-banner): walls in the accent, ink in the text colour.
 const MARK = [
   '     ██       ━┯━   ██████████',
-  '    ╱ ██       │       ██',
-  '   ╱───██     ▐▌      ██',
-  ' (●)     ██    │       ██',
+  '      ██       │       ██',
+  '       ██     ▐▌      ██',
+  '     (●) ██    │       ██',
   '━━━━━━━━━━━━━━━━╋━━━━━━━━━━━━━━━',
 ];
 const markLine = (line, s) => line.replace(/(█+)|([^█]+)/g, (_, wall, rest) => wall ? s.accentSoft(wall) : s.ink(rest));
