@@ -13,8 +13,13 @@
 //   ATELIER_CHATGPT_HOME  cloud profile: where the ChatGPT-plan sign-in is kept (default: <ATELIER_HOME>/chatgpt-plan, so installs never share a sign-in)
 //   ATELIER_OMNIROUTE_START  cloud profile: command that starts OmniRoute (default: omniroute serve --port 20128 --no-open --no-tray)
 //   ATELIER_LISTEN     the address the web app listens on (default localhost; WSL users may need 127.0.0.1)
+//   ATELIER_BOTTEGA    "1" starts Bottega (team mode: share Atelier with paired devices on your private network) at launch,
+//                      "0" keeps it off even if you switched it on before. Unset: off, unless you switched it on in the app.
+//   ATELIER_BOTTEGA_PORT   the port Bottega listens on (default 3082; the next free one is used when it is busy)
+//   ATELIER_BOTTEGA_BIND   advanced: listen only on these private addresses (comma separated) instead of every LAN adapter
 // Options:
 //   --open             open Atelier in your default browser once it is ready
+//   --bottega          start with Bottega (team mode) on; prints where to pair and a pairing code. --no-bottega: keep it off
 //   --url-file <path>  desktop launchers: write the address (with its login token) to this private file instead of the log
 import {existsSync, mkdirSync, readFileSync, writeFileSync} from 'node:fs';
 import {dirname, join, resolve} from 'node:path';
@@ -37,6 +42,8 @@ const here = dirname(fileURLToPath(import.meta.url));
 const home = resolve(process.env.ATELIER_HOME || join(here, 'user-home'));
 const argv = process.argv.slice(2);
 const open = argv.includes('--open');
+// Bottega (team mode) is off unless asked for: --bottega / --no-bottega beat ATELIER_BOTTEGA, which beats what the app remembers.
+const bottegaEnv = argv.includes('--no-bottega') ? '0' : argv.includes('--bottega') ? '1' : process.env.ATELIER_BOTTEGA;
 const urlFile = argv.includes('--url-file') ? resolve(argv[argv.indexOf('--url-file') + 1] ?? '') : null;
 const listen = process.env.ATELIER_LISTEN || 'localhost';
 const HOST = 'https://YOUR_OPENAI_COMPATIBLE_HOST/v1', MODEL = 'YOUR_MODEL_ID';
@@ -185,6 +192,9 @@ if (Number.isInteger(ingetrazoPort) && ingetrazoPort > 0 && ingetrazoPort < 6553
 const child = spawn(process.execPath,
   [join(here, 'harness/apps/cli/lib/bin.js'), 'web', ...(open ? [] : ['--no-open']), '--host', listen, '--port', port],
   {cwd: here, stdio: ['inherit', 'pipe', 'inherit'], env: {...process.env, DSH_HOME: home, DSH_TELEMETRY_DISABLED: '1', ATELIER_API_KEY: key,
+    ...(bottegaEnv === undefined ? {} : {ATELIER_BOTTEGA: bottegaEnv}),
+    // A pairing code goes to the terminal only when you started Atelier from one; the desktop launchers keep a log file.
+    ATELIER_BOTTEGA_PRINT: !urlFile && process.stdout.isTTY ? '1' : '0',
     ATELIER_OMNIROUTE_KEY: process.env.ATELIER_OMNIROUTE_KEY || 'not-needed',
     ATELIER_CHATGPT_BRIDGE_KEY: process.env.ATELIER_CHATGPT_BRIDGE_KEY || 'not-needed'}});
 let pending = '';

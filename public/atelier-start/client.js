@@ -131,6 +131,76 @@ window.__ModuleLoader__.load({id: '@arcitech/atelier-start', factory: require =>
       return status;
     };
 
+    /** Bottega (team mode) state for the card below. `data` stays null on a device paired through Bottega: the gateway
+     *  never forwards this channel there, so only the person at the host computer sees the card. */
+    const useBottega = () => {
+      const [data, setData] = useState(null);
+      const [error, setError] = useState('');
+      const [busy, setBusy] = useState(false);
+      const call = (endpoint, payload) => ctx.connection.rpc.call('/atelier-bottega', endpoint, payload ?? {})
+        .then(result => { if (result?.ok) return result.value; throw Error(result?.error?.message ?? 'Bottega did not answer.'); });
+      useEffect(() => {
+        if (!ctx.connection?.rpc) return undefined;
+        // On a device paired through Bottega the gateway refuses this channel (HTTP 403): ask once more, then stop asking.
+        let live = true, timer, failures = 0;
+        const tick = () => {
+          void call('status').then(value => { failures = 0; if (live) setData(value); }, () => { failures += 1; })
+            .finally(() => { if (live && failures < 2) timer = setTimeout(tick, 4000); });
+        };
+        tick();
+        return () => { live = false; clearTimeout(timer); };
+      }, []);
+      const act = (endpoint, payload) => {
+        setBusy(true);
+        return call(endpoint, payload).then(value => { setData(value); setError(''); }, e => setError(e.message)).finally(() => setBusy(false));
+      };
+      return {data, error, busy, act};
+    };
+
+    const clock = time => new Date(time).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+
+    /** The Bottega card: a switch, where to pair, the code, the paired devices. */
+    const BottegaCard = () => {
+      const {data, error, busy, act} = useBottega();
+      if (data === null) return null;
+      const on = data.on;
+      const code = data.code ? `${data.code.code.slice(0, 3)} ${data.code.code.slice(3)}` : null;
+      return h('section', {className: 'ats-section ats-bottega', 'aria-labelledby': 'ats-bottega-heading'},
+        h('div', {className: 'ats-section-head'},
+          h('h2', {id: 'ats-bottega-heading', className: 'ats-h2'}, 'Bottega'),
+          h('p', {className: 'ats-hint'}, 'Team mode: your workshop, shared on your network.')),
+        h('div', {className: 'ats-bottega-body'},
+          h('div', {className: 'ats-bottega-switch'},
+            h('button', {type: 'button', role: 'switch', 'aria-checked': on, 'aria-label': 'Bottega: share on my network', className: 'ats-switch', 'data-on': on ? 'true' : 'false',
+              disabled: busy, onClick: () => { void act('enable', {on: !on}); }}, h('span', {className: 'ats-switch-knob', 'aria-hidden': true})),
+            h('span', {className: 'ats-bottega-label'}, on ? 'Sharing on my network' : 'Share on my network')),
+          !on && h('p', {className: 'ats-note'}, 'Colleagues on the same office network open this Atelier from their own browser, tablet or phone, after a one-time pairing code. Off by default: until you switch it on, Atelier answers only on this computer. Tailscale support (reaching it from outside your network) is planned and coming soon.'),
+          on && h(Fragment, null,
+            data.waiting && h('p', {className: 'ats-note', role: 'status'}, 'Waiting for a private network address. Join your office Wi-Fi or plug in a cable.'),
+            data.problems.map(text => h('p', {key: text, className: 'ats-note ats-warn', role: 'status'}, text)),
+            data.host && !data.host.ok && h('p', {className: 'ats-note ats-warn', role: 'status'}, `Bottega cannot sign in to Atelier on this computer. ${data.host.message}`),
+            data.urls.length > 0 && h('div', {className: 'ats-bottega-block'},
+              h('p', {className: 'ats-note'}, data.urls.length === 1 ? 'On the other device, open this address:' : 'On the other device, open one of these addresses:'),
+              h('ul', {className: 'ats-bottega-urls', role: 'list'}, data.urls.map(url => h('li', {key: url}, h('code', null, url))))),
+            data.urls.length > 0 && h('div', {className: 'ats-bottega-block'},
+              code ? h(Fragment, null,
+                h('p', {className: 'ats-note'}, 'Then enter this pairing code:'),
+                h('p', {className: 'ats-bottega-code', 'aria-label': `Pairing code ${data.code.code.split('').join(' ')}`}, code),
+                h('p', {className: 'ats-note'}, `Valid until ${clock(data.code.expiresAt)}, for one device.`))
+                : h('p', {className: 'ats-note'}, 'No pairing code is active.'),
+              h('button', {type: 'button', className: 'ats-btn', disabled: busy, onClick: () => { void act('code'); }}, code ? 'New code' : 'Show a pairing code')),
+            h('div', {className: 'ats-bottega-block ats-bottega-wide'},
+              h('div', {className: 'ats-bottega-devhead'},
+                h('p', {className: 'ats-note ats-bottega-devtitle'}, data.devices.length === 0 ? 'No devices are paired yet.' : `Paired devices (${data.devices.length})`),
+                data.devices.length > 1 && h('button', {type: 'button', className: 'ats-btn ats-btn-quiet', disabled: busy, onClick: () => { void act('revoke-all'); }}, 'Revoke all')),
+              data.devices.length > 0 && h('ul', {className: 'ats-list ats-bottega-devices', role: 'list'}, data.devices.map(device => h('li', {key: device.id, className: 'ats-bottega-device'},
+                h('span', {className: 'ats-bottega-devname'}, device.name),
+                h('span', {className: 'ats-bottega-devmeta'}, [device.agent !== device.name && device.agent, device.address, `last used ${ago(device.lastSeen).toLowerCase()}`].filter(Boolean).join(' · ')),
+                h('button', {type: 'button', className: 'ats-btn ats-btn-quiet', disabled: busy, 'aria-label': `Revoke ${device.name}`, onClick: () => { void act('revoke', {id: device.id}); }}, 'Revoke'))))),
+            h('p', {className: 'ats-note ats-bottega-fine'}, 'Anyone you pair can use Atelier as you do, including approving its tool steps, so pair only people and devices you trust. Windows may ask whether to let Atelier through its firewall: allow Private networks only.')),
+          error && h('p', {className: 'ats-note ats-warn', role: 'alert'}, error)));
+    };
+
     /** Heading and orienting line. Root scope, so the cold start (no workspace yet) is covered too. */
     const Head = () => {
       const sessions = useList();
@@ -200,7 +270,8 @@ window.__ModuleLoader__.load({id: '@arcitech/atelier-start', factory: require =>
           line && h(Fragment, null,
             h('span', {className: 'ats-dot', 'aria-hidden': true}),
             h('span', {className: 'ats-status-parts'}, line.parts.filter(Boolean).join('  ·  ')),
-            line.note && h('span', {className: 'ats-status-note'}, line.note))));
+            line.note && h('span', {className: 'ats-status-note'}, line.note))),
+        h(BottegaCard));
 
       return h(Fragment, null, h('span', {ref: anchor, className: 'ats-anchor', hidden: true}), host && createPortal(page, host));
     };
@@ -335,6 +406,35 @@ ${HERO} [data-input-scroll] [class*="_input"] { min-height: 72px; }
 @media (prefers-reduced-motion: reduce) {
   .ats-row { transition: none; }
 }
+
+/* Bottega (team mode) card */
+.ats-bottega-body { display: grid; gap: 12px; padding: 12px 8px 0; border-top: 1px solid var(--ats-rule); }
+.ats-bottega-switch { display: flex; align-items: center; gap: 12px; }
+.ats-bottega-label { font-size: 14px; line-height: 20px; color: var(--ats-ink); }
+.ats-switch { appearance: none; position: relative; flex: none; width: 36px; height: 20px; padding: 0; border: 1px solid var(--ats-rule); border-radius: 10px; background: transparent; cursor: pointer; transition: background-color 120ms ease-out; }
+.ats-switch[data-on="true"] { background: var(--ats-accent); border-color: var(--ats-accent); }
+.ats-switch-knob { position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: var(--ats-ink-2); transition: transform 120ms ease-out; }
+.ats-switch[data-on="true"] .ats-switch-knob { transform: translateX(16px); background: #fff; }
+.ats-switch:focus-visible, .ats-btn:focus-visible { outline: 2px solid var(--ats-accent); outline-offset: 2px; }
+.ats-switch:disabled, .ats-btn:disabled { opacity: .55; cursor: default; }
+.ats-note { margin: 0; max-width: 64ch; font-size: 13px; line-height: 20px; color: var(--ats-ink-2); text-wrap: pretty; }
+.ats-note.ats-warn { color: var(--ats-warn); }
+.ats-bottega-block { display: grid; gap: 6px; justify-items: start; }
+.ats-bottega-wide { justify-items: stretch; }
+.ats-bottega-urls { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.ats-bottega-urls code { font-family: var(--ds-font-family-code, ui-monospace, monospace); font-size: 13px; line-height: 20px; color: var(--ats-ink); user-select: all; background: none; padding: 0; }
+.ats-bottega-code { margin: 0; font-family: var(--ds-font-family-code, ui-monospace, monospace); font-size: 30px; line-height: 38px; font-weight: 600; letter-spacing: .12em; color: var(--ats-ink); user-select: all; }
+.ats-btn { appearance: none; min-height: 32px; padding: 0 14px; border: 1px solid var(--ats-rule); border-radius: 16px; background: transparent; color: var(--ats-ink); font: inherit; font-size: 13px; cursor: pointer; }
+.ats-btn:hover:not(:disabled) { background: var(--ats-hover); }
+.ats-btn-quiet { min-height: 28px; padding: 0 10px; color: var(--ats-ink-2); }
+.ats-bottega-devhead { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.ats-bottega-devtitle { font-weight: 600; color: var(--ats-ink); }
+.ats-bottega-device { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "name action" "meta action"; column-gap: 12px; align-items: center; padding: 8px 0; }
+.ats-bottega-devname { grid-area: name; font-size: 14px; line-height: 20px; color: var(--ats-ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ats-bottega-devmeta { grid-area: meta; font-size: 12px; line-height: 18px; color: var(--ats-ink-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ats-bottega-device .ats-btn { grid-area: action; }
+.ats-bottega-fine { font-size: 12px; line-height: 18px; color: var(--ats-ink-3); }
+@media (prefers-reduced-motion: reduce) { .ats-switch, .ats-switch-knob { transition: none; } }
 
 /* The canvas toggle in the session header is a bare browser button; give it the header's own pill shape. */
 [data-atelier-canvas-toggle] {
