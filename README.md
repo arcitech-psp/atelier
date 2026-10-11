@@ -18,6 +18,7 @@ You describe the project; Atelier works through it with you, one visible step at
 - **Windows 10/11:** download the installer above, open it, click through. It installs for your user only (no administrator rights), adds a Start menu entry (ARCITECH > Atelier Preview) and a desktop icon, and brings everything it needs. Not code-signed yet: if SmartScreen warns, choose **More info > Run anyway**.
 - **Linux and WSL2 (Ubuntu 22.04/24.04):** download the archive, then `tar -xzf atelier-preview-0.1.0-linux-x64.tar.gz && cd atelier-preview-0.1.0-linux-x64 && ./install.sh`.
 - Then **connect your model** on the Model roles page that opens the first time: Ollama, LM Studio, llama.cpp, vLLM, any OpenAI-compatible URL with a key, free cloud tiers through OmniRoute, or your ChatGPT plan.
+- **Use it free:** see the [free models guide](docs/FREE_MODELS.md).
 
 Step by step with pictures: [Installing Atelier](docs/INSTALL.md) · [Add your endpoint](docs/add-your-endpoint.md) · [FAQ](docs/FAQ.md) · [Troubleshooting](docs/troubleshooting.md). Updates are in Settings > Updates: you check when you like (automatic updates are off unless you turn them on), and every update can be rolled back.
 
