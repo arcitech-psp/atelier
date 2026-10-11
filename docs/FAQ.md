@@ -21,6 +21,9 @@ Windows: `%APPDATA%\Atelier-Preview`. Linux and WSL: `~/.config/atelier-preview`
 **Does Atelier send my data anywhere?**
 No telemetry. It talks to the model endpoints you connect, to IngeTrazo on your computer if you use it, and to GitHub only when you check for updates (or turn automatic updates on). If you connect a cloud model, what you send goes to that provider.
 
+**Can my colleagues use my Atelier?**
+Yes, with Bottega (team mode): switch on **Share on my network** and pair their devices with a code, all on your office network. It is off by default. See [Bottega](BOTTEGA.md). Reaching it from outside your network (Tailscale) is planned and coming soon.
+
 **Does it update itself?**
 Only if you turn **Install updates automatically** on in Settings > Updates (off by default). Otherwise you press **Check for updates** when you like. Every update is checked against its SHA-256 fingerprint, installed next to your current version, and can be rolled back with one click.
 

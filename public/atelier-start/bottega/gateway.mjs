@@ -150,6 +150,7 @@ export function createGatewayServer(options) {
       return respond(res, 200, JSON.stringify({bottega: true, paired: Boolean(device)}), 'application/json');
     }
     if (url.pathname === `${OWN_PREFIX}signout` && req.method === 'POST') {
+      if (refusal(req.headers, hostHeader(req))) return respond(res, 403, 'Refused');
       if (device) { devices.revoke(device.id); registry.closeDevice(device.id); log(`device "${device.name}" signed itself out`); }
       return redirect(res, 303, `${OWN_PREFIX}pair`, {'set-cookie': deviceCookie('', 0)});
     }

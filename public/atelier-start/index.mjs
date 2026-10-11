@@ -1,5 +1,6 @@
 // Atelier new-chat page, host half: one read-only RPC that tells the page which model new chats use and whether its
-// endpoint answers. The browser half (client.js) draws the page.
+// endpoint answers, and the owner-only RPC channel of Bottega (team mode, ./bottega). The browser half (client.js)
+// draws the page.
 import { readFile } from 'node:fs/promises';
 import { dshHomePath } from '@deepseek-ai/dsh-home-paths';
 import { readStatus } from './status.mjs';
@@ -35,7 +36,7 @@ const falsy = value => /^(0|no|off|false)$/i.test(String(value ?? '').trim());
 
 /**
  * Bottega (team mode). Off unless the owner switched it on: from the start page (remembered for next time), or with
- * ATELIER_BOTTEGA=1 at launch. ATELIER_BOTTEGA=0 keeps it off whatever was remembered. The RPC channel below is the
+ * ATELIER_BOTTEGA=1 / --bottega for one run. ATELIER_BOTTEGA=0 keeps it off whatever was remembered. The RPC channel below is the
  * only way to change it, and the gateway never forwards that channel to a paired device.
  */
 function mountBottega(ctx) {
@@ -51,8 +52,10 @@ function mountBottega(ctx) {
     bind: bind.length > 0 ? bind : undefined,
     log: say,
   });
-  const turnOn = async () => {
-    await bottega.start(); bottega.remember(true);
+  // Only the switch on the start page is remembered for the next start; a launch flag or variable is for that run alone.
+  const turnOn = async ({remember = false} = {}) => {
+    await bottega.start();
+    if (remember) bottega.remember(true);
     if (!bottega.pairing.active()) bottega.newCode();
   };
   const turnOff = () => { bottega.stop(); bottega.remember(false); };
@@ -61,7 +64,7 @@ function mountBottega(ctx) {
   const dispose = ctx.connection.rpc.handle('/atelier-bottega', async (endpoint, payload) => {
     try {
       if (endpoint === 'status') return await answer();
-      if (endpoint === 'enable') { if (payload?.on === true) await turnOn(); else turnOff(); return await answer(); }
+      if (endpoint === 'enable') { if (payload?.on === true) await turnOn({remember: true}); else turnOff(); return await answer(); }
       if (endpoint === 'code') { if (!bottega.running) throw Error('Bottega is off.'); bottega.newCode(); return await answer(); }
       if (endpoint === 'revoke') { if (typeof payload?.id !== 'string') throw Error('Which device?'); bottega.revoke(payload.id); return await answer(); }
       if (endpoint === 'revoke-all') { bottega.revokeAll(); return await answer(); }

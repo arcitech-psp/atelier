@@ -12,6 +12,8 @@ import {createBottega} from '../bottega/bottega.mjs';
 import {createGatewayServer, isManagementPath, forwardHeaders, refusal, rewriteLocation} from '../bottega/gateway.mjs';
 import {DeviceStore, FailureLimiter, PairingCodes, cleanName, describeAgent} from '../bottega/devices.mjs';
 import {allowedHosts, clientAllowed, isPrivateLan, lanInterfaces} from '../bottega/network.mjs';
+import {tokenSource} from '../bottega/host-session.mjs';
+import {writeFileSync} from 'node:fs';
 
 const LAUNCH_TOKEN = 'launch-token-for-the-test-host';
 const HOST_SESSION = 'dsh-auth-test=host-session-value';
@@ -421,6 +423,39 @@ describe('Bottega rules', () => {
     assert.equal(rewriteLocation('http://localhost:3081/a', 3081, self), 'http://192.168.1.20:3082/a');
     assert.equal(rewriteLocation('/relative', 3081, self), '/relative');
     assert.equal(rewriteLocation('http://example.com:3081/a', 3081, self), 'http://example.com:3081/a');
+  });
+
+  test('the launch token comes from the environment first, else a file that is re-read only every few seconds', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'bottega-token-'));
+    const file = join(dir, 'token');
+    try {
+      let t = 0;
+      const read = tokenSource(file, {}, {ttlMs: 3000, now: () => t});
+      assert.equal(read(), undefined, 'no file yet');
+      writeFileSync(file, 'abc\n'); t = 1000;
+      assert.equal(read(), undefined, 'still cached');
+      t = 5000;
+      assert.equal(read(), 'abc');
+      writeFileSync(file, 'def'); t = 5100;
+      assert.equal(read(), 'abc', 'cached');
+      read.reset();
+      assert.equal(read(), 'def', 'reset reads at once');
+      assert.equal(tokenSource(file, {DSH_BROWSER_LAUNCH_TOKEN: ' from-env '})(), 'from-env');
+    } finally { rmSync(dir, {recursive: true, force: true}); }
+  });
+
+  test('without a launch token the status says why instead of failing silently', async () => {
+    const ctx = await setup({token: () => undefined});
+    try {
+      await ctx.bottega.start();
+      const status = await ctx.bottega.status();
+      assert.equal(status.host.ok, false);
+      assert.match(status.host.message, /launcher/);
+      const { code } = ctx.bottega.newCode();
+      const cookie = deviceCookie(await pair(ctx, code));
+      const response = await get(`${ctx.base}/echo`, {cookie});
+      assert.equal(response.status, 502, 'a paired device gets a clear 502, not a hang');
+    } finally { ctx.finish(); }
   });
 
   test('labels are cleaned', () => {

@@ -12,10 +12,11 @@ Read in this order the first time:
 5. [Saving and reopening work](saving-and-reopening.md): where chats, boards and geometry are kept.
 6. [Exporting to Unreal Engine](export-to-unreal.md): IngeTrazo to GLB to Unreal, at real scale.
 7. [Skills on demand](skills.md): how Vitruvius (and Vitruvius Zero) stays light, and how to write your own skill.
-8. [Troubleshooting](troubleshooting.md) and the [FAQ](FAQ.md)
-9. [Licence in plain words](licence.md)
-10. [Credits](credits.md): the projects Atelier is built on.
-11. For maintainers: [Following DSH releases](UPSTREAM_SYNC.md).
+8. [Bottega: team mode](BOTTEGA.md): share one Atelier with colleagues on your office network, paired once with a code. Off by default.
+9. [Troubleshooting](troubleshooting.md) and the [FAQ](FAQ.md)
+10. [Licence in plain words](licence.md)
+11. [Credits](credits.md): the projects Atelier is built on.
+12. For maintainers: [Following DSH releases](UPSTREAM_SYNC.md).
 
 ## What is in this preview, honestly
 
@@ -30,6 +31,7 @@ Read in this order the first time:
 | IngeTrazo connection | Experimental. The connection works; how well geometry comes out depends on your model. Check every result. |
 | Export to Unreal Engine | Done in IngeTrazo and Unreal themselves (GLB). Atelier does not drive Unreal in this preview. |
 | Model roles and Set me up | New. One endpoint per role with Test; dictation, Read aloud and project search appear when their role is connected. Set me up tested with small stand-in files; see [Model roles](ROLES_SETUP.md). |
+| Bottega (team mode) | New. Other devices on your private network use one Atelier after a pairing code; off by default. LAN only, plain HTTP; Tailscale support is planned and coming soon. See [Bottega](BOTTEGA.md). |
 | Not in this preview | Wind studies, the tablet app, the full brief-to-board workflow. |
 
 Atelier is **source-available** under the PolyForm Shield 1.0.0 licence: free to use, read, change and share, but not to build a competing product. See [Licence in plain words](licence.md).

@@ -84,11 +84,15 @@ Prefer the keyboard? `atelier` opens a terminal UI on the same engine as the web
 
 The installer puts `atelier` on your PATH (Windows, Linux and WSL). From a checkout, run `pnpm exec atelier`. See [docs/CLI.md](docs/CLI.md) for the keys, the commands and scripting examples. Atelier is made by ARCITECH.
 
+## Bottega: team mode
+
+**Bottega** (the Renaissance workshop where a master works with assistants) lets other people on your office network use one Atelier from their own browser, tablet or phone. One computer hosts it (the model, the tools and the project files); everyone else pairs once with a six-digit code. It is **off by default**; switch **Share on my network** on in the Bottega card on the new-session page, or start with `atelier web --bottega`. Only private network addresses are served, nothing is reachable before pairing, you see and revoke every paired device, and Atelier itself keeps listening on localhost only. Windows asks once whether to allow Atelier on **Private** networks. Anyone you pair can use Atelier as you do, so pair people you trust. Tailscale support (reaching it from outside your network) is planned and coming soon. See [docs/BOTTEGA.md](docs/BOTTEGA.md).
+
 ## What runs where
 
 | Part | Where it runs | Needed? | Notes |
 |---|---|---|---|
-| Atelier | Your computer | Yes | Binds to localhost only. |
+| Atelier | Your computer | Yes | Binds to localhost only. [Bottega](docs/BOTTEGA.md), when you switch it on, adds a pairing-protected door on your private network. |
 | Language model | Your computer, or any OpenAI-compatible endpoint | Yes, your choice | Not included. If you use a remote endpoint, what you send goes there. |
 | Image endpoint (e.g. ComfyUI) | Your choice | Optional | Concept images only; not included. |
 | IngeTrazo + its official MCP bridge | Your computer | Optional | Separate install, GPL-3.0-or-later. Never bundled. |

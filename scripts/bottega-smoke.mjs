@@ -7,7 +7,11 @@
 // Bottega listens on 127.0.0.1 here (ATELIER_BOTTEGA_BIND), so the check needs no network and never opens a port
 // on your LAN. Pick ports that nothing uses; the defaults are far from Atelier's own 3081 and 3082.
 //
-//   node scripts/bottega-smoke.mjs [--app <folder with start-preview.mjs>] [--port 39081] [--bottega-port 39080] [--node <node binary>]
+//   node scripts/bottega-smoke.mjs [--app <folder with start-preview.mjs>] [--port 39081] [--bottega-port 39080] [--node <node binary>] [--lan]
+//
+// --lan runs the real thing instead: Bottega finds this computer's private network address itself and listens there,
+// and the second client connects to that address (from this same computer). Use it once on a real machine; a firewall
+// prompt may appear. Without it, everything stays on loopback.
 // Exit code 0 means every check passed.
 import {createServer} from 'node:http';
 import {spawn} from 'node:child_process';
@@ -15,7 +19,7 @@ import {randomUUID} from 'node:crypto';
 import {mkdtempSync, existsSync, readFileSync, rmSync} from 'node:fs';
 import {networkInterfaces, tmpdir} from 'node:os';
 import {dirname, join, resolve} from 'node:path';
-import {fileURLToPath} from 'node:url';
+import {fileURLToPath, pathToFileURL} from 'node:url';
 
 const args = process.argv.slice(2);
 const option = (name, fallback) => args.includes(name) ? args[args.indexOf(name) + 1] : fallback;
@@ -23,6 +27,7 @@ const app = resolve(option('--app', join(dirname(fileURLToPath(import.meta.url))
 const port = Number(option('--port', '39081'));
 const bottegaPort = Number(option('--bottega-port', '39080'));
 const node = option('--node', process.execPath);
+const lan = args.includes('--lan');
 const results = [];
 const check = (name, ok, detail = '') => { results.push({name, ok}); process.stdout.write(`${ok ? 'PASS' : 'FAIL'}  ${name}${detail ? `  (${detail})` : ''}\n`); };
 
@@ -40,7 +45,7 @@ const child = spawn(node, [join(app, 'start-preview.mjs'), '--url-file', urlFile
   cwd: app, windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'],
   env: {...process.env, ATELIER_HOME: home, ATELIER_PORT: String(port), ATELIER_BASE_URL: `http://127.0.0.1:${model.address().port}/v1`,
     ATELIER_MODEL: 'smoke-model', ATELIER_INGETRAZO_PORT: '4799', DSH_HOME: '', ATELIER_INSTALL_ROOT: '',
-    ATELIER_BOTTEGA: '', ATELIER_BOTTEGA_BIND: '127.0.0.1', ATELIER_BOTTEGA_PORT: String(bottegaPort)},
+    ATELIER_BOTTEGA: '', ATELIER_BOTTEGA_BIND: lan ? '' : '127.0.0.1', ATELIER_BOTTEGA_PORT: String(bottegaPort)},
 });
 child.stdout.on('data', chunk => { output += chunk; });
 child.stderr.on('data', chunk => { output += chunk; });
@@ -55,7 +60,10 @@ while (!ready && Date.now() - started < 180000 && child.exitCode === null) {
 check('Atelier starts and writes its address', ready, `${((Date.now() - started) / 1000).toFixed(0)} s`);
 
 const host = `http://localhost:${port}`;
-const gateway = `http://127.0.0.1:${bottegaPort}`;
+const {lanInterfaces} = await import(pathToFileURL(join(app, 'public', 'atelier-start', 'bottega', 'network.mjs')).href);
+const lanAddress = lanInterfaces()[0]?.address;
+if (lan && !lanAddress) { process.stdout.write('FAIL  --lan needs a private network address on this computer\n'); process.exit(1); }
+const gateway = `http://${lan ? lanAddress : '127.0.0.1'}:${bottegaPort}`;
 /** Call a Bottega RPC on the host the way the start page does. */
 const rpc = async (cookie, endpoint, payload = {}) => {
   const response = await fetch(`${host}/atelier-bottega/${endpoint}`, {method: 'POST', headers: {'content-type': 'application/json', cookie},
@@ -78,8 +86,10 @@ if (ready) {
 
     const on = await rpc(ownerCookie, 'enable', {on: true});
     const state = on.result?.value;
-    check('Bottega switches on', on.result?.ok === true && state?.on === true && state.urls?.length === 1, state?.urls?.join(' '));
+    check('Bottega switches on', on.result?.ok === true && state?.on === true && state.urls?.length === 1 && state.urls[0] === `${gateway}/`, state?.urls?.join(' '));
     check('Bottega shows a six-digit pairing code', /^\d{6}$/.test(state?.code?.code ?? ''));
+    const remembered = () => { try { return JSON.parse(readFileSync(join(home, 'atelier-bottega', 'settings.json'), 'utf8')).enabled; } catch { return undefined; } };
+    check('the switch is remembered for the next start', remembered() === true);
 
     const anonymous = await fetch(`${gateway}/`, {redirect: 'manual', headers: {accept: 'text/html', 'sec-fetch-dest': 'document'}});
     check('an unpaired client is sent to the pairing page', anonymous.status === 302 && anonymous.headers.get('location') === '/__bottega/pair', `HTTP ${anonymous.status}`);
@@ -95,6 +105,8 @@ if (ready) {
     const deviceCookie = cookieOf(paired);
     check('the right code pairs a second client', paired.status === 303 && Boolean(deviceCookie), `HTTP ${paired.status}`);
     check('the device cookie is not the host\'s login', !(deviceCookie ?? '').startsWith('dsh-auth-'));
+    const stored = readFileSync(join(home, 'atelier-bottega', 'devices.json'), 'utf8');
+    check('the device token is stored only as a hash', stored.includes('"hash"') && !stored.includes((deviceCookie ?? '=').split('=')[1]));
 
     const chat = await fetch(`${gateway}/`, {headers: {cookie: deviceCookie, accept: 'text/html', 'sec-fetch-dest': 'document'}});
     const html = await chat.text();
@@ -117,9 +129,10 @@ if (ready) {
 
     const off = await rpc(ownerCookie, 'enable', {on: false});
     check('Bottega switches off and its port closes', off.result?.value?.on === false && await closed(`${gateway}/__bottega/ping`));
+    check('off is remembered too', remembered() === false);
     // The host must not answer on this computer's own network address (it listens on localhost only), Bottega on or off.
-    const lan = Object.values(networkInterfaces()).flat().find(a => a && a.family === 'IPv4' && !a.internal)?.address;
-    check('the host itself stays on localhost', lan === undefined || await closed(`http://${lan}:${port}/`), lan ? `tried ${lan}` : 'no network address to try');
+    const hostLan = Object.values(networkInterfaces()).flat().find(a => a && a.family === 'IPv4' && !a.internal)?.address;
+    check('the host itself stays on localhost', hostLan === undefined || await closed(`http://${hostLan}:${port}/`), hostLan ? `tried ${hostLan}` : 'no network address to try');
     check('no pairing code or token reached the log', !/token=/.test(output) && !new RegExp(String.raw`\b${state.code.code}\b`).test(output));
   } catch (error) {
     check('end-to-end run', false, error?.stack ?? String(error));

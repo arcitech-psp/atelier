@@ -11,7 +11,9 @@
   "packageManager": "pnpm@10.34.6",
   "scripts": {
     "start": "node start-preview.mjs",
-    "roles": "node public/atelier-roles/cli.mjs"
+    "roles": "node public/atelier-roles/cli.mjs",
+    "test:bottega": "node --test \"public/atelier-start/test/*.test.mjs\"",
+    "smoke:bottega": "node scripts/bottega-smoke.mjs"
   },
   "dependencies": {
     "@deepseek-ai/dsh": "workspace:*",

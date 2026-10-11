@@ -26,6 +26,12 @@ test('web takes --port and --open', () => {
   assert.throws(() => parseArgs(['web', '--port']), UsageError);
 });
 
+test('web takes --bottega (team mode)', () => {
+  const p = parseArgs(['web', '--bottega', '--port', '3393']);
+  assert.equal(p.command, 'web'); assert.equal(p.options.bottega, true); assert.equal(p.options.port, 3393);
+  assert.equal(parseArgs(['web']).options.bottega, undefined);
+});
+
 test('chat joins the prompt and collects options', () => {
   const p = parseArgs(['chat', '--json', 'two', 'words', '--attach', 'a.png', '--attach=b.md', '--port=3393']);
   assert.equal(p.args.prompt, 'two words');

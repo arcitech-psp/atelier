@@ -27,7 +27,7 @@ export class HostSession {
     return this.pending;
   }
 
-  invalidate() { this.cached = null; }
+  invalidate() { this.cached = null; this.token.reset?.(); }
 
   async signIn(token) {
     const fail = (code, message) => { this.lastError = message; throw Object.assign(new Error(message), {code}); };
@@ -48,11 +48,21 @@ export class HostSession {
   }
 }
 
-/** Where to read the launch token: the process environment (set by launchers), else the file the launcher writes. */
-export function tokenSource(file, env = process.env) {
-  return () => {
+/**
+ * Where to read the launch token: the process environment (set by launchers), else the file the launcher writes.
+ * The file is re-read at most every few seconds (and at once after a failed sign-in), not on every request.
+ */
+export function tokenSource(file, env = process.env, {ttlMs = 3000, now = Date.now} = {}) {
+  let cached;
+  const read = () => {
     const fromEnv = env.DSH_BROWSER_LAUNCH_TOKEN?.trim();
     if (fromEnv) return fromEnv;
-    try { return readFileSync(file, 'utf8').trim() || undefined; } catch { return undefined; }
+    if (cached && now() - cached.at < ttlMs) return cached.value;
+    let value;
+    try { value = readFileSync(file, 'utf8').trim() || undefined; } catch { value = undefined; }
+    cached = {value, at: now()};
+    return value;
   };
+  read.reset = () => { cached = undefined; };
+  return read;
 }
