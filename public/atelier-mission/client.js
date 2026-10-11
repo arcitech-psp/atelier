@@ -86,13 +86,17 @@ window.__ModuleLoader__.load({id: '@arcitech/atelier-mission', factory: require 
         let alive = true, timer;
         const loop = async () => {
           if (!alive) return;
+          // A hidden tab does not ask the model servers anything; it looks again when it is shown.
+          if (document.hidden && store.models) { timer = setTimeout(loop, 15000); return; }
           await refreshModels();
           const state = store.models?.summary?.state;
           const busy = state === 'loading' || (store.models?.waitingMs ?? 0) > 0;
           if (alive) timer = setTimeout(loop, busy ? 2000 : 5000);
         };
         void loop();
-        return () => { alive = false; clearTimeout(timer); };
+        const shown = () => { if (!document.hidden) { clearTimeout(timer); void loop(); } };
+        document.addEventListener('visibilitychange', shown);
+        return () => { alive = false; clearTimeout(timer); document.removeEventListener('visibilitychange', shown); };
       }, []);
       useEffect(() => {
         const openFromElsewhere = () => setOpen(true);
@@ -108,7 +112,7 @@ window.__ModuleLoader__.load({id: '@arcitech/atelier-mission', factory: require 
         ? `${summary.label}: ${summary.model} - ${STATE_WORD[state].toLowerCase()}${summary.inferred ? ' (waiting for the first token)' : ''}. Open Mission Control.`
         : 'Open Mission Control';
       return h(Fragment, null,
-        h('button', {type: 'button', ref: button, className: 'msn-chip', 'data-state': state, 'aria-haspopup': 'dialog', 'aria-expanded': open, title, onClick: () => setOpen(value => !value)},
+        h('button', {type: 'button', ref: button, className: 'msn-chip', 'data-state': state, 'aria-haspopup': 'dialog', 'aria-expanded': open, 'aria-label': title, title, onClick: () => setOpen(value => !value)},
           h('span', {className: 'msn-dot', 'aria-hidden': true}),
           h('span', {className: 'msn-chip-model'}, label),
           tracked ? h('span', {className: 'msn-chip-state'}, word) : null),
@@ -124,7 +128,17 @@ window.__ModuleLoader__.load({id: '@arcitech/atelier-mission', factory: require 
         void refreshSnapshot();
         const poll = setInterval(() => { void refreshSnapshot(); }, 2000);
         const clock = setInterval(() => tick(value => value + 1), 1000);
-        const escape = event => { if (event.key === 'Escape') onClose(); };
+        const escape = event => {
+          if (event.key === 'Escape') { onClose(); return; }
+          if (event.key !== 'Tab') return;
+          // Keep keyboard focus inside the open sheet (it is a modal dialog).
+          const items = [...document.querySelectorAll('.msn-sheet button:not(:disabled), .msn-sheet input:not(:disabled), .msn-sheet select:not(:disabled)')];
+          if (items.length === 0) return;
+          const first = items[0], last = items[items.length - 1];
+          if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+          else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+          else if (!document.querySelector('.msn-sheet')?.contains(document.activeElement)) { event.preventDefault(); first.focus(); }
+        };
         document.addEventListener('keydown', escape);
         closeRef.current?.focus();
         return () => { clearInterval(poll); clearInterval(clock); document.removeEventListener('keydown', escape); };
@@ -180,7 +194,7 @@ window.__ModuleLoader__.load({id: '@arcitech/atelier-mission', factory: require 
             return h('li', {key: `${row.role}:${row.model}`, className: 'msn-model'},
               h('div', {className: 'msn-model-main'}, h('span', {className: 'msn-model-role'}, row.label), h('span', {className: 'msn-model-name', title: row.model}, row.model)),
               h(Pill, {state: row.state}, STATE_WORD[row.state] ?? row.state),
-              h('div', {className: 'msn-model-sub'}, `${row.providerName}${detail.length ? ` · ${detail.join(' · ')}` : ''}`));
+              h('div', {className: 'msn-model-sub'}, `${row.state === 'offline' && row.provider === 'other' ? 'Model server' : row.providerName}${detail.length ? ` · ${detail.join(' · ')}` : ''}`));
           })),
         loadingNow.length > 0 ? h('p', {className: 'msn-callout', role: 'status'}, 'A model is being loaded. The reply starts as soon as it is in memory; the harness waits for it.') : null,
         swappers.length > 0 && !snap.swap.enabled
@@ -221,7 +235,7 @@ window.__ModuleLoader__.load({id: '@arcitech/atelier-mission', factory: require 
           h(Meter, {label: 'Memory', value: memoryPercent, text: machine.memory ? `${mib(machine.memory.usedMiB)} of ${mib(machine.memory.totalMiB)}` : 'n/a', hot: memoryPercent > 92})),
         rows.length > 1 ? h('div', {className: 'msn-sparks'},
           h(Spark, {rows, index: 1, max: 100, label: 'GPU use', unit: '%'}), h(Spark, {rows, index: 4, label: 'GPU power', unit: ' W'}),
-          h(Spark, {rows, index: 2, label: 'GPU memory', unit: ' MB'}), h(Spark, {rows, index: 5, max: 100, label: 'Processor', unit: '%'})) : null);
+          h(Spark, {rows, index: 2, max: rows[rows.length - 1]?.[3] || undefined, label: 'GPU memory', unit: ' MB'}), h(Spark, {rows, index: 5, max: 100, label: 'Processor', unit: '%'})) : null);
     };
 
     // ---- tokens and speed ---------------------------------------------------------------------------------------------------------------
@@ -375,7 +389,8 @@ body[data-ds-dark-theme] .msn-chip, body[data-ds-dark-theme] .msn-scope { --msn-
 .msn-chip-model { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .msn-chip-state { color: var(--msn-ink-2); white-space: nowrap; }
 @media (max-width: 760px) { .msn-chip-state { display: none; } .msn-chip { max-width: 150px; } }
-@media (max-width: 480px) { .msn-chip { max-width: 120px; padding: 0 10px; } }
+/* Narrow screens: the dot alone (the full state is in the tooltip and the accessible name); the session header is crowded. */
+@media (max-width: 560px) { .msn-chip-model { display: none; } .msn-chip { padding: 0 11px; } }
 
 .msn-dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--msn-ink-3); }
 [data-state="loaded"] > .msn-dot, .msn-dot[data-state="loaded"] { background: var(--msn-ok); }

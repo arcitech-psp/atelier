@@ -63,7 +63,7 @@ if (ready) {
   check('web app refuses requests without the token', anonymous.status === 401 || anonymous.status === 403 || anonymous.status === 404, `HTTP ${anonymous.status}`);
   const cookie = (page.headers?.getSetCookie?.() ?? []).map(value => value.split(';')[0]).join('; ');
   const boot = await fetch(new URL('/', url), {headers: {cookie}}).then(r => r.text()).catch(() => '');
-  check('Atelier plugins are in the page (canvas, updates)', boot.includes('atelier-canvas') && boot.includes('atelier-updates'));
+  check('Atelier plugins are in the page (canvas, updates, Mission Control)', boot.includes('atelier-canvas') && boot.includes('atelier-updates') && boot.includes('atelier-mission'));
 }
 // Stop exactly what we started: the launcher, then its web-server child (found by parent process id on Windows).
 const serverPid = ready ? JSON.parse(readFileSync(urlFile, 'utf8')).serverPid : undefined;

@@ -229,6 +229,10 @@ export function apply(ctx, config = {}) {
     sctx.effect(() => () => { settings = undefined; });
   });
 
+  // Other Atelier parts ask how long to be patient with a model that has to load first (the vision and embedding calls of the
+  // Model roles page do): 0 while "Wait for models to load" is off.
+  ctx.provide('atelierMission', {waitMs: () => (state.swap.enabled ? state.swap.waitSeconds * 1000 : 0)});
+
   // ---- what the panel gets -----------------------------------------------------------------------------------------
   function snapshotCounters(time = Date.now()) {
     const day = state.days[localDay(time)] ?? {usage: emptyUsage(), energy: emptyEnergy()};

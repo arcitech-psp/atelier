@@ -90,6 +90,7 @@ By default the harness gives up on a model after five minutes with no answer, an
 - Press **Turn on**, and choose how many minutes to wait (default 15, at most 60).
 - For every model route that points to this computer or your own network, Atelier then raises three timers, so that the load is waited for rather than failed: the HTTP wait for the first byte of the reply, the provider's request timeout (`timeoutMs`), and the stream idle timer (`streamIdleTimeoutMs`). It also allows more retries (8, with pauses up to 15 s) for a refused connection or a server error while the server swaps. A silent server is still not retried after a long wait: that would hide a stuck server for hours.
 - Routes that point to hosted APIs on the internet keep their normal timers. A value you set yourself in `settings.yaml` is never overwritten, and **Turn off** removes only what Atelier added.
+- The vision and project-search (embeddings) calls of the [Model roles](ROLES_SETUP.md) normally wait 3 minutes for a reply; with this switch on they wait as long as you set.
 - It applies to your next message. Routes you add later (on the Model roles page) are covered the next time Atelier starts.
 
 Nothing else is needed for the **first request** to work: a request to a model that is not loaded waits inside the model server, and the answer starts as soon as the load is done. This setting only lengthens how long Atelier is patient.

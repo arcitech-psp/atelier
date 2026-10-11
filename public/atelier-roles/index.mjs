@@ -159,6 +159,9 @@ export function apply(ctx, config = {}) {
     return fetch(url, {...init, headers: {...init.headers, ...await authHeaders(id, cfg)}, redirect: 'error',
       signal: init.signal ? AbortSignal.any([init.signal, AbortSignal.timeout(timeout)]) : AbortSignal.timeout(timeout)});
   }
+  /** Vision and embedding calls wait 3 minutes; with "Wait for models to load" on (Mission Control) they wait as long as that is set to,
+   *  so a model that swaps in from disk is not given up on. */
+  const roleFetchTimeout = () => Math.max(180_000, ctx.get('atelierMission')?.waitMs?.() ?? 0);
   async function test(id, cfg = current(id)) {
     const role = roleById(id);
     if (!cfg?.baseURL) return {state: cfg?.managed ? 'connected' : 'not-set', message: cfg?.managed ? 'Uses a model from the Models settings.' : role.whenMissing};
@@ -246,7 +249,7 @@ export function apply(ctx, config = {}) {
     isSet: id => Boolean(current(id)?.baseURL),
     brainReadsImages,
     /** fetch() against a role's endpoint with its stored key; path is appended to the role's base address. */
-    fetch: (id, path, init) => call(id, path, init, current(id), 180_000),
+    fetch: (id, path, init) => call(id, path, init, current(id), roleFetchTimeout()),
     transcribe: (bytes, mime, signal) => transcribe(bytes, mime, current('stt'), signal),
     speak: (input, signal) => speak(input, current('tts'), signal),
   };
