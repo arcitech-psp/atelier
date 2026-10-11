@@ -16,7 +16,7 @@ WHAT IT DOES NOT COVER
   - ingetrazo-plugin/ stays under GPL-3.0-or-later whichever licence is chosen for ARCITECH's additions;
     its own LICENSE file sits beside it. Contributions to that folder are accepted under that licence.
   - Third-party packages keep their own licences (see NOTICE.md and licenses/).
-  - The names "Atelier" and "ARCITECH" and the AT logo are not licensed by this file (see TRADEMARK.md).
+  - The names "Atelier" and "ARCITECH" and the AIT logo are not licensed by this file (see TRADEMARK.md).
 
 Required Notice: © 2026 ARCITECH (Parth Patel) (parthpatel266@gmail.com)
 
