@@ -40,6 +40,8 @@ Then choose a workspace folder (Atelier reads and writes files only there, and a
 
 Stop Atelier with Ctrl+C. Your chats and canvas content stay in your home folder.
 
+Want colleagues on your office network to use this Atelier from their own browser, tablet or phone? Start with `pnpm start -- --bottega` (or switch on **Bottega** on the new-session page): it prints an address and a pairing code. It is off by default; see [docs/BOTTEGA.md](docs/BOTTEGA.md).
+
 ## No GPU? Use cloud AI instead (optional "Cloud" profile)
 
 You can run Atelier with no local model at all: only Atelier and your design software run on your computer, and the AI runs in the cloud. Two routes are included, and you can use either or both:
@@ -69,6 +71,8 @@ For images on the moodboard, set `ATELIER_IMAGE_ENDPOINT=http://127.0.0.1:18345/
 | `ATELIER_API_KEY` | API key for endpoints that need one | not needed for local servers |
 | `ATELIER_PORT` | Local web port | 3081 |
 | `ATELIER_HOME` | Your Atelier home folder | `./user-home` |
+| `ATELIER_BOTTEGA` | `1` starts Bottega (team mode on your private network) at launch, `0` keeps it off | off |
+| `ATELIER_BOTTEGA_PORT` | Port Bottega listens on | 3082 |
 
 To change the endpoint later, edit `settings.yaml` (`baseURL`, the model `id`, `contextWindow`, `maxTokens`) and the model id in `cordis.patch.yml` in your home folder, or delete both files and start again with new variables. The model list and keys can also be changed in the web app under Settings > Models.
 

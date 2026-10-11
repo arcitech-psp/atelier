@@ -16,7 +16,7 @@ Atelier by ARCITECH has a command, `atelier`, and a terminal UI for people who p
 | Command | What it does |
 |---|---|
 | `atelier` | Opens the terminal UI. Add `--session <id>` to open a chat, and `--theme auto\|truecolor\|256\|mono` to choose colours. |
-| `atelier web [--port N] [--open]` | Starts the web app. `--open` also opens your browser. |
+| `atelier web [--port N] [--open] [--bottega]` | Starts the web app. `--open` also opens your browser. `--bottega` also starts [Bottega](BOTTEGA.md) (team mode) and prints the address and a pairing code. |
 | `atelier chat "prompt"` | Answers one prompt and streams the answer to stdout; tool steps go to stderr. |
 | `atelier chat ... --json` | Prints one JSON object when the answer is done, for scripts. |
 | `atelier sessions list [--json] [--limit N]` | Lists your chats, newest first. It is the same list as the web app's sidebar. |

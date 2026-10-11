@@ -14,8 +14,8 @@ export const COMMANDS = {
   },
   web: {
     summary: 'start the web app (and open it with --open)',
-    usage: 'atelier web [--port <n>] [--open]',
-    options: {...SERVER, open: {kind: 'bool'}},
+    usage: 'atelier web [--port <n>] [--open] [--bottega]',
+    options: {...SERVER, open: {kind: 'bool'}, bottega: {kind: 'bool'}},
     positionals: [0, 0],
   },
   chat: {

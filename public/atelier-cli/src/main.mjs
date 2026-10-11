@@ -171,7 +171,8 @@ async function webCommand({options}, home, sessionHint) {
   }
   const port = await pickPort(options.port);
   const token = newLaunchToken();
-  const child = spawn(process.execPath, [START_PREVIEW, ...options.open ? ['--open'] : []], {
+  // --bottega: share this Atelier with paired devices on your private network (team mode); prints the address and a code.
+  const child = spawn(process.execPath, [START_PREVIEW, ...options.open ? ['--open'] : [], ...options.bottega ? ['--bottega'] : []], {
     cwd: dirname(START_PREVIEW), stdio: 'inherit', windowsHide: true,
     env: {...process.env, ATELIER_HOME: home, ATELIER_PORT: String(port), DSH_BROWSER_LAUNCH_TOKEN: token},
   });

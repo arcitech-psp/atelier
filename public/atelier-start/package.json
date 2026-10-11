@@ -8,6 +8,7 @@
   "exports": {
     ".": "./index.mjs",
     "./status": "./status.mjs",
+    "./bottega": "./bottega/bottega.mjs",
     "./client": "./client.js",
     "./package.json": "./package.json"
   },
