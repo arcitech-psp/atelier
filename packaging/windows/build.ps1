@@ -90,6 +90,7 @@ $csc = "$env:WINDIR\Microsoft.NET\Framework64\v4.0.30319\csc.exe"
 & $csc /nologo /target:winexe /optimize+ "/win32icon:$repo\packaging\icons\atelier.ico" "/out:$stage\Atelier Preview.exe" /r:System.Windows.Forms.dll /r:System.Drawing.dll "$repo\packaging\windows\AtelierLauncher.cs"
 if ($LASTEXITCODE -ne 0) { throw "launcher build failed" }
 Copy-Item "$repo\packaging\icons\atelier.ico" "$stage\atelier.ico"
+Copy-Item "$repo\packaging\windows\welcome.bmp" "$stage\welcome.bmp"
 Copy-Item "$repo\LICENSE" "$stage\LICENSE.txt"
 New-Item -ItemType Directory -Force "$stage\bin" | Out-Null
 Copy-Item "$repo\packaging\windows\atelier.cmd", "$repo\packaging\windows\atelier.ps1", "$repo\packaging\windows\path.ps1" "$stage\bin"
