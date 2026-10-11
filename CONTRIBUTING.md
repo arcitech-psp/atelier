@@ -31,4 +31,4 @@ Contributions do not grant any right to the Atelier or ARCITECH names or the AIT
 
 ## Contact
 
-parthpatel266@gmail.com
+Bugs and ideas: open an issue on GitHub (the forms guide you), or use the feedback form: https://docs.google.com/forms/d/e/1FAIpQLSeulyC06qEOVDn2aSjJqTlbCjifoYXqQzhDXb9Du16Ev5TiHA/viewform
