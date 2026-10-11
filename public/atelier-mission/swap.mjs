@@ -13,6 +13,8 @@ export const MAX_WAIT_SECONDS = 3600;
 
 /** The values the harness uses when nothing is configured (kept here only to explain the change in the panel). */
 export const HARNESS_DEFAULTS = {streamIdleTimeoutMs: 300_000, httpHeadersTimeoutMs: 300_000, retries: 5};
+/** Provider keys the settings service fills in with a schema default when the file does not set them. */
+const SCHEMA_DEFAULTS = {streamIdleTimeoutMs: HARNESS_DEFAULTS.streamIdleTimeoutMs};
 
 export function clampWait(seconds) {
   const value = Number(seconds);
@@ -54,7 +56,8 @@ export function planEnable(providers, waitSeconds, managed = {}) {
     const keys = [];
     const wanted = {streamIdleTimeoutMs: wait, timeoutMs: wait, retryPolicy: swapRetryPolicy()};
     for (const [key, value] of Object.entries(wanted)) {
-      const current = provider[key];
+      // The settings service fills in schema defaults, so a stream idle timer at the harness default is "not set by the person".
+      const current = provider[key] === SCHEMA_DEFAULTS[key] ? undefined : provider[key];
       if (current === undefined || mine.has(key)) {
         // Rewrite our own earlier value (the wait may have changed); never touch a value we did not set.
         if (JSON.stringify(current) !== JSON.stringify(value)) ops.push({op: 'set', path: ['providers', route, key], value});

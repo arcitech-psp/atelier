@@ -35,7 +35,7 @@ const emptyEnergy = () => ({measuredWh: 0, estimatedWh: 0});
 
 function defaultState() {
   return {version: 1, prefs: normalizePrefs({currency: currencyForLocale(Intl.DateTimeFormat().resolvedOptions().locale)}), days: {},
-    stopwatch: emptyStopwatch(), history: [], swap: {enabled: false, waitSeconds: DEFAULT_WAIT_SECONDS, managed: {}}};
+    totals: {usage: emptyUsage(), energy: emptyEnergy()}, stopwatch: emptyStopwatch(), history: [], swap: {enabled: false, waitSeconds: DEFAULT_WAIT_SECONDS, managed: {}}};
 }
 
 export function apply(ctx, config = {}) {
@@ -50,6 +50,7 @@ export function apply(ctx, config = {}) {
     if (existsSync(file)) {
       const saved = JSON.parse(readFileSync(file, 'utf8'));
       state = {...state, ...saved, prefs: normalizePrefs(saved.prefs, state.prefs), swap: {...state.swap, ...saved.swap},
+        totals: {usage: {...emptyUsage(), ...saved.totals?.usage}, energy: {...emptyEnergy(), ...saved.totals?.energy}},
         stopwatch: saved.stopwatch?.status ? saved.stopwatch : emptyStopwatch(), history: Array.isArray(saved.history) ? saved.history : [], days: saved.days ?? {}};
     }
   } catch (error) { ctx.logger?.warn?.('atelier-mission: could not read state.json (%s); starting fresh', error.message); }
@@ -72,6 +73,7 @@ export function apply(ctx, config = {}) {
   let sessionEnergy = emptyEnergy();
   const tracker = new UsageTracker({onStep: step => {
     sessionUsage = addStep(sessionUsage, step);
+    state.totals.usage = addStep(state.totals.usage, step);
     state.days = bumpDay(state.days, step.time, {usageStep: step});
     touch();
   }});
@@ -98,7 +100,7 @@ export function apply(ctx, config = {}) {
     if (!force && !stillWanted && !lastTick) return undefined;
     ticking = (async () => {
       const time = Date.now();
-      const gpu = await readNvidia();
+      const gpu = config.readGpu === false ? {ok: false, gpus: [], reason: 'Graphics card reading is switched off in the Atelier settings (readGpu: false).'} : await readNvidia();
       const cpu = cpuTicks();
       const percent = cpuPercent(lastCpu, cpu); lastCpu = cpu;
       const powerW = gpu.ok && gpu.gpus.length > 0 && gpu.gpus.every(card => card.powerW !== null) ? gpu.gpus.reduce((sum, card) => sum + card.powerW, 0) : null;
@@ -108,6 +110,7 @@ export function apply(ctx, config = {}) {
           busyMs: busy - lastTick.busy, estimatedWatts: state.prefs.estimatedWatts});
         if (energy.measuredWh > 0 || energy.estimatedWh > 0) {
           sessionEnergy = addEnergy(sessionEnergy, energy);
+          state.totals.energy = addEnergy(state.totals.energy, energy);
           state.days = bumpDay(state.days, time, {energy}); touch();
         }
       }
@@ -189,7 +192,11 @@ export function apply(ctx, config = {}) {
 
   async function applySwapSettings() {
     if (!settings) return {routes: []};
-    const providers = settings.get(LLM)?.providers ?? {};
+    const section = settings.get(LLM);
+    // The model provider registers its settings a moment after this plugin starts. Until it has, there is nothing to read,
+    // and an empty answer must never be taken for "no providers": that would forget which values this feature set.
+    if (section === undefined) throw new Error('The model settings are not loaded yet.');
+    const providers = section.providers ?? {};
     if (state.swap.enabled) {
       const plan = planEnable(providers, state.swap.waitSeconds, state.swap.managed);
       if (plan.ops.length > 0) await settings.mutate(LLM, plan.ops);
@@ -207,14 +214,26 @@ export function apply(ctx, config = {}) {
   ctx.inject(['settings'], sctx => {
     settings = sctx.settings;
     // A route added later (the Model roles page) gets the same patience as the ones present when the mode was turned on.
-    if (state.swap.enabled) void applySwapSettings().catch(error => ctx.logger?.warn?.('atelier-mission: %s', error.message));
+    // The first look waits for the model provider to register its settings.
+    if (state.swap.enabled) {
+      let tries = 0;
+      const attempt = () => {
+        applySwapSettings().catch(error => {
+          if (settings && ++tries < 40) { retry = setTimeout(attempt, 1_500); retry.unref?.(); } else ctx.logger?.warn?.('atelier-mission: %s', error.message);
+        });
+      };
+      let retry;
+      attempt();
+      sctx.effect(() => () => clearTimeout(retry));
+    }
     sctx.effect(() => () => { settings = undefined; });
   });
 
   // ---- what the panel gets -----------------------------------------------------------------------------------------
   function snapshotCounters(time = Date.now()) {
     const day = state.days[localDay(time)] ?? {usage: emptyUsage(), energy: emptyEnergy()};
-    return {day, now: takeSnapshot({usage: sessionUsage, energy: sessionEnergy, time})};
+    // The stopwatch compares against all-time counters (kept in state.json), so a run survives a restart of Atelier.
+    return {day, now: takeSnapshot({usage: state.totals.usage, energy: state.totals.energy, time})};
   }
 
   async function snapshot() {

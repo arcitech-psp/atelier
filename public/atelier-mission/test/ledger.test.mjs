@@ -271,6 +271,13 @@ test('turning the mode on sets only what the person has not set, and remembers i
   assert.ok(retry.backoff.initialDelayMs <= retry.backoff.maxDelayMs);
 });
 
+test('the idle timer at the harness default counts as not set (the settings service fills schema defaults in)', () => {
+  const providers = {local: {baseURL: 'http://localhost:1234/v1', streamIdleTimeoutMs: 300_000, models: []}};
+  const plan = planEnable(providers, 600, {});
+  assert.deepEqual(plan.ops.map(op => op.path[2]).sort(), ['retryPolicy', 'streamIdleTimeoutMs', 'timeoutMs']);
+  assert.equal(plan.ops.find(op => op.path[2] === 'streamIdleTimeoutMs').value, 600_000);
+});
+
 test('changing the wait rewrites only our own values; turning it off removes exactly those', () => {
   const providers = {local: {baseURL: 'http://localhost:1234/v1', streamIdleTimeoutMs: 600_000, timeoutMs: 600_000, retryPolicy: swapRetryPolicy(), models: []},
     mine: {baseURL: 'http://localhost:9/v1', timeoutMs: 123, models: []}};

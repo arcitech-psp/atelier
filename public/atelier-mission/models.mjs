@@ -227,6 +227,7 @@ export function buildStatus(roles, servers) {
       role: role.role, label: role.label, model: role.model, origin: role.origin, provider: server?.provider ?? 'other',
       providerName: PROVIDER_NAMES[server?.provider] ?? PROVIDER_NAMES.other, state: found.state, inferred: false,
       sizeBytes: found.entry?.sizeBytes, vramBytes: found.entry?.vramBytes, expiresAt: found.entry?.expiresAt, ttlSeconds: found.entry?.ttlSeconds,
+      contextLength: found.entry?.contextLength,
       error: server && !server.ok ? server.error : undefined,
     };
   });

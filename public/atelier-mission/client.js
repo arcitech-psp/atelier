@@ -17,6 +17,7 @@ window.__ModuleLoader__.load({id: '@arcitech/atelier-mission', factory: require 
     unloaded: 'Loads when it is first used.', unknown: 'This server does not report what it has loaded.', offline: 'The server does not answer.',
   };
   const int = value => (Number.isFinite(value) ? Math.round(value).toLocaleString() : '-');
+  const plural = (count, word) => `${int(count)} ${word}${count === 1 ? '' : 's'}`;
   const one = value => (Number.isFinite(value) ? value.toFixed(1) : '-');
   const duration = ms => {
     if (!Number.isFinite(ms) || ms < 0) return '-';
@@ -88,7 +89,7 @@ window.__ModuleLoader__.load({id: '@arcitech/atelier-mission', factory: require 
           await refreshModels();
           const state = store.models?.summary?.state;
           const busy = state === 'loading' || (store.models?.waitingMs ?? 0) > 0;
-          if (alive) timer = setTimeout(loop, busy ? 2000 : 10000);
+          if (alive) timer = setTimeout(loop, busy ? 2000 : 5000);
         };
         void loop();
         return () => { alive = false; clearTimeout(timer); };
@@ -169,6 +170,7 @@ window.__ModuleLoader__.load({id: '@arcitech/atelier-mission', factory: require 
             if (row.state === 'loaded') {
               const size = gib(row.vramBytes ?? row.sizeBytes);
               if (size) detail.push(`${size} in memory`);
+              if (row.contextLength) detail.push(`${int(row.contextLength)} token context`);
               const left = row.expiresAt ? until(row.expiresAt) : null;
               if (left) detail.push(`unloads in ${left} if idle`);
               else if (row.ttlSeconds) detail.push(`unloads after ${Math.round(row.ttlSeconds / 60) || 1} min idle`);
@@ -233,7 +235,7 @@ window.__ModuleLoader__.load({id: '@arcitech/atelier-mission', factory: require 
           h(Tile, {label: 'Speed', value: today.tokensPerSecond === null ? '-' : `${one(today.tokensPerSecond)} tok/s`, note: 'while writing a reply'}),
           h(Tile, {label: 'First token', value: seconds(today.firstTokenSeconds), note: today.slowestFirstTokenSeconds === null ? null : `slowest ${seconds(today.slowestFirstTokenSeconds)}`}),
           h(Tile, {label: 'Model loads waited for', value: int(today.slowStarts), note: 'first token over 15 s'}),
-          h(Tile, {label: 'Since Atelier started', value: int(session.totalTokens), note: `${int(session.requests)} requests`})),
+          h(Tile, {label: 'Since Atelier started', value: int(session.totalTokens), note: plural(session.requests, 'request')})),
         h('p', {className: 'msn-muted'}, 'Counts come from the harness itself: tokens each model reply reported, and the time to its first token. No text is stored.'));
     };
 
@@ -258,12 +260,13 @@ window.__ModuleLoader__.load({id: '@arcitech/atelier-mission', factory: require 
         h('div', {className: 'msn-tiles'}, shown('Today', energy.today), shown('Since Atelier started', energy.session), snap.stopwatch.status === 'running' ? shown('Stopwatch run', energy.stopwatch) : null),
         h('p', {className: 'msn-muted'}, energy.coverage),
         h('form', {className: 'msn-form', onSubmit: save},
+          h('div', {className: 'msn-fields'},
           h('label', {className: 'msn-field'}, h('span', null, 'Currency'),
-            h('select', {value: currency, onChange: event => { setCurrency(event.target.value); setDirty(true); setMessage(''); }}, currencies.map(entry => h('option', {key: entry.code, value: entry.code}, `${entry.code} - ${entry.name}`)))),
+            h('select', {'aria-label': 'Currency', value: currency, onChange: event => { setCurrency(event.target.value); setDirty(true); setMessage(''); }}, currencies.map(entry => h('option', {key: entry.code, value: entry.code}, `${entry.code} - ${entry.name}`)))),
           h('label', {className: 'msn-field'}, h('span', null, `Price per kWh (${currency})`),
-            h('input', {type: 'number', inputMode: 'decimal', min: 0, step: 'any', value: price, placeholder: `typical ${typical}`, onChange: event => { setPrice(event.target.value); setDirty(true); setMessage(''); }})),
+            h('input', {type: 'number', 'aria-label': `Price per kWh in ${currency}`, inputMode: 'decimal', min: 0, step: 'any', value: price, placeholder: `typical ${typical}`, onChange: event => { setPrice(event.target.value); setDirty(true); setMessage(''); }})),
           h('label', {className: 'msn-field'}, h('span', null, 'Power if the card cannot report it (W)'),
-            h('input', {type: 'number', inputMode: 'decimal', min: 0, step: 'any', value: watts, placeholder: 'optional', onChange: event => { setWatts(event.target.value); setDirty(true); setMessage(''); }})),
+            h('input', {type: 'number', 'aria-label': 'Power in watts if the card cannot report it', inputMode: 'decimal', min: 0, step: 'any', value: watts, placeholder: 'optional', onChange: event => { setWatts(event.target.value); setDirty(true); setMessage(''); }}))),
           h('div', {className: 'msn-form-row'}, h('button', {type: 'submit', className: 'msn-button', disabled: !dirty}, 'Save'),
             h('span', {className: 'msn-form-message', role: 'status'}, message || (prefs.priceIsDefault ? `Using a typical ${prefs.currency} price (${prefs.price} per kWh). Enter the rate on your electricity bill.` : '')))));
     };
@@ -293,7 +296,7 @@ window.__ModuleLoader__.load({id: '@arcitech/atelier-mission', factory: require 
           h('button', {type: 'button', className: 'msn-button', disabled: !running, onClick: () => act('stop')}, 'Stop'),
           h('button', {type: 'button', className: 'msn-button', disabled: !running && history.length === 0 && stopwatch.laps.length === 0, onClick: () => act(running ? 'reset' : 'clear-history')}, running ? 'Reset' : 'Clear')),
         stopwatch.live ? h('div', {className: 'msn-tiles'},
-          h(Tile, {label: 'Tokens', value: int(stopwatch.live.usage.totalTokens), note: `${int(stopwatch.live.usage.requests)} requests`}),
+          h(Tile, {label: 'Tokens', value: int(stopwatch.live.usage.totalTokens), note: plural(stopwatch.live.usage.requests, 'request')}),
           h(Tile, {label: 'Energy', value: energyText(energy.stopwatch?.wh), note: energy.stopwatch ? money(energy.stopwatch.cost, energy.stopwatch.currency) : null}),
           h(Tile, {label: 'Speed', value: stopwatch.live.usage.tokensPerSecond === null ? '-' : `${one(stopwatch.live.usage.tokensPerSecond)} tok/s`})) : null,
         stopwatch.laps.length > 0 ? h('ul', {className: 'msn-list', role: 'list', 'aria-label': 'Laps'}, stopwatch.laps.map(lap => h('li', {key: lap.index},
@@ -327,7 +330,7 @@ window.__ModuleLoader__.load({id: '@arcitech/atelier-mission', factory: require 
         h('p', {className: 'msn-muted'}, 'For one graphics card that cannot hold every model at once. LM Studio, Ollama and llama-swap load a model the first time it is asked for. This makes the harness wait for that load, up to the time below, instead of giving up after five minutes. Only models on this computer or your own network are affected.'),
         h('div', {className: 'msn-form-row'},
           h('label', {className: 'msn-field msn-field-inline'}, h('span', null, 'Wait up to (minutes)'),
-            h('input', {type: 'number', min: 1, max: 60, step: 1, value: wait, onChange: event => setWait(event.target.value)})),
+            h('input', {type: 'number', 'aria-label': 'Minutes to wait for a model to load', min: 1, max: 60, step: 1, value: wait, onChange: event => setWait(event.target.value)})),
           swap.enabled ? h('button', {type: 'button', className: 'msn-button', disabled: busy, onClick: () => apply(true)}, 'Update') : null,
           h('button', {type: 'button', className: 'msn-button msn-button-primary', disabled: busy, 'aria-pressed': swap.enabled, onClick: () => apply(!swap.enabled)}, swap.enabled ? 'Turn off' : 'Turn on')),
         h('p', {className: 'msn-form-message', role: 'status'}, message || (swap.enabled ? `On: waits up to ${Math.round(swap.waitSeconds / 60)} min${swap.routes.length ? `, set for ${swap.routes.join(', ')}` : ''}.` : '')));
@@ -436,6 +439,7 @@ body[data-ds-dark-theme] .msn-chip, body[data-ds-dark-theme] .msn-scope { --msn-
 .msn-spark-svg { width: 100%; height: 34px; display: block; }
 
 .msn-form { display: flex; flex-direction: column; gap: 10px; padding-top: 4px; border-top: 1px solid var(--msn-rule); }
+.msn-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
 .msn-field { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--msn-ink-2); }
 .msn-field input, .msn-field select {
   box-sizing: border-box; width: 100%; min-height: 36px; padding: 6px 9px; border: 1px solid var(--msn-rule); border-radius: 8px;
