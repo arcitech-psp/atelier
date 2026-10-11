@@ -17,6 +17,11 @@ Installation steps with pictures: [docs/INSTALL.md](https://github.com/arcitech-
 
 ## What is in it
 
+- **Free to use.** Use free AI services, or run fully local on your own computer: see the [free models guide](https://github.com/arcitech-psp/atelier/blob/main/docs/FREE_MODELS.md).
+- **Works on one 16 GB graphics card.** Models are loaded when they are needed, and Atelier waits for each load and shows its state: see [One graphics card, several models](https://github.com/arcitech-psp/atelier/blob/main/docs/ONE_GPU.md).
+- **Mission Control.** A chip in the session header shows which model is loaded, graphics card use, tokens and speed, and the energy cost at your own electricity price: see [Mission Control](https://github.com/arcitech-psp/atelier/blob/main/docs/mission-control.md).
+- **Bottega, team mode.** Share one Atelier with colleagues on your office network (details below). Tailscale support is coming soon.
+
 - **Vitruvius** and **Vitruvius Zero** (for small models), a design canvas with concept plans and material/colour moodboards, and an optional bridge to IngeTrazo (installed separately, GPL-3.0-or-later).
 - Works with any OpenAI-compatible model endpoint: Ollama, LM Studio, llama.cpp, vLLM, a custom URL with a key, cloud free tiers through OmniRoute, or your ChatGPT plan.
 - **Bottega (team mode)**: share one Atelier with colleagues on your office network. Other devices open it in their browser, tablet or phone after a one-time pairing code; you see and revoke every device. Off by default, private networks only, plain HTTP. Tailscale support is planned and coming soon.
@@ -34,4 +39,8 @@ Atelier sends no telemetry. It talks only to the model endpoint you choose, to I
 
 ## Credits
 
-Atelier is built on [DSH (DeepSeek Harness)](https://github.com/deepseek-ai/deepseek-harness) by DeepSeek-AI (MIT). [IngeTrazo](https://github.com/ingelibre/ingetrazo) is by Marco Sumari Tellez and contributors (GPL-3.0-or-later). Atelier's own parts are source-available under the PolyForm Shield License 1.0.0. Contact: parthpatel266@gmail.com.
+Atelier is built on [DSH (DeepSeek Harness)](https://github.com/deepseek-ai/deepseek-harness) by DeepSeek-AI (MIT). [IngeTrazo](https://github.com/ingelibre/ingetrazo) is by Marco Sumari Tellez and contributors (GPL-3.0-or-later). Atelier's own parts are source-available under the PolyForm Shield License 1.0.0.
+
+## Feedback
+
+Feedback goes through the [feedback form](https://docs.google.com/forms/d/e/1FAIpQLSeulyC06qEOVDn2aSjJqTlbCjifoYXqQzhDXb9Du16Ev5TiHA/viewform) (no account needed) or [GitHub Issues](https://github.com/arcitech-psp/atelier/issues/new/choose), rather than email. Never paste API keys, tokens or client material into a report.

@@ -43,4 +43,4 @@ DSH (DeepSeek Harness) is the agent harness by DeepSeek-AI that Atelier is built
 No. Plans, moodboards and images are design aids. Check dimensions and clearances as you would a junior's drawing, and get qualified local review for structure, life safety, accessibility and permits.
 
 **Where do I report a problem?**
-GitHub Issues on [arcitech-psp/atelier](https://github.com/arcitech-psp/atelier/issues), or e-mail parthpatel266@gmail.com. Please include your system, the model route and the exact message, and never paste keys, tokens or client material.
+GitHub Issues on [arcitech-psp/atelier](https://github.com/arcitech-psp/atelier/issues) (the bug report form asks for what we need), or, with no account, the [feedback form](https://docs.google.com/forms/d/e/1FAIpQLSeulyC06qEOVDn2aSjJqTlbCjifoYXqQzhDXb9Du16Ev5TiHA/viewform). Feedback goes through the form or issues rather than email. Please include your system, the model route and the exact message, and never paste keys, tokens or client material.

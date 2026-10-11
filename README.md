@@ -13,6 +13,15 @@ You describe the project; Atelier works through it with you, one visible step at
 
 > **Status: public preview (0.1.0-preview).** Expect rough edges, and please tell us what breaks.
 
+## Atelier at a glance
+
+- **What it is:** a design assistant for architects, interior designers and students that runs on your own computer. You describe the project and it works through it with you, one visible step at a time, with concept plans and moodboards on a canvas.
+- **Free to use:** use free AI services, or run everything fully local on your own computer. Nothing to subscribe to. See the [free models guide](docs/FREE_MODELS.md).
+- **Bottega, team mode:** share one Atelier with your colleagues on your office network; they open it from their own browser, tablet or phone after a one-time pairing code. Tailscale support (reaching it from outside the office) is coming soon. See [Bottega](docs/BOTTEGA.md).
+- **Mission Control:** a chip in the session header that shows which model is loaded, how hard your graphics card is working, tokens and speed, and what the session costs in electricity at your own price. See [Mission Control](docs/mission-control.md).
+- **Works on one 16 GB graphics card:** models are loaded only when they are needed, and Atelier waits for each load and shows its state. See [One graphics card, several models](docs/ONE_GPU.md).
+- **Download:** the Windows installer and the Linux/WSL archive are on the [Releases page](https://github.com/arcitech-psp/atelier/releases).
+
 ## Install in two minutes
 
 - **Windows 10/11:** download the installer above, open it, click through. It installs for your user only (no administrator rights), adds a Start menu entry (ARCITECH > Atelier Preview) and a desktop icon, and brings everything it needs. Not code-signed yet: if SmartScreen warns, choose **More info > Run anyway**.
@@ -27,7 +36,7 @@ Step by step with pictures: [Installing Atelier](docs/INSTALL.md) · [Add your e
 - **Atelier** is the product. **ARCITECH** is the studio that makes it; "AIT" (Architecture · Interactive · Technology) is ARCITECH's mark, not a product name.
 - Atelier is built on **[DSH (DeepSeek Harness)](https://github.com/deepseek-ai/deepseek-harness)** by DeepSeek-AI, MIT licence: the agent engine, tools, sessions and web app. The About box says which DSH release is inside (now 0.1.2-alpha.1), and Atelier follows new DSH releases ([how](docs/UPSTREAM_SYNC.md)). Package names keep their upstream `@deepseek-ai/dsh-*` names so that following DSH stays easy.
 - **[IngeTrazo](https://github.com/ingelibre/ingetrazo)** by Marco Sumari Tellez and contributors (GPL-3.0-or-later) is the optional modelling program Atelier can drive. It is installed separately, never bundled.
-- Contact: parthpatel266@gmail.com, or GitHub Issues.
+- Feedback: see [Feedback](#feedback) below; it goes through the feedback form or GitHub Issues, not email.
 Atelier is a fork of [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) by DeepSeek-AI (MIT licence). We added **Vitruvius**, a design-assistant profile built on the classic triad *Venustas* (beauty), *Firmitas* (soundness) and *Utilitas* (usefulness), a design canvas with material and colour moodboards, and an optional bridge to [IngeTrazo](https://github.com/ingelibre/ingetrazo) for live modelling.
 
 ## What is in this preview
@@ -126,4 +135,13 @@ The optional IngeTrazo panel in `ingetrazo-plugin/atelier_panel` is a separate G
 
 ## Community
 
-Issues and ideas: GitHub Issues. Email: parthpatel266@gmail.com.
+Issues and ideas: GitHub Issues, or the feedback form below.
+
+## Feedback
+
+Something broke, confused you, or is missing? Tell us. Feedback goes through the form or GitHub Issues rather than email, so it stays in one place and nothing gets lost.
+
+- **No GitHub account:** use the [general feedback form](https://docs.google.com/forms/d/e/1FAIpQLSeulyC06qEOVDn2aSjJqTlbCjifoYXqQzhDXb9Du16Ev5TiHA/viewform). It takes a minute.
+- **With a GitHub account:** open a [bug report](https://github.com/arcitech-psp/atelier/issues/new?template=bug_report.yml) or a [feature request](https://github.com/arcitech-psp/atelier/issues/new?template=feature_request.yml). The forms ask for your system, graphics card, model route and version, which is what we need to reproduce a problem.
+
+Never paste API keys, tokens or client material into a report.

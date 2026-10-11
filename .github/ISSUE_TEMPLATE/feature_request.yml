@@ -1,0 +1,39 @@
+name: Feature request
+description: Suggest something Atelier should do or do better
+title: "[Idea] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Ideas from architects, designers and students shape what comes next. Please never paste API keys, tokens or client material.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What are you trying to do?
+      description: Describe the design task or the moment where Atelier gets in your way.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you like Atelier to do?
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: What do you do today instead?
+  - type: dropdown
+    id: route
+    attributes:
+      label: Model route you use (optional)
+      options:
+        - Free cloud
+        - Paid cloud
+        - Local
+  - type: input
+    id: version
+    attributes:
+      label: Atelier version (optional)
+      description: Settings > Updates shows it.

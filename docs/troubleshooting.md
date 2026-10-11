@@ -110,4 +110,4 @@ Turn Nanite off for that static mesh and adjust the glass material instance. See
 
 ## Still stuck
 
-Open an issue on GitHub with your Windows version, `node --version`, `pnpm --version`, the model route you use and the exact message. Never paste API keys, tokens, login addresses or client material into an issue. Email: parthpatel266@gmail.com.
+Open an issue on GitHub (or, with no account, use the [feedback form](https://docs.google.com/forms/d/e/1FAIpQLSeulyC06qEOVDn2aSjJqTlbCjifoYXqQzhDXb9Du16Ev5TiHA/viewform)) with your Windows version, `node --version`, `pnpm --version`, the model route you use and the exact message. Never paste API keys, tokens, login addresses or client material into an issue. Feedback goes through the form or GitHub Issues rather than email.
