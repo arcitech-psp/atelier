@@ -25,7 +25,7 @@ You need Windows 10 (version 1803 or newer) or Windows 11, 64-bit, and about 900
    | ![Install location](images/install/windows-4-folder.png) | **Folder.** The default, `%LOCALAPPDATA%\Programs\Atelier-Preview`, is right for most people. |
    | ![Finished](images/install/windows-5-finish.png) | **Done.** Leave **Start Atelier now** ticked. |
 
-4. Atelier starts in the background (look for the AT icon next to the clock) and opens in your browser. The first start takes about half a minute.
+4. Atelier starts in the background (look for the AIT icon next to the clock) and opens in your browser. The first start takes about half a minute.
 5. The first time, the **Model roles** page opens so you can connect your model: see [Add your endpoint](add-your-endpoint.md).
 
 ![Model roles page on first start](images/install/first-run-model-roles.png)
@@ -33,7 +33,7 @@ You need Windows 10 (version 1803 or newer) or Windows 11, 64-bit, and about 900
 ### Everyday use
 
 - **Start:** the **Atelier Preview** icon on your desktop, or Start menu > **ARCITECH** > **Atelier Preview**. Starting it again while it runs just opens the window again.
-- **The AT icon next to the clock** (click the arrow if it is hidden): **Open Atelier**, **Set up model endpoint**, **Open logs folder**, **Quit Atelier**.
+- **The AIT icon next to the clock** (click the arrow if it is hidden): **Open Atelier**, **Set up model endpoint**, **Open logs folder**, **Quit Atelier**.
 - **Terminal:** Start menu > ARCITECH > **Atelier (terminal)**, or type `atelier` in any new terminal. `atelier update check` looks for a new version.
 - **Your chats and settings** are in `%APPDATA%\Atelier-Preview`. Your project files stay in the workspace folders you choose.
 

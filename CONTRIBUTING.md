@@ -27,7 +27,7 @@ If you cannot agree to this, please open an issue to discuss the idea instead of
 
 ## Names and logo
 
-Contributions do not grant any right to the Atelier or ARCITECH names or the AT logo; see `TRADEMARK.md`.
+Contributions do not grant any right to the Atelier or ARCITECH names or the AIT logo; see `TRADEMARK.md`.
 
 ## Contact
 

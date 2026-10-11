@@ -6,7 +6,7 @@
 The installer is not code-signed yet. Check its fingerprint ([how](INSTALL.md#is-the-download-genuine)), then choose **More info > Run anyway**.
 
 ### Nothing seems to happen when I start Atelier (Windows)
-The first start takes about half a minute. Look for the AT icon next to the clock (click the arrow to show hidden icons). If Atelier stops, it shows a message with the end of its log; the full log is in `%APPDATA%\Atelier-Preview\logs` (tray icon > **Open logs folder**). On Linux and WSL: `atelier-preview logs`.
+The first start takes about half a minute. Look for the AIT icon next to the clock (click the arrow to show hidden icons). If Atelier stops, it shows a message with the end of its log; the full log is in `%APPDATA%\Atelier-Preview\logs` (tray icon > **Open logs folder**). On Linux and WSL: `atelier-preview logs`.
 
 ### `atelier` is not recognised in a terminal
 Open a **new** terminal after installing (the installer adds the command to your PATH). In Windows PowerShell, if scripts are disabled, `atelier.cmd` still works, or run `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` once. On Linux and WSL, check that `~/.local/bin` is on your PATH.

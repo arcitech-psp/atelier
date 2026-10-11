@@ -4,7 +4,7 @@ Atelier ships no AI model. It talks to a model server that you choose, through t
 
 ## Where to connect it
 
-The first time Atelier starts without a model, it opens the **Model roles** page by itself. Later you find it under **Settings** (bottom left) > **Model roles**, or from the AT icon next to the clock > **Set up model endpoint** (Windows), or with `atelier-preview setup` (Linux and WSL).
+The first time Atelier starts without a model, it opens the **Model roles** page by itself. Later you find it under **Settings** (bottom left) > **Model roles**, or from the AIT icon next to the clock > **Set up model endpoint** (Windows), or with `atelier-preview setup` (Linux and WSL).
 
 On the **Brain** card: press **Connect**, pick the **Server type**, check the address, type the **Model name**, add an **API key** only if the server needs one, press **Test**, then **Save**. Test lists the model names the server reports, so you can pick one instead of typing.
 

@@ -31,7 +31,7 @@ The installer is not code-signed yet, so SmartScreen does not know it. Choose **
 Not in this preview. Windows, Linux and WSL are supported.
 
 **How do I start, stop or remove it?**
-Windows: the desktop icon or Start menu > ARCITECH > Atelier Preview; quit from the AT icon next to the clock; remove in Settings > Apps. Linux / WSL: `atelier-preview`, `atelier-preview stop`, `atelier-preview uninstall`. Removing Atelier keeps your chats unless you ask otherwise, and never touches your workspace folders.
+Windows: the desktop icon or Start menu > ARCITECH > Atelier Preview; quit from the AIT icon next to the clock; remove in Settings > Apps. Linux / WSL: `atelier-preview`, `atelier-preview stop`, `atelier-preview uninstall`. Removing Atelier keeps your chats unless you ask otherwise, and never touches your workspace folders.
 
 **What is DSH, and why is it credited?**
 DSH (DeepSeek Harness) is the agent harness by DeepSeek-AI that Atelier is built on, under the MIT licence: the chat engine, tools, sessions and web app. Atelier adds Vitruvius, the design canvas, model roles, the IngeTrazo connection, the installers and the updater. When DSH releases an update, Atelier follows ([how](UPSTREAM_SYNC.md)).

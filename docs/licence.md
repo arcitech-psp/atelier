@@ -31,7 +31,7 @@ That is why Atelier is called **source-available**, not "open source" in the for
 
 ## Names and logo
 
-"Atelier", "ARCITECH" and the AT logo are not covered by any of these licences. You may say your work is "based on Atelier" or "works with Atelier". You may not call your own build Atelier, use the AT logo on it, or suggest it is official. If you share a changed copy, give it another name. Details are in `TRADEMARK.md`.
+"Atelier", "ARCITECH" and the AIT logo are not covered by any of these licences. You may say your work is "based on Atelier" or "works with Atelier". You may not call your own build Atelier, use the AIT logo on it, or suggest it is official. If you share a changed copy, give it another name. Details are in `TRADEMARK.md`.
 
 ## Contributing
 

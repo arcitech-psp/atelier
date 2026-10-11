@@ -39,6 +39,6 @@ No model weights are included. Every model you connect keeps its own licence.
 Vitruvius, the Atelier canvas and brand plugin (`public/atelier-canvas`) and the IngeTrazo
 connector (`public/atelier-ingetrazo`) are by ARCITECH. See `LICENSE` for their terms.
 
-"Atelier", "ARCITECH" and the AT logo are reserved for the official build; see `TRADEMARK.md`. How to contribute: `CONTRIBUTING.md`.
+"Atelier", "ARCITECH" and the AIT logo are reserved for the official build; see `TRADEMARK.md`. How to contribute: `CONTRIBUTING.md`.
 
 Contact: parthpatel266@gmail.com

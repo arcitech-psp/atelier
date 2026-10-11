@@ -23,7 +23,7 @@ Step by step with pictures: [Installing Atelier](docs/INSTALL.md) · [Add your e
 
 ## Name and credits
 
-- **Atelier** is the product. **ARCITECH** is the studio that makes it; "AT" is ARCITECH's mark, not a product name.
+- **Atelier** is the product. **ARCITECH** is the studio that makes it; "AIT" (Architecture · Interactive · Technology) is ARCITECH's mark, not a product name.
 - Atelier is built on **[DSH (DeepSeek Harness)](https://github.com/deepseek-ai/deepseek-harness)** by DeepSeek-AI, MIT licence: the agent engine, tools, sessions and web app. The About box says which DSH release is inside (now 0.1.2-alpha.1), and Atelier follows new DSH releases ([how](docs/UPSTREAM_SYNC.md)). Package names keep their upstream `@deepseek-ai/dsh-*` names so that following DSH stays easy.
 - **[IngeTrazo](https://github.com/ingelibre/ingetrazo)** by Marco Sumari Tellez and contributors (GPL-3.0-or-later) is the optional modelling program Atelier can drive. It is installed separately, never bundled.
 - Contact: parthpatel266@gmail.com, or GitHub Issues.

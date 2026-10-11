@@ -28,7 +28,7 @@ Atelier only listens on your own computer, behind a private login token. It send
 
 ## Stop and start again
 
-- Windows: the AT icon next to the clock > **Quit Atelier**; start again from the desktop icon.
+- Windows: the AIT icon next to the clock > **Quit Atelier**; start again from the desktop icon.
 - Linux / WSL: `atelier-preview stop`, then `atelier-preview`.
 
 Your chats, boards and settings are still there.
