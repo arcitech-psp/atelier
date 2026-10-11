@@ -99,6 +99,7 @@
     "js-yaml": "4.2.0",
     "node-addon-require-builtin": "0.1.4",
     "@arcitech/atelier-canvas": "workspace:*",
+    "@arcitech/atelier-start": "workspace:*",
     "@arcitech/atelier-ingetrazo": "workspace:*",
     "@arcitech/atelier-updates": "workspace:*",
     "@arcitech/atelier-roles": "workspace:*"

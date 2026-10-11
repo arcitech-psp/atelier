@@ -20,3 +20,5 @@
     # Model roles: one endpoint per job (brain, vision, speech, embeddings, images, helper) and "Set me up".
     - id: atelier-roles
       name: '@arcitech/atelier-roles'
+    - id: atelier-start
+      name: '@arcitech/atelier-start'

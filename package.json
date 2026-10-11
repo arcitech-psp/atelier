@@ -238,6 +238,7 @@
     "@arcitech/atelier-ingetrazo": "workspace:*",
     "@arcitech/atelier-updates": "workspace:*",
     "@arcitech/atelier-roles": "workspace:*",
+    "@arcitech/atelier-start": "workspace:*",
     "react": "18.3.1",
     "react-dom": "18.3.1"
   }
