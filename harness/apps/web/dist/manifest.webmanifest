@@ -1,10 +1,12 @@
 {
   "id": "/",
-  "name": "DeepSeek Harness",
-  "short_name": "DSH",
+  "name": "Atelier by ARCITECH",
+  "short_name": "Atelier",
   "start_url": "/",
   "scope": "/",
   "display": "fullscreen",
+  "background_color": "#151516",
+  "theme_color": "#151516",
   "icons": [
     {
       "src": "/favicon.svg",

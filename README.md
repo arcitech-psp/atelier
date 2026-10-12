@@ -39,6 +39,7 @@ Step by step: [Installing Atelier](docs/INSTALL.md) · [Add your endpoint](docs/
 - **[IngeTrazo](https://github.com/ingelibre/ingetrazo)** by Marco Sumari Tellez and contributors (GPL-3.0-or-later) is the optional modelling program Atelier can drive. It is installed separately, never bundled.
 - Feedback: see [Feedback](#feedback) below; it goes through the feedback form or GitHub Issues, not email.
 - Website: [arcitech.info](https://arcitech.info).
+- Brand files: the AIT mark is in `docs/assets/ait-mark.svg`, and the repository social preview (1280×640) and avatar (500×500) are in [`docs/assets/brand/`](docs/assets/brand/). Their use is covered by [TRADEMARK.md](TRADEMARK.md).
 
 Atelier is a fork of [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) by DeepSeek-AI (MIT licence). We added **Vitruvius**, a design-assistant profile built on the classic triad *Venustas* (beauty), *Firmitas* (soundness) and *Utilitas* (usefulness), a design canvas with material and colour moodboards, and an optional bridge to [IngeTrazo](https://github.com/ingelibre/ingetrazo) for live modelling.
 

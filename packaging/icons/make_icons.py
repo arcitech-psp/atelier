@@ -1,24 +1,30 @@
-"""Build the Atelier Preview icon set from the AIT mark (kit app icon).
+"""Build the Atelier Preview icon set from the final AIT brand kit (ARCITECH).
 
-Usage: python make_icons.py <source.png> <out_dir>
-Writes atelier.ico (16-256), atelier-<n>.png for Linux hicolor sizes, and a 512/1024 PNG.
+Usage: python make_icons.py <kit_atelier_dir> <out_dir> [atelier-1024.png]
+
+<kit_atelier_dir> holds the kit's atelier.ico (16-256; sizes up to 48 use the small-size cut on the tile) and
+app-icon-256.png / app-icon-512.png. Writes atelier.ico (the kit file, unchanged), atelier-<n>.png for the Linux
+hicolor sizes (16-128 taken from the .ico frames, 256 and 512 the kit PNGs) and atelier-1024.png. The 1024 is a render
+of atelier-app-icon.svg (the kit tile with the accent mark over its central 80%) at 1024 px in a headless browser;
+without one, the 512 is scaled up.
 """
+import shutil
 import sys
 from pathlib import Path
 from PIL import Image
 
-src, out = Path(sys.argv[1]), Path(sys.argv[2])
+kit, out = Path(sys.argv[1]), Path(sys.argv[2])
+big = Path(sys.argv[3]) if len(sys.argv) > 3 else None
 out.mkdir(parents=True, exist_ok=True)
-im = Image.open(src).convert("RGBA")
-# Square, with a small transparent margin so the disc does not touch the tile edge.
-side = max(im.size)
-canvas = Image.new("RGBA", (side, side), (0, 0, 0, 0))
-canvas.paste(im, ((side - im.width) // 2, (side - im.height) // 2))
-pad = round(side * 0.03)
-base = Image.new("RGBA", (side + 2 * pad, side + 2 * pad), (0, 0, 0, 0))
-base.paste(canvas, (pad, pad))
-big = base.resize((1024, 1024), Image.LANCZOS)
-for n in (16, 24, 32, 48, 64, 128, 256, 512, 1024):
-    big.resize((n, n), Image.LANCZOS).save(out / f"atelier-{n}.png", optimize=True)
-big.save(out / "atelier.ico", sizes=[(n, n) for n in (16, 24, 32, 48, 64, 128, 256)])
+shutil.copyfile(kit / "atelier.ico", out / "atelier.ico")
+ico = Image.open(kit / "atelier.ico")
+for n in (16, 24, 32, 48, 64, 128):
+    ico.size = (n, n)
+    ico.convert("RGBA").save(out / f"atelier-{n}.png", optimize=True)
+for n in (256, 512):
+    shutil.copyfile(kit / f"app-icon-{n}.png", out / f"atelier-{n}.png")
+if big:
+    Image.open(big).convert("RGBA").save(out / "atelier-1024.png", optimize=True)
+else:
+    Image.open(kit / "app-icon-512.png").convert("RGBA").resize((1024, 1024), Image.LANCZOS).save(out / "atelier-1024.png", optimize=True)
 print("ok", sorted(p.name for p in out.iterdir()))

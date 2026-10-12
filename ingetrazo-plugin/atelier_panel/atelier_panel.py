@@ -317,14 +317,14 @@ STYLE = f"""
     padding: 3px 9px; }}
 #AtelierPanel QPushButton:hover {{ border-color: {BRONZE}; }}
 #AtelierPanel QPushButton:disabled {{ color: #6d6862; border-color: #33302c; }}
-#AtelierPanel QPushButton#atSend {{ background: {BRONZE}; color: #1e1d1b; border: none; font-weight: 600; }}
-#AtelierPanel QPushButton#atSend:disabled {{ background: #5a4632; color: #8d8277; }}
-#AtelierPanel QPushButton#atStop {{ color: {ERR}; }}
+#AtelierPanel QPushButton#atelierSend {{ background: {BRONZE}; color: #1e1d1b; border: none; font-weight: 600; }}
+#AtelierPanel QPushButton#atelierSend:disabled {{ background: #5a4632; color: #8d8277; }}
+#AtelierPanel QPushButton#atelierStop {{ color: {ERR}; }}
 #AtelierPanel QCheckBox {{ color: {INK}; }}
 #AtelierPanel QCheckBox::indicator:checked {{ background: {BRONZE}; border: 1px solid {BRONZE}; border-radius: 2px; }}
 #AtelierPanel QCheckBox::indicator:unchecked {{ background: #2c2a27; border: 1px solid #4a453e; border-radius: 2px; }}
-#AtelierPanel QFrame#atBanner {{ background: #33261d; border: 1px solid #7d5534; border-radius: 4px; }}
-#AtelierPanel QFrame#atRule {{ background: {BRONZE}; max-height: 1px; min-height: 1px; border: none; }}
+#AtelierPanel QFrame#atelierBanner {{ background: #33261d; border: 1px solid #7d5534; border-radius: 4px; }}
+#AtelierPanel QFrame#atelierRule {{ background: {BRONZE}; max-height: 1px; min-height: 1px; border: none; }}
 #AtelierPanel QSplitter::handle {{ background: #1e1d1b; }}
 """
 
@@ -416,11 +416,11 @@ class AtelierPanel(QWidget):
         root.addWidget(self._settings_button)
         root.addWidget(self._settings_box)
         rule = QFrame()
-        rule.setObjectName("atRule")
+        rule.setObjectName("atelierRule")
         root.addWidget(rule)
 
         self._banner = QFrame()
-        self._banner.setObjectName("atBanner")
+        self._banner.setObjectName("atelierBanner")
         bl = QHBoxLayout(self._banner)
         bl.setContentsMargins(8, 5, 6, 5)
         self._banner_text = QLabel("")
@@ -450,7 +450,7 @@ class AtelierPanel(QWidget):
         self._status = _spaced(QLabel("Idle"), 7.5, True, 1.6)
         status_row.addWidget(self._status, 1)
         self._stop = QPushButton("Stop")
-        self._stop.setObjectName("atStop")
+        self._stop.setObjectName("atelierStop")
         self._stop.setToolTip("Stop Vitruvius's current turn")
         self._stop.clicked.connect(self._on_stop)
         status_row.addWidget(self._stop)
@@ -484,7 +484,7 @@ class AtelierPanel(QWidget):
         row.addWidget(self._use_sel)
         row.addStretch(1)
         self._send = QPushButton("Send")
-        self._send.setObjectName("atSend")
+        self._send.setObjectName("atelierSend")
         self._send.clicked.connect(self._on_send)
         row.addWidget(self._send)
         bv.addLayout(row)

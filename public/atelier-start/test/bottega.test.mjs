@@ -351,7 +351,7 @@ describe('Bottega gateway', () => {
 
 describe('Bottega rules', () => {
   test('only private LAN clients are served', () => {
-    for (const a of ['192.168.1.20', '10.0.0.5', '172.16.4.4', '172.31.255.1', '::ffff:192.168.0.9']) assert.equal(isPrivateLan(a), true, a);
+    for (const a of ['192.168.1.20', '10.20.30.40', '172.16.4.4', '172.31.255.1', '::ffff:192.168.0.9']) assert.equal(isPrivateLan(a), true, a);
     for (const a of ['8.8.8.8', '100.64.0.7', '100.101.102.103', '169.254.10.10', '172.15.0.1', '172.32.0.1', '127.0.0.1', '::1', '2001:db8::1', '', undefined]) assert.equal(isPrivateLan(a), false, String(a));
     assert.equal(clientAllowed('127.0.0.1'), false);
     assert.equal(clientAllowed('127.0.0.1', {allowLoopback: true}), true);
