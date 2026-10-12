@@ -2324,7 +2324,7 @@ window.__ModuleLoader__.load({
 		}
 		//#endregion
 
-		const css = ".n43nFa_copy{color:var(--dsw-alias-label-secondary);font-size:14px;line-height:24px}.n43nFa_copy p{margin:0}.n43nFa_copy p+p{margin-top:12px}.n43nFa_error{color:var(--dsw-alias-state-error-primary);margin:16px 0 0;font-size:14px;line-height:22px}.n43nFa_actions{justify-content:flex-end;margin-top:24px;display:flex}.n43nFa_primary{min-width:120px}@media (width<=560px){.n43nFa_primary{width:100%}}";
+		const css = ".n43nFa_copy{color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere;font-size:14px;line-height:24px}.n43nFa_copy p{margin:0}.n43nFa_copy p+p{margin-top:12px}.n43nFa_error{color:var(--dsw-alias-state-error-primary);margin:16px 0 0;font-size:14px;line-height:22px}.n43nFa_actions{justify-content:flex-end;margin-top:24px;display:flex}.n43nFa_primary{min-width:120px}@media (width<=560px){.n43nFa_primary{width:100%}}";
 		const tagId = "@deepseek-ai/dsh-client-ui-settings-models/WelcomeNotice.module.css";
 		if (typeof document !== "undefined" && document.querySelector("style[data-plugin-css=" + JSON.stringify(tagId) + "]") === null) {
 			const tag = document.createElement("style");

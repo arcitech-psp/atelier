@@ -101,6 +101,8 @@ export async function setRole(home, id, input) {
       if (id === 'brain') {
         doc.setIn(['agent-default-model', 'provider'], BRAIN_ROUTE);
         doc.setIn(['agent-default-model', 'model'], model);
+        // The shipped placeholder provider is no longer needed once a real brain is set.
+        if (PLACEHOLDER.test(String(doc.getIn(['llm-pi-ai', 'providers', 'atelier-openai', 'baseURL']) ?? ''))) doc.deleteIn(['llm-pi-ai', 'providers', 'atelier-openai']);
       }
     });
     await mutateRoles(home, value => { value.roles[id] = {...value.roles[id], preset: 'custom', source: 'cli'}; });

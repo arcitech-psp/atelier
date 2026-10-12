@@ -108,6 +108,6 @@
       mcp__ingetrazo__undo:
         description: Undo your last IngeTrazo step.
       board_draw:
-        description: Draw a plan or diagram on the canvas. Cards are rooms (scaled x, y, width, height) or steps; put sizes and assumptions in notes.
+        description: Draw a plan or diagram on the canvas. For a plan set units "m" and give rooms x, y, width, height in metres (origin south-west, y north); it is drawn to scale. Otherwise cards are steps. Put sizes and assumptions in notes.
       moodboard_create:
         description: Make a colour and material moodboard on the canvas (swatches plus material, texture and lighting cards). Works without images.

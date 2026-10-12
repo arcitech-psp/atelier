@@ -13,7 +13,7 @@ metadata:
     keywords: \b(canvas|board|plan|layout|diagram|sketch|moodboard|mood board|palette|swatch(es)?|materials?|textures?|lighting)\b
     trust: owner
 ---
-CANVAS: board_draw puts an editable diagram on the canvas. For a plan, give each room or zone a name and scaled x, y, width and height in metres (origin at the south-west corner, x east, y north) so the drawing is to scale; for a process or comparison, give named steps and let the grid place them. Keep card text short; put the explanation in your reply. One board_draw per request; redraw rather than patch.
+CANVAS: board_draw puts an editable diagram on the canvas. For a plan, set `units: "m"` and give each room or zone a name and x, y, width and height in metres (origin at the south-west corner, x east, y north); Atelier scales it to the view with a scale bar and north arrow, so do not convert to pixels; for a process or comparison, give named steps and let the grid place them. Keep card text short; put the explanation in your reply. One board_draw per request; redraw rather than patch.
 
 MOODBOARD: moodboard_create places colour swatches (name plus hex) and descriptive cards for materials, textures and lighting. It works without an image endpoint; say so when no images were generated. When an image endpoint is configured, image_generate makes one concept image per call from a short, concrete prompt (subject, material, light, view); label it as a concept image, never as a render of the real design.
 

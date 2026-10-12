@@ -28,7 +28,9 @@ if (args[0] === 'update') {
   const dsh = JSON.parse(readFileSync(join(app, 'harness', 'apps', 'cli', 'package.json'), 'utf8')).version;
   process.stdout.write(`Atelier ${pkg.version.replace(/-preview$/, '')} by ARCITECH, powered by DSH (DeepSeek Harness) ${dsh}\n`);
 } else {
-  const bin = typeof pkg.bin === 'string' ? pkg.bin : pkg.bin?.atelier;
+  // The full CLI (chat, sessions, roles, profile, doctor, web and the terminal UI) lives in public/atelier-cli.
+  const cli = join('public', 'atelier-cli', 'bin', 'atelier.mjs');
+  const bin = (typeof pkg.bin === 'string' ? pkg.bin : pkg.bin?.atelier) ?? (existsSync(join(app, cli)) ? cli : undefined);
   if (bin && existsSync(join(app, bin)) && resolve(app, bin) !== fileURLToPath(import.meta.url)) runNode(join(app, bin), args);
   else if (args.length === 0 || args[0] === 'web' || args[0] === 'start') runNode(join(app, 'start-preview.mjs'), ['--open', ...args.slice(1)]);
   else {

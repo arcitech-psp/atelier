@@ -1,11 +1,13 @@
 export const inject = ['tools', 'atelierCanvas'];
 export const name = 'atelier-design-tools';
 const sceneSchema = {type: 'object', additionalProperties: false, required: ['title', 'cards'], properties: {
-  title: {type: 'string', maxLength: 160}, cards: {type: 'array', minItems: 1, maxItems: 32, items: {
+  title: {type: 'string', maxLength: 160},
+  units: {type: 'string', enum: ['m', 'px'], description: 'm for a plan: x, y, width and height in metres, origin at the south-west corner, x east, y north; it is drawn to scale with a scale bar. px for a diagram or moodboard on the canvas grid.'},
+  cards: {type: 'array', minItems: 1, maxItems: 32, items: {
     type: 'object', additionalProperties: false, required: ['label'], properties: {
       label: {type: 'string', maxLength: 160}, note: {type: 'string', maxLength: 800}, color: {type: 'string', pattern: '^#[a-fA-F0-9]{6}$'},
       x: {type: 'number', minimum: 0, maximum: 1600}, y: {type: 'number', minimum: 0, maximum: 1600},
-      width: {type: 'number', minimum: 1, maximum: 800}, height: {type: 'number', minimum: 1, maximum: 800}
+      width: {type: 'number', minimum: 0.05, maximum: 800}, height: {type: 'number', minimum: 0.05, maximum: 800}
     }
   }}
 }};
@@ -24,7 +26,7 @@ export function apply(ctx, config = {}) {
     return {status: moodboard && !endpoint ? 'Moodboard saved as colour and material cards. No image endpoint is configured; no images were generated.' : 'Saved to the editable canvas.', title: scene.title, cards: scene.cards.length, imagesAvailable: Boolean(endpoint)};
   };
   for (const [tool, description, moodboard] of [
-    ['board_draw', 'Draw a plan or design diagram on the editable canvas. Cards can be rooms with scaled x/y/width/height, or steps with default grid placement. Include dimensions, circulation and assumptions in notes. Concept drawings are not permit documents.', false],
+    ['board_draw', 'Draw a plan or design diagram on the editable canvas. For a plan, set units "m" and give every room or zone x, y, width and height in metres (origin at the south-west corner, x east, y north); Atelier draws it to scale. For a process or comparison, leave out positions and the grid places the steps. Include dimensions, circulation and assumptions in notes. Concept drawings are not permit documents.', false],
     ['moodboard_create', 'Create a moodboard on the canvas using colour swatches and descriptive material, texture and lighting cards. This works without an image endpoint and never claims generated images.', true]
   ]) ctx.effect(() => ctx.tools.register({name: tool, description, parameters: sceneSchema, output, execute: (args, exec) => save(args, exec, moodboard)}));
   if (endpoint) {

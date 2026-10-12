@@ -270,7 +270,7 @@ window.__ModuleLoader__.load({id: '@arcitech/atelier-mission', factory: require 
         } catch (error) { setMessage(error.message); }
       };
       const shown = (label, summary) => summary ? h(Tile, {label, value: energyText(summary.wh), note: `${money(summary.cost, summary.currency)}${summary.source === 'estimate' ? ' (estimate)' : summary.source === 'mixed' ? ' (partly estimated)' : ''}`}) : null;
-      return h(Panel, {id: 'energy', title: 'Energy and cost', aside: energy.basis === 'measured' ? 'measured' : energy.basis === 'estimate' ? 'estimate' : 'no power reading'},
+      return h(Panel, {id: 'energy', title: 'Energy and cost', aside: energy.basis === 'measured' ? 'measured on this computer' : energy.basis === 'estimate' ? 'estimate' : 'no power reading'},
         h('div', {className: 'msn-tiles'}, shown('Today', energy.today), shown('Since Atelier started', energy.session), snap.stopwatch.status === 'running' ? shown('Stopwatch run', energy.stopwatch) : null),
         h('p', {className: 'msn-muted'}, energy.coverage),
         h('form', {className: 'msn-form', onSubmit: save},

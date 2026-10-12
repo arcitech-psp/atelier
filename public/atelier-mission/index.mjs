@@ -266,8 +266,8 @@ export function apply(ctx, config = {}) {
         stopwatch: live ? summarizeEnergy(live.energy, prefs) : null,
         // What the figures are made of, in words the panel prints under them.
         basis: hasPower ? 'measured' : prefs.estimatedWatts ? 'estimate' : 'none',
-        coverage: hasPower ? 'Graphics card power read from nvidia-smi, summed over the cards. The processor, screen and the rest of the computer are not included.'
-          : prefs.estimatedWatts ? `No power reading is available, so this is an estimate: ${prefs.estimatedWatts} W for the time the harness was working on model replies.`
+        coverage: hasPower ? 'Measured on this computer only: graphics card power read from nvidia-smi, summed over its cards. The processor, screen and the rest of the computer are not included, and neither is a model server on another computer or in the cloud.'
+          : prefs.estimatedWatts ? `No power reading is available, so this is an estimate for this computer: ${prefs.estimatedWatts} W for the time the harness was working on model replies. A model server on another computer is not included.`
             : 'No power reading is available on this computer. Enter your computer\'s typical power draw while it works to get an estimate.',
         price: price.price, priceIsDefault: price.isDefault,
       },

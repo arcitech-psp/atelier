@@ -19,7 +19,7 @@ export const inject = [];
 
 const LLM = settingsNamespace('llm-pi-ai');
 const DEFAULT_MODEL = settingsNamespace('agent-default-model');
-const PLACEHOLDER_MODEL = 'YOUR_MODEL_ID';
+const PLACEHOLDER_MODEL = 'YOUR_MODEL_ID', PLACEHOLDER_ROUTE = 'atelier-openai';
 const STATUS_TTL_MS = 30_000;
 const TEST_TIMEOUT_MS = 6000;
 
@@ -126,7 +126,7 @@ export function apply(ctx, config = {}) {
       if (!(await readKey(id))) await storeKey(id, 'not-needed');
       await writeRoute(id === 'brain' ? BRAIN_ROUTE : HELPER_ROUTE, {baseURL, model, vision: input.vision === true, contextWindow,
         displayName: id === 'brain' ? 'Brain (Model roles)' : 'Small helper (Model roles)'});
-      if (id === 'brain') await settings.mutate(DEFAULT_MODEL, [{op: 'set', path: ['provider'], value: BRAIN_ROUTE}, {op: 'set', path: ['model'], value: model}]);
+      if (id === 'brain') { await settings.mutate(DEFAULT_MODEL, [{op: 'set', path: ['provider'], value: BRAIN_ROUTE}, {op: 'set', path: ['model'], value: model}]); await dropPlaceholder(); }
       saved.roles[id] = {preset: text(input.preset, 40), source};
     } else {
       saved.roles[id] = {baseURL, model, preset: text(input.preset, 40), voice: text(input.voice, 80) || undefined, source};
@@ -259,7 +259,23 @@ export function apply(ctx, config = {}) {
     void load().then(() => kit.resume(saved.kit)).catch(e => ctx.logger?.warn?.('atelier-roles: %s', e.message));
     return () => kit.dispose();
   });
-  ctx.inject(['settings'], sctx => { settings = sctx.settings; sctx.effect(() => () => { settings = undefined; }); });
+  // The shipped settings.yaml carries a placeholder provider ("Not connected yet") so the harness always has a default
+  // route. Once a real brain is the default model, the placeholder is removed so Settings > Models lists only real entries.
+  async function dropPlaceholder() {
+    const placeholder = llmSettings().providers?.[PLACEHOLDER_ROUTE];
+    if (!settings || !placeholder || !String(placeholder.baseURL ?? '').includes('YOUR_OPENAI_COMPATIBLE_HOST')) return;
+    if ((defaultSelection().provider ?? PLACEHOLDER_ROUTE) === PLACEHOLDER_ROUTE) return;
+    await settings.mutate(LLM, [{op: 'unset', path: ['providers', PLACEHOLDER_ROUTE]}]);
+  }
+  ctx.inject(['settings'], sctx => {
+    settings = sctx.settings;
+    // The model provider registers its settings a moment after this plugin starts: try a few times, quietly.
+    let tries = 0, timer;
+    const attempt = () => { if (!settings) return; if (settings.get(LLM) === undefined && ++tries < 20) { timer = setTimeout(attempt, 1500); timer.unref?.(); return; }
+      dropPlaceholder().catch(e => ctx.logger?.warn?.('atelier-roles: %s', e.message)); };
+    attempt();
+    sctx.effect(() => () => { clearTimeout(timer); settings = undefined; });
+  });
 
   // ---------- the browser RPC (the Model roles page) ----------
   async function describe(id) {

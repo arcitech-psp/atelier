@@ -2,6 +2,8 @@
   font-size: 14px;
   line-height: 24px;
   color: var(--dsw-alias-label-secondary);
+  /* Long addresses (the feedback form link) wrap inside the dialog instead of running past its edge. */
+  overflow-wrap: anywhere;
 }
 
 .copy p {

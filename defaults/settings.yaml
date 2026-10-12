@@ -2,7 +2,7 @@ llm-pi-ai:
   catalogProviders: []
   providers:
     atelier-openai:
-      displayName: Your OpenAI-compatible endpoint
+      displayName: Not connected yet (set up the brain in Settings > Model roles)
       api: openai-completions
       baseURL: https://YOUR_OPENAI_COMPATIBLE_HOST/v1
       apiKeyEnv: ATELIER_API_KEY
