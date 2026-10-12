@@ -41,4 +41,4 @@ connector (`public/atelier-ingetrazo`) are by ARCITECH. See `LICENSE` for their 
 
 "Atelier", "ARCITECH" and the AIT logo are reserved for the official build; see `TRADEMARK.md`. How to contribute: `CONTRIBUTING.md`.
 
-Contact: parthpatel266@gmail.com
+Contact: https://arcitech.info, or the feedback form linked in README.md.

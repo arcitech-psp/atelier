@@ -38,6 +38,6 @@ Vitruvius plans the parts in metres, builds them as named groups, reads back the
 
 ## The optional Atelier panel
 
-`ingetrazo-plugin/atelier_panel` is a small panel that puts a Vitruvius chat inside IngeTrazo. It is a separate download under GPL-3.0-or-later with its own README. Copy `at_atelier_panel.py` into your IngeTrazo user plugins folder, restart IngeTrazo, and set the host, port (3081 by default) and Atelier home folder in its Settings.
+`ingetrazo-plugin/atelier_panel` is a small panel that puts a Vitruvius chat inside IngeTrazo. It is a separate download under GPL-3.0-or-later with its own README. Copy `atelier_panel.py` into your IngeTrazo user plugins folder, restart IngeTrazo, and set the host, port (3081 by default) and Atelier home folder in its Settings.
 
 Next: [Saving and reopening work](saving-and-reopening.md).

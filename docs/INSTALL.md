@@ -7,28 +7,24 @@ Atelier by ARCITECH runs on your own computer and opens in your web browser. Pic
 - [WSL on Windows](#wsl-windows-subsystem-for-linux) (Atelier inside Ubuntu on WSL2, used from your Windows browser)
 - [From the source code](#from-the-source-code) (for people who like a terminal)
 
-Atelier ships **no AI model**. After installing, you connect the model you use: see [Add your endpoint](add-your-endpoint.md). Downloads are on the [GitHub Releases page](https://github.com/arcitech-psp/atelier/releases/latest).
+Atelier ships **no AI model**. After installing, you connect the model you use: see [Add your endpoint](add-your-endpoint.md). Downloads are on the [GitHub Releases page](https://github.com/arcitech-psp/atelier/releases).
 
 ## Windows
 
 You need Windows 10 (version 1803 or newer) or Windows 11, 64-bit, and about 900 MB of free disk space. No administrator rights and no other software are needed: the installer brings everything Atelier runs on.
 
-1. Download **Atelier-Preview-0.1.0-Setup.exe** from the [Releases page](https://github.com/arcitech-psp/atelier/releases/latest).
+1. Download **Atelier-Preview-0.1.0-Setup.exe** from the [Releases page](https://github.com/arcitech-psp/atelier/releases).
 2. Open it. The installer is not code-signed yet, so Windows SmartScreen may say it "protected your PC". Choose **More info**, then **Run anyway**. (You can check the file first: see [Is the download genuine?](#is-the-download-genuine))
 3. Follow the steps:
 
-   | | |
-   |---|---|
-   | ![Welcome page](images/install/windows-1-welcome.png) | **Welcome.** What Atelier is, and the credit to DSH (DeepSeek Harness), on which it is built. |
-   | ![Licence page](images/install/windows-2-licence.png) | **Licence.** Atelier's own parts are source-available under PolyForm Shield 1.0.0; DSH stays MIT. |
-   | ![Choose components](images/install/windows-3-components.png) | **Components.** Keep **Desktop shortcut** for an icon on your desktop. **The atelier command** lets you type `atelier` in a terminal. |
-   | ![Install location](images/install/windows-4-folder.png) | **Folder.** The default, `%LOCALAPPDATA%\Programs\Atelier-Preview`, is right for most people. |
-   | ![Finished](images/install/windows-5-finish.png) | **Done.** Leave **Start Atelier now** ticked. |
+   - **Welcome.** What Atelier is, and the credit to DSH (DeepSeek Harness), on which it is built.
+   - **Licence.** Atelier's own parts are source-available under PolyForm Shield 1.0.0; DSH stays MIT.
+   - **Components.** Keep **Desktop shortcut** for an icon on your desktop. **The atelier command** lets you type `atelier` in a terminal.
+   - **Folder.** The default, `%LOCALAPPDATA%\Programs\Atelier-Preview`, is right for most people.
+   - **Done.** Leave **Start Atelier now** ticked.
 
 4. Atelier starts in the background (look for the AIT icon next to the clock) and opens in your browser. The first start takes about half a minute.
 5. The first time, the **Model roles** page opens so you can connect your model: see [Add your endpoint](add-your-endpoint.md).
-
-![Model roles page on first start](images/install/first-run-model-roles.png)
 
 ### Everyday use
 
@@ -45,8 +41,6 @@ Atelier never checks for updates on its own unless you ask it to. In Atelier, op
 - **Download and install** fetches it, checks its SHA-256 fingerprint against the release, and installs it **next to** your current version. **Restart now** switches over. Your chats and settings stay as they are.
 - **Roll back to 0.1.0** (or whichever version you had before) switches back, also with one click.
 - **Install updates automatically** is off by default. When on, Atelier checks once a day and installs a new version for the next start.
-
-![Settings > Updates](images/install/settings-updates.png)
 
 The same from a terminal: `atelier update check`, `atelier update apply`, `atelier update rollback`.
 

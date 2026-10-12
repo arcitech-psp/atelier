@@ -34,7 +34,7 @@ TIME_ZONE = "UTC"
 def panel_settings():
     """Separate settings namespace; a private INI path can be supplied for tests."""
     path = os.environ.get("ATELIER_PANEL_SETTINGS")
-    return QSettings(path, QSettings.IniFormat) if path else QSettings("ArciTech", "AtelierPublicPanel")
+    return QSettings(path, QSettings.IniFormat) if path else QSettings("ARCITECH", "AtelierPublicPanel")
 
 def default_home():
     return os.environ.get("DSH_HOME", os.path.join(os.path.expanduser("~"), "Documents", "Atelier", "home"))

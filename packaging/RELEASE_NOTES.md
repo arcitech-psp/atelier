@@ -1,6 +1,6 @@
 # Atelier {{VERSION}} (public preview)
 
-Atelier by ARCITECH is a design assistant for architects, interior designers and students. It is powered by DSH (DeepSeek Harness) 0.1.2-alpha.1 by DeepSeek-AI (MIT). This is the first public preview: expect rough edges, and please tell us what breaks.
+Atelier by ARCITECH is a design assistant for architects, interior designers and students. It is powered by DSH (DeepSeek Harness) 0.1.2-alpha.1 by DeepSeek-AI (MIT). This first public preview is now available, free to use: expect rough edges, and please tell us what breaks.
 
 ## Download
 
@@ -13,7 +13,7 @@ Atelier by ARCITECH is a design assistant for architects, interior designers and
 
 Check a download with `SHA256SUMS` (Windows PowerShell: `Get-FileHash <file>`; Linux: `sha256sum -c SHA256SUMS --ignore-missing`). The files are not code-signed yet, so Windows SmartScreen may warn the first time: choose "More info", then "Run anyway".
 
-Installation steps with pictures: [docs/INSTALL.md](https://github.com/arcitech-psp/atelier/blob/main/docs/INSTALL.md). Connecting a model: [docs/add-your-endpoint.md](https://github.com/arcitech-psp/atelier/blob/main/docs/add-your-endpoint.md).
+Installation steps: [docs/INSTALL.md](https://github.com/arcitech-psp/atelier/blob/main/docs/INSTALL.md). Connecting a model: [docs/add-your-endpoint.md](https://github.com/arcitech-psp/atelier/blob/main/docs/add-your-endpoint.md).
 
 ## What is in it
 
@@ -21,9 +21,8 @@ Installation steps with pictures: [docs/INSTALL.md](https://github.com/arcitech-
 - **Works on one 16 GB graphics card.** Models are loaded when they are needed, and Atelier waits for each load and shows its state: see [One graphics card, several models](https://github.com/arcitech-psp/atelier/blob/main/docs/ONE_GPU.md).
 - **Mission Control.** A chip in the session header shows which model is loaded, graphics card use, tokens and speed, and the energy cost at your own electricity price: see [Mission Control](https://github.com/arcitech-psp/atelier/blob/main/docs/mission-control.md).
 - **Brains.** Settings > General shows the model that is really loaded now on each computer and graphics card, with Load, Unload and Reload (one brain at a time per card, with a confirm step and progress): see [Brains](https://github.com/arcitech-psp/atelier/blob/main/docs/brains.md).
-- **Bottega, team mode.** Share one Atelier with colleagues on your office network (details below). Tailscale support is coming soon.
-
 - **Vitruvius** and **Vitruvius Zero** (for small models), a design canvas with concept plans and material/colour moodboards, and an optional bridge to IngeTrazo (installed separately, GPL-3.0-or-later).
+- The stock DeepSeek Harness agent presets (Standard, PTC, Minimal and Creator modes) and launcher profiles.
 - Works with any OpenAI-compatible model endpoint: Ollama, LM Studio, llama.cpp, vLLM, a custom URL with a key, cloud free tiers through OmniRoute, or your ChatGPT plan.
 - **Bottega (team mode)**: share one Atelier with colleagues on your office network. Other devices open it in their browser, tablet or phone after a one-time pairing code; you see and revoke every device. Off by default, private networks only, plain HTTP. Tailscale support is planned and coming soon.
 - **Settings > Updates**: the version, credits, "Check for updates", and opt-in automatic updates (off by default). Updates install beside the current version, which is kept for one-click rollback.
@@ -40,7 +39,7 @@ Atelier sends no telemetry. It talks only to the model endpoint you choose, to I
 
 ## Credits
 
-Atelier is built on [DSH (DeepSeek Harness)](https://github.com/deepseek-ai/deepseek-harness) by DeepSeek-AI (MIT). [IngeTrazo](https://github.com/ingelibre/ingetrazo) is by Marco Sumari Tellez and contributors (GPL-3.0-or-later). Atelier's own parts are source-available under the PolyForm Shield License 1.0.0.
+Atelier is built on [DSH (DeepSeek Harness)](https://github.com/deepseek-ai/deepseek-harness) by DeepSeek-AI (MIT). [IngeTrazo](https://github.com/ingelibre/ingetrazo) is by Marco Sumari Tellez and contributors (GPL-3.0-or-later). Atelier's own parts are source-available under the PolyForm Shield License 1.0.0. Website: [arcitech.info](https://arcitech.info).
 
 ## Feedback
 

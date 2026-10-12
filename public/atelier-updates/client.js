@@ -30,7 +30,7 @@ window.__ModuleLoader__.load({id: '@arcitech/atelier-updates', factory: require 
       const pending = state.pending && state.pending !== state.current ? state.pending : null;
       return h('section', {'data-atelier-updates': '', style: {padding: 4, maxWidth: 640}},
         h('h3', {style: {margin: '0 0 4px'}}, `Atelier ${s.plain}`),
-        h('p', {style: muted}, 'Atelier by ARCITECH — powered by DSH (DeepSeek Harness). A design assistant for architects; public preview.'),
+        h('p', {style: muted}, 'Atelier by ARCITECH — powered by DSH (DeepSeek Harness). A design assistant for architects; free public preview.'),
         h('p', {style: muted}, `Built on DSH ${s.dshVersion} by DeepSeek-AI, MIT licence.`),
         h('h4', {style: {margin: '20px 0 4px'}}, 'Updates'),
         h('p', {style: muted}, `Atelier only contacts GitHub (github.com/${s.repo}) when you press Check for updates, or when automatic updates are on.`),

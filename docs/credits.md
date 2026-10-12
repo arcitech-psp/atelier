@@ -13,6 +13,8 @@ Atelier stands on other people's work. Thank you to every one of them.
 | [OmniRoute](https://github.com/diegosouzapw/OmniRoute) | diegosouzapw and contributors | MIT | Optional local AI gateway for the cloud profile. Installed separately. |
 | [Sign in with ChatGPT for open-source apps](https://developers.openai.com/siwc/token-sharing-open-source) | OpenAI | OpenAI terms | The official sign-in the ChatGPT-plan route uses. |
 | [Node.js](https://nodejs.org/) and [pnpm](https://pnpm.io/) | Their communities | MIT | Runtime and package manager. |
+| [KaTeX](https://katex.org/) fonts | Khan Academy and contributors | MIT | Bundled with the web app to show maths. Licence text in `licenses/npm/katex`. |
+| [Jost](https://fonts.google.com/specimen/Jost) and [Cinzel](https://fonts.google.com/specimen/Cinzel) | Indestructible Type; Natanael Gama | SIL Open Font License 1.1 | Named by the setup walkthrough pages, used only if installed on your computer. Not bundled. |
 | JavaScript packages | Their authors | See `licenses/` | Installed by pnpm; full list and texts in `licenses/`. |
 
 ## Works well with

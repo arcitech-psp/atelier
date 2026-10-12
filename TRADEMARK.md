@@ -26,4 +26,4 @@ DeepSeek Harness, IngeTrazo and every other product name mentioned in this proje
 
 ## Asking
 
-If you want to use the names for something that is not covered above, write to parthpatel266@gmail.com first.
+If you want to use the names for something that is not covered above, ask ARCITECH first through https://arcitech.info or the feedback form linked in README.md.

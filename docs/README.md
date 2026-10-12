@@ -1,6 +1,6 @@
 # Atelier documentation
 
-Atelier is a studio assistant for architects, interior designers and students. You describe the project; it works through it with you one visible step at a time, on your own computer. This is the documentation for the **public preview (0.1.0-preview)**.
+Atelier is a studio assistant for architects, interior designers and students. You describe the project; it works through it with you one visible step at a time, on your own computer. This is the documentation for the **public preview (0.1.0-preview)**, now available free for Windows, Linux and WSL from the [Releases page](https://github.com/arcitech-psp/atelier/releases).
 
 Read in this order the first time:
 

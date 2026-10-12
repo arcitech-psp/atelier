@@ -5,13 +5,13 @@
 **A design assistant for architects, interior designers and students, on your own computer.**
 *Atelier by ARCITECH — powered by DSH (DeepSeek Harness).*
 
-[![Download for Windows](https://img.shields.io/badge/Download-Windows%2010%2F11-2b2b2b?style=for-the-badge&logo=windows)](https://github.com/arcitech-psp/atelier/releases/latest/download/Atelier-Preview-0.1.0-Setup.exe)
-[![Download for Linux and WSL](https://img.shields.io/badge/Download-Linux%20%26%20WSL-2b2b2b?style=for-the-badge&logo=linux)](https://github.com/arcitech-psp/atelier/releases/latest/download/atelier-preview-0.1.0-linux-x64.tar.gz)
+[![Download for Windows](https://img.shields.io/badge/Download-Windows%2010%2F11-2b2b2b?style=for-the-badge&logo=windows)](https://github.com/arcitech-psp/atelier/releases/download/v0.1.0/Atelier-Preview-0.1.0-Setup.exe)
+[![Download for Linux and WSL](https://img.shields.io/badge/Download-Linux%20%26%20WSL-2b2b2b?style=for-the-badge&logo=linux)](https://github.com/arcitech-psp/atelier/releases/download/v0.1.0/atelier-preview-0.1.0-linux-x64.tar.gz)
 [![All releases](https://img.shields.io/github/v/release/arcitech-psp/atelier?include_prereleases&style=for-the-badge&label=release)](https://github.com/arcitech-psp/atelier/releases)
 
 You describe the project; Atelier works through it with you, one visible step at a time. You can stop it, change the plan or take over at any time.
 
-> **Status: public preview (0.1.0-preview).** Expect rough edges, and please tell us what breaks.
+> **Now available: Atelier 0.1.0, a free public preview.** Download it below for Windows, Linux or WSL. Expect rough edges, and please tell us what breaks through the [feedback form](https://docs.google.com/forms/d/e/1FAIpQLSeulyC06qEOVDn2aSjJqTlbCjifoYXqQzhDXb9Du16Ev5TiHA/viewform). More about ARCITECH: [arcitech.info](https://arcitech.info).
 
 ## Atelier at a glance
 
@@ -21,7 +21,7 @@ You describe the project; Atelier works through it with you, one visible step at
 - **Brains:** in Settings, the model that is really loaded now on your graphics card, with Load, Unload and Reload buttons. See [Brains](docs/brains.md).
 - **Mission Control:** a chip in the session header that shows which model is loaded, how hard your graphics card is working, tokens and speed, and what the session costs in electricity at your own price. See [Mission Control](docs/mission-control.md).
 - **Works on one 16 GB graphics card:** models are loaded only when they are needed, and Atelier waits for each load and shows its state. See [One graphics card, several models](docs/ONE_GPU.md).
-- **Download:** the Windows installer and the Linux/WSL archive are on the [Releases page](https://github.com/arcitech-psp/atelier/releases).
+- **Download, now available:** the Windows installer and the Linux/WSL archive are on the [Releases page](https://github.com/arcitech-psp/atelier/releases).
 
 ## Install in two minutes
 
@@ -30,7 +30,7 @@ You describe the project; Atelier works through it with you, one visible step at
 - Then **connect your model** on the Model roles page that opens the first time: Ollama, LM Studio, llama.cpp, vLLM, any OpenAI-compatible URL with a key, free cloud tiers through OmniRoute, or your ChatGPT plan.
 - **Use it free:** see the [free models guide](docs/FREE_MODELS.md).
 
-Step by step with pictures: [Installing Atelier](docs/INSTALL.md) · [Add your endpoint](docs/add-your-endpoint.md) · [FAQ](docs/FAQ.md) · [Troubleshooting](docs/troubleshooting.md). Updates are in Settings > Updates: you check when you like (automatic updates are off unless you turn them on), and every update can be rolled back.
+Step by step: [Installing Atelier](docs/INSTALL.md) · [Add your endpoint](docs/add-your-endpoint.md) · [FAQ](docs/FAQ.md) · [Troubleshooting](docs/troubleshooting.md). Updates are in Settings > Updates: you check when you like (automatic updates are off unless you turn them on), and every update can be rolled back.
 
 ## Name and credits
 
@@ -38,6 +38,8 @@ Step by step with pictures: [Installing Atelier](docs/INSTALL.md) · [Add your e
 - Atelier is built on **[DSH (DeepSeek Harness)](https://github.com/deepseek-ai/deepseek-harness)** by DeepSeek-AI, MIT licence: the agent engine, tools, sessions and web app. The About box says which DSH release is inside (now 0.1.2-alpha.1), and Atelier follows new DSH releases ([how](docs/UPSTREAM_SYNC.md)). Package names keep their upstream `@deepseek-ai/dsh-*` names so that following DSH stays easy.
 - **[IngeTrazo](https://github.com/ingelibre/ingetrazo)** by Marco Sumari Tellez and contributors (GPL-3.0-or-later) is the optional modelling program Atelier can drive. It is installed separately, never bundled.
 - Feedback: see [Feedback](#feedback) below; it goes through the feedback form or GitHub Issues, not email.
+- Website: [arcitech.info](https://arcitech.info).
+
 Atelier is a fork of [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) by DeepSeek-AI (MIT licence). We added **Vitruvius**, a design-assistant profile built on the classic triad *Venustas* (beauty), *Firmitas* (soundness) and *Utilitas* (usefulness), a design canvas with material and colour moodboards, and an optional bridge to [IngeTrazo](https://github.com/ingelibre/ingetrazo) for live modelling.
 
 ## What is in this preview
@@ -136,7 +138,7 @@ The optional IngeTrazo panel in `ingetrazo-plugin/atelier_panel` is a separate G
 
 ## Community
 
-Issues and ideas: GitHub Issues, or the feedback form below.
+Issues and ideas: GitHub Issues, or the feedback form below. News about ARCITECH and Atelier: [arcitech.info](https://arcitech.info).
 
 ## Feedback
 
