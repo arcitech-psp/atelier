@@ -148,8 +148,40 @@ export function describeFailure(error) {
   return String(error?.message ?? error);
 }
 
+/** How long the brain may take to answer the one short test message (a local model may have to load first). */
+export const ANSWER_TIMEOUT_MS = 60_000;
+
+/** The server's own words for a failed request, shortened: {"error": {"message": ...}} or the start of the body. */
+async function serverSays(response) {
+  try {
+    const text = (await response.text()).trim();
+    let said = text;
+    try { const body = JSON.parse(text); said = body?.error?.message ?? body?.message ?? body?.detail ?? text; } catch { /* plain text */ }
+    said = String(typeof said === 'string' ? said : JSON.stringify(said)).replace(/\s+/g, ' ').trim();
+    return said ? ` The server said: ${said.length > 240 ? `${said.slice(0, 240)}\u2026` : said}` : '';
+  } catch { return ''; }
+}
+
+/**
+ * Send one tiny chat message (max_tokens 16) and say whether a real answer came back. Listing /models only proves the
+ * server is up; this proves the model answers, with the key and model name Atelier will use.
+ * @returns {Promise<{state: 'connected'|'failing', message: string}>}
+ */
+export async function answerCheck(call, model, timeoutMs = ANSWER_TIMEOUT_MS) {
+  const response = await call('/chat/completions', {method: 'POST', headers: {'content-type': 'application/json'},
+    body: JSON.stringify({model, messages: [{role: 'user', content: 'Reply with the single word: OK'}], max_tokens: 16, temperature: 0, stream: false})}, timeoutMs);
+  if (response.status === 401 || response.status === 403) return {state: 'failing', message: `The model refused the test message: the key was not accepted (HTTP ${response.status}).${await serverSays(response)}`};
+  if (!response.ok) return {state: 'failing', message: `The model did not answer a test message (HTTP ${response.status} at /chat/completions).${await serverSays(response)}`};
+  let body;
+  try { body = await response.json(); } catch { return {state: 'failing', message: 'The model answered the test message with something that is not JSON.'}; }
+  if (body?.error) return {state: 'failing', message: `The model did not answer a test message. The server said: ${String(body.error.message ?? JSON.stringify(body.error)).slice(0, 240)}`};
+  const choice = body?.choices?.[0];
+  if (!choice || typeof choice.message !== 'object') return {state: 'failing', message: 'The server answered the test message without a reply from the model.'};
+  return {state: 'connected', message: `Answers a test message with ${model}.`};
+}
+
 /** Test one role the way the Model roles page does. */
-export async function testRole(home, id, {env = process.env, timeoutMs = 8000, fetchImpl = fetch} = {}) {
+export async function testRole(home, id, {env = process.env, timeoutMs = 8000, answerTimeoutMs = ANSWER_TIMEOUT_MS, fetchImpl = fetch} = {}) {
   const role = (await roleCatalog()).find(r => r.id === id);
   if (!role) throw Error(`Unknown role "${id}".`);
   const cfg = effectiveRole(id, readSettings(home), readRoles(home), env);
@@ -160,8 +192,8 @@ export async function testRole(home, id, {env = process.env, timeoutMs = 8000, f
   }
   const key = resolveKey(home, cfg.apiKeyEnv ?? keyRefFor(id), env);
   const auth = key && key !== 'not-needed' ? {authorization: `Bearer ${key}`} : {};
-  const call = (path, init = {}) => fetchImpl(path === null ? cfg.baseURL : cfg.baseURL + path,
-    {...init, headers: {...init.headers, ...auth}, redirect: 'error', signal: AbortSignal.timeout(timeoutMs)});
+  const call = (path, init = {}, timeout = timeoutMs) => fetchImpl(path === null ? cfg.baseURL : cfg.baseURL + path,
+    {...init, headers: {...init.headers, ...auth}, redirect: 'error', signal: AbortSignal.timeout(timeout)});
   try {
     if (role.kind === 'chat') {
       const response = await call('/models');
@@ -169,7 +201,14 @@ export async function testRole(home, id, {env = process.env, timeoutMs = 8000, f
       if (!response.ok) return {state: 'failing', message: `The server answered HTTP ${response.status} at /models.`};
       const ids = ((await response.json())?.data ?? []).map(m => m?.id).filter(Boolean);
       if (ids.length && cfg.model && !ids.includes(cfg.model)) return {state: 'failing', models: ids.slice(0, 50), message: `The server does not serve "${cfg.model}". It serves: ${ids.slice(0, 6).join(', ')}.`};
-      return {state: 'connected', models: ids.slice(0, 50), message: ids.length ? `Answers and serves ${cfg.model || ids[0]}.` : 'Answers.'};
+      const model = cfg.model || ids[0];
+      if (!model) return {state: 'failing', message: 'The server lists no models. Name one with --model.'};
+      try {
+        return {...await answerCheck(call, model, answerTimeoutMs), models: ids.slice(0, 50)};
+      } catch (error) {
+        const why = error?.name === 'TimeoutError' ? `no answer within ${Math.round(answerTimeoutMs / 1000)} seconds (the model may still be loading; try again in a minute)` : describeFailure(error);
+        return {state: 'failing', models: ids.slice(0, 50), message: `The server lists ${model}, but the model did not answer a test message: ${why}`};
+      }
     }
     if (role.kind === 'embeddings') {
       const response = await call('/embeddings', {method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify({model: cfg.model, input: 'Atelier test'})});

@@ -347,7 +347,7 @@ window.__ModuleLoader__.load({id: '@arcitech/atelier-mission', factory: require 
             h('input', {type: 'number', 'aria-label': 'Minutes to wait for a model to load', min: 1, max: 60, step: 1, value: wait, onChange: event => setWait(event.target.value)})),
           swap.enabled ? h('button', {type: 'button', className: 'msn-button', disabled: busy, onClick: () => apply(true)}, 'Update') : null,
           h('button', {type: 'button', className: 'msn-button msn-button-primary', disabled: busy, 'aria-pressed': swap.enabled, onClick: () => apply(!swap.enabled)}, swap.enabled ? 'Turn off' : 'Turn on')),
-        h('p', {className: 'msn-form-message', role: 'status'}, message || (swap.enabled ? `On: waits up to ${Math.round(swap.waitSeconds / 60)} min${swap.routes.length ? `, set for ${swap.routes.join(', ')}` : ''}.` : '')));
+        h('p', {className: 'msn-form-message', role: 'status'}, message || (swap.enabled ? `On: waits ${swap.unlimited ? 'with no time limit while Atelier guardrails are off' : `up to ${Math.round(swap.waitSeconds / 60)} min`}${swap.routes.length ? `, set for ${swap.routes.join(', ')}` : ''}.` : '')));
     };
 
     ctx.slots.inject('conversation.session.header.utilities', () => ctx.slots.register({name: 'conversation.session.header.utilities', id: 'atelier-mission', order: 70}, Chip));

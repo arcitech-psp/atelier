@@ -7183,6 +7183,12 @@ importers:
       '@deepseek-ai/dsh-home-paths':
         specifier: workspace:^
         version: link:../../harness/packages/util/home-paths
+      '@deepseek-ai/dsh-settings':
+        specifier: workspace:^
+        version: link:../../harness/packages/settings/settings
+      '@deepseek-ai/schemastery':
+        specifier: workspace:^
+        version: link:../../harness/vendor/schemastery
       yaml:
         specifier: 2.9.0
         version: 2.9.0

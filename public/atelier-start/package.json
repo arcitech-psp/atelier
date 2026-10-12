@@ -2,15 +2,19 @@
   "name": "@arcitech/atelier-start",
   "version": "0.1.0-preview",
   "private": true,
-  "description": "Atelier's new-chat page: orientation, starting routes mapped to the shipped skills, recent sessions and model status.",
+  "description": "Atelier's new-chat page (orientation, starting routes, recent sessions, model status), Bottega team mode and the Atelier guardrails switch (Settings > Safety).",
   "type": "module",
   "license": "PolyForm-Shield-1.0.0",
   "exports": {
     ".": "./index.mjs",
     "./status": "./status.mjs",
     "./bottega": "./bottega/bottega.mjs",
+    "./guardrails": "./guardrails.mjs",
     "./client": "./client.js",
     "./package.json": "./package.json"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
   },
   "dsh": {
     "client": {
@@ -19,7 +23,8 @@
         "@deepseek-ai/dsh-client-ui-renderer",
         "@deepseek-ai/dsh-client-ui-conversation",
         "@deepseek-ai/dsh-client-ui-session",
-        "@deepseek-ai/dsh-client-connection"
+        "@deepseek-ai/dsh-client-connection",
+        "@deepseek-ai/dsh-client-ui-settings"
       ]
     }
   },
@@ -29,6 +34,8 @@
   "peerDependencies": {
     "@deepseek-ai/cordis": "workspace:^",
     "@deepseek-ai/dsh-client-connection": "workspace:^",
-    "@deepseek-ai/dsh-home-paths": "workspace:^"
+    "@deepseek-ai/dsh-home-paths": "workspace:^",
+    "@deepseek-ai/dsh-settings": "workspace:^",
+    "@deepseek-ai/schemastery": "workspace:^"
   }
 }

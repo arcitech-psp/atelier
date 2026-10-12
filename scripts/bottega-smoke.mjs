@@ -117,6 +117,19 @@ if (ready) {
     const manage = await fetch(`${gateway}/atelier-bottega/status`, {method: 'POST', headers: {cookie: deviceCookie, origin: gateway, 'content-type': 'application/json'},
       body: JSON.stringify({type: 'client-request', rpcId: randomUUID(), method: 'status', payload: {}})});
     check('a paired device cannot manage Bottega', manage.status === 403, `HTTP ${manage.status}`);
+    // Atelier guardrails: a paired device sees whether they are on, but only the host can switch them.
+    const call = (base, cookie, channel, method, payload = {}) => fetch(`${base}/${channel}/${method}`, {method: 'POST',
+      headers: {cookie, origin: base, 'content-type': 'application/json'}, body: JSON.stringify({type: 'client-request', rpcId: randomUUID(), method, payload})});
+    const seen = await call(gateway, deviceCookie, 'atelier-start', 'guardrails');
+    check('a paired device sees the guardrails state', seen.status === 200 && (await seen.json()).result?.value?.enabled === true, `HTTP ${seen.status}`);
+    const sneak = await call(gateway, deviceCookie, 'atelier-guardrails', 'set', {enabled: false, confirmed: true});
+    check('a paired device cannot switch guardrails off', sneak.status === 403, `HTTP ${sneak.status}`);
+    const unconfirmed = await (await call(host, ownerCookie, 'atelier-guardrails', 'set', {enabled: false})).json();
+    check('the host needs a confirmation to switch guardrails off', unconfirmed.result?.ok === false);
+    const offNow = await (await call(host, ownerCookie, 'atelier-guardrails', 'set', {enabled: false, confirmed: true})).json();
+    const onAgain = await (await call(host, ownerCookie, 'atelier-guardrails', 'set', {enabled: true})).json();
+    check('the host switches guardrails off and on again', offNow.result?.value?.enabled === false && onAgain.result?.value?.enabled === true
+      && /enabled: true/.test(readFileSync(join(home, 'settings.yaml'), 'utf8')));
 
     const listed = await rpc(ownerCookie, 'status');
     const device = listed.result?.value?.devices?.[0];

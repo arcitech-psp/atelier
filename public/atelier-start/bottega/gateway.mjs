@@ -21,6 +21,8 @@ import {pairPage, hopPage, PAIR_MESSAGES} from './pages.mjs';
 export const OWN_PREFIX = '/__bottega/';
 /** The host's RPC channel that manages Bottega (see ../index.mjs). Never reachable through the gateway. */
 export const MANAGEMENT_CHANNEL = 'atelier-bottega';
+/** Every host channel only the person at the host may use: Bottega itself and the Atelier guardrails switch. */
+export const MANAGEMENT_CHANNELS = [MANAGEMENT_CHANNEL, 'atelier-guardrails'];
 
 /** Value of one cookie from a Cookie header, or undefined. */
 export function cookieValue(header, name) {
@@ -31,7 +33,7 @@ export function cookieValue(header, name) {
   return undefined;
 }
 
-/** Is this request target aimed at the management channel, however it is spelled? */
+/** Is this request target aimed at a management channel, however it is spelled? */
 export function isManagementPath(target) {
   let path = String(target).split(/[?#]/)[0].replace(/\\/g, '/');
   for (let i = 0; i < 4; i += 1) {
@@ -40,7 +42,8 @@ export function isManagementPath(target) {
     if (decoded === path) break;
     path = decoded;
   }
-  return path.toLowerCase().includes(MANAGEMENT_CHANNEL);
+  const lower = path.toLowerCase();
+  return MANAGEMENT_CHANNELS.some(channel => lower.includes(channel));
 }
 
 /**
@@ -220,7 +223,7 @@ export function createGatewayServer(options) {
         return req.method === 'GET' && isPageLoad(req.headers) ? redirect(res, 302, `${OWN_PREFIX}pair`)
           : respond(res, 401, 'Not paired. Open this address in a browser and enter the pairing code.');
       }
-      if (isManagementPath(req.url)) return respond(res, 403, 'Bottega settings can only be changed on the host computer.');
+      if (isManagementPath(req.url)) return respond(res, 403, 'Bottega and guardrails settings can only be changed on the host computer.');
       registry.track(device.id, req.socket);
       return await proxy(req, res, device);
     } catch (error) {

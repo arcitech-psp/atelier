@@ -22,7 +22,7 @@
 //   --bottega          start with Bottega (team mode) on; prints where to pair and a pairing code. --no-bottega: keep it off
 //   --url-file <path>  desktop launchers: write the address (with its login token) to this private file instead of the log
 import {existsSync, mkdirSync, readFileSync, writeFileSync} from 'node:fs';
-import {dirname, join, resolve} from 'node:path';
+import {basename, dirname, join, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {spawn} from 'node:child_process';
 import {createServer, createConnection} from 'node:net';
@@ -39,6 +39,8 @@ if (!(major >= 24 || (major === 22 && minor >= 19))) {
 }
 
 const here = dirname(fileURLToPath(import.meta.url));
+// Installed by the Windows installer or the Linux/WSL archive: this file sits in <install>/versions/<version>/app.
+const installed = Boolean(process.env.ATELIER_INSTALL_ROOT) || (basename(here) === 'app' && basename(dirname(dirname(here))) === 'versions');
 const home = resolve(process.env.ATELIER_HOME || join(here, 'user-home'));
 const argv = process.argv.slice(2);
 const open = argv.includes('--open');
@@ -161,8 +163,14 @@ if (cloudSettings) {
 } else if (!route.provider || !model || model === MODEL || base === HOST) {
   setupNeeded = true;
   say('No model is connected yet. Atelier ships no model; connect the one you use on the Model roles page');
-  say('  (Settings > Model roles), or start once with ATELIER_BASE_URL and ATELIER_MODEL set, e.g.');
-  say('  ATELIER_BASE_URL=http://localhost:11434/v1 ATELIER_MODEL=your-model pnpm start   (see docs/add-your-endpoint.md)');
+  if (installed) {
+    // The installed app: the atelier command, not the source checkout's pnpm start.
+    say('  (Settings > Model roles), or from a terminal:');
+    say('  atelier roles set brain --url http://localhost:11434/v1 --model your-model   (see docs/add-your-endpoint.md)');
+  } else {
+    say('  (Settings > Model roles), or start once with ATELIER_BASE_URL and ATELIER_MODEL set, e.g.');
+    say('  ATELIER_BASE_URL=http://localhost:11434/v1 ATELIER_MODEL=your-model pnpm start   (see docs/add-your-endpoint.md)');
+  }
 } else if (base) {
   // One quick check against the endpoint you configured (and nowhere else), so a typo shows up now, not mid-chat.
   const routeKey = provider.apiKeyEnv === 'ATELIER_API_KEY' ? key : process.env[provider.apiKeyEnv ?? ''];

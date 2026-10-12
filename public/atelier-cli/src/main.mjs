@@ -230,6 +230,33 @@ async function profileCommand({action, options, args}, home) {
   return 0;
 }
 
+async function settingsCommand({action, options, args}, home) {
+  const {readGuardrails, setGuardrails, WARNING} = await import('./guardrails.mjs');
+  if (action === 'list') {
+    const on = readGuardrails(home);
+    if (options.json) { printJson({guardrails: on ? 'on' : 'off'}); return 0; }
+    out(`guardrails  ${on ? 'on' : paint(process.stdout, '33', 'off')}  ${on ? '(default) chats stay in their project folder and ask before anything wider'
+      : 'full file access, no approval prompts, no time limit on long waits'}`);
+    return 0;
+  }
+  if (args.name !== 'guardrails') throw Object.assign(Error(`Unknown setting "${args.name}". Settings: guardrails.`), {exitCode: 2});
+  const value = String(args.value).toLowerCase();
+  if (!['on', 'off'].includes(value)) throw Object.assign(Error('Use: atelier settings set guardrails on|off'), {exitCode: 2});
+  if (value === 'off') {
+    err(paint(process.stderr, '33', `Warning: ${WARNING}`));
+    if (options['yes-i-understand'] !== true) {
+      err('Nothing was changed. To turn guardrails off, run: atelier settings set guardrails off --yes-i-understand');
+      return 1;
+    }
+  }
+  const changed = await setGuardrails(home, value === 'on');
+  out(value === 'on' ? `Atelier guardrails are on${changed ? '' : ' (they already were)'}.`
+    : `Atelier guardrails are off${changed ? '' : ' (they already were)'}. Turn them back on with: atelier settings set guardrails on`);
+  const {findServer} = await import('./server.mjs');
+  if (await findServer(home)) out('The running Atelier picks this up at once, in open chats too.');
+  return 0;
+}
+
 async function updateCommand({action, options}, home) {
   const {runUpdate} = await import('./update.mjs');
   const result = await runUpdate(action, {home, say: options.json ? () => {} : out});
@@ -276,6 +303,7 @@ export async function main(argv = process.argv.slice(2), env = process.env) {
       case 'sessions': return await sessionsCommand(parsed, home);
       case 'roles': return await rolesCommand(parsed, home);
       case 'profile': return await profileCommand(parsed, home);
+      case 'settings': return await settingsCommand(parsed, home);
       case 'update': return await updateCommand(parsed, home);
       case 'doctor': return await doctorCommand(parsed, home);
       default: return 2;

@@ -16,7 +16,10 @@ Only to run the model yourself. Atelier starts on as little as one 16 GB graphic
 Windows 10 and 11 (64-bit), Linux x64 (Ubuntu 22.04 / 24.04), and Ubuntu on WSL2. See [Installing Atelier](INSTALL.md).
 
 **Where are my chats and settings?**
-Windows: `%APPDATA%\Atelier-Preview`. Linux and WSL: `~/.config/atelier-preview`. Your project files stay in the workspace folders you choose; Atelier reads and writes files only there and asks before running commands.
+Windows: `%APPDATA%\Atelier-Preview`. Linux and WSL: `~/.config/atelier-preview`. Your project files stay in the workspace folders you choose; with Atelier guardrails on (the default), Atelier reads and writes files only there and asks before running commands.
+
+**What are Atelier guardrails?**
+A switch in **Settings > Safety**, on by default. **On:** each chat reads and writes files only in its project folder, and anything wider (a command or a file outside it) asks you first; long waits (a model loading, an image being made, an IngeTrazo step) have time limits. **Off:** the model can read, change and delete files anywhere on this computer and run any command without asking, and those waits have no time limit (Stop still works). Turning them off shows a warning first, because it could damage your computer or your work; only do it if you understand the risk and trust the model you connected. While they are off, a **Guardrails off** chip stays in the session header; click it to turn them back on (no confirmation needed). It applies at once to open chats too; a longer IngeTrazo wait applies to chats opened after the change. From a terminal: `atelier settings set guardrails off --yes-i-understand` and `atelier settings set guardrails on`; in `settings.yaml` it is `atelier-guardrails: {enabled: false}`. Whatever the switch says, Bottega pairing and its private-network checks stay, telemetry stays off, and only the person at the host computer can change it (a paired device cannot).
 
 **Does Atelier send my data anywhere?**
 No telemetry. It talks to the model endpoints you connect, to IngeTrazo on your computer if you use it, and to GitHub only when you check for updates (or turn automatic updates on). If you connect a cloud model, what you send goes to that provider.
@@ -40,7 +43,10 @@ Windows: the desktop icon or Start menu > ARCITECH > Atelier Preview; quit from 
 DSH (DeepSeek Harness) is the agent harness by DeepSeek-AI that Atelier is built on, under the MIT licence: the chat engine, tools, sessions and web app. Atelier adds Vitruvius, the design canvas, model roles, the IngeTrazo connection, the installers and the updater. When DSH releases an update, Atelier follows ([how](UPSTREAM_SYNC.md)).
 
 **Is the output safe to build from?**
-No. Plans, moodboards and images are design aids. Check dimensions and clearances as you would a junior's drawing, and get qualified local review for structure, life safety, accessibility and permits.
+No. Plans, moodboards and images are design aids, and Vitruvius can make mistakes. The drawing-first workflow and the drawing checker are not in this preview, so nothing checks a plan for you yet. Check dimensions and clearances as you would a junior's drawing, and get qualified local review for structure, life safety, accessibility and permits.
+
+**What is not in this preview?**
+The drawing-first workflow (draw on layers, check, then build from the drawings), the drawing checker, wind studies, presentation boards (the full brief-to-board workflow) and the tablet app. The canvas makes schematic concept plans and moodboards.
 
 **Where do I report a problem?**
 GitHub Issues on [arcitech-psp/atelier](https://github.com/arcitech-psp/atelier/issues) (the bug report form asks for what we need), or, with no account, the [feedback form](https://docs.google.com/forms/d/e/1FAIpQLSeulyC06qEOVDn2aSjJqTlbCjifoYXqQzhDXb9Du16Ev5TiHA/viewform). Feedback goes through the form or issues rather than email. Please include your system, the model route and the exact message, and never paste keys, tokens or client material.

@@ -25,6 +25,7 @@ Installation steps: [docs/INSTALL.md](https://github.com/arcitech-psp/atelier/bl
 - The stock DeepSeek Harness agent presets (Standard, PTC, Minimal and Creator modes) and launcher profiles.
 - Works with any OpenAI-compatible model endpoint: Ollama, LM Studio, llama.cpp, vLLM, a custom URL with a key, cloud free tiers through OmniRoute, or your ChatGPT plan.
 - **Bottega (team mode)**: share one Atelier with colleagues on your office network. Other devices open it in their browser, tablet or phone after a one-time pairing code; you see and revoke every device. Off by default, private networks only, plain HTTP. Tailscale support is planned and coming soon.
+- **Atelier guardrails (Settings > Safety)**, on by default: chats read and write files only in their project folder and ask before anything wider. Turning them off (after a warning, or `atelier settings set guardrails off --yes-i-understand`) gives the model full file access, skips approval prompts and lifts the time limits on long waits; a **Guardrails off** chip stays in the session header until you turn them back on. Bottega pairing and no telemetry stay as they are.
 - **Settings > Updates**: the version, credits, "Check for updates", and opt-in automatic updates (off by default). Updates install beside the current version, which is kept for one-click rollback.
 
 ## Privacy
@@ -36,6 +37,8 @@ Atelier sends no telemetry. It talks only to the model endpoint you choose, to I
 - Tested on Windows 11 and on Ubuntu 24.04 (desktop and WSL2). Windows 10 and Ubuntu 22.04 should work but are less tested.
 - Atelier ships no model. How well Vitruvius works depends on the model you connect.
 - Plans, moodboards and images are design aids, not engineering or code compliance.
+- Not in this preview: the drawing-first workflow, the drawing checker, wind studies, presentation boards (brief-to-board) and the tablet app.
+- `atelier roles test`, `atelier doctor` and the Model roles **Test** button now send one tiny chat message, so "connected" means the model really answers.
 
 ## Credits
 

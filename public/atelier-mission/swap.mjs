@@ -10,6 +10,10 @@
 export const DEFAULT_WAIT_SECONDS = 900;
 export const MIN_WAIT_SECONDS = 60;
 export const MAX_WAIT_SECONDS = 3600;
+/** With Atelier guardrails off (Settings > Safety) the wait has no time limit: one day, which a person always stops before. */
+export const NO_LIMIT_SECONDS = 86_400;
+/** The wait in milliseconds: the person's choice (1 to 60 minutes), or no limit. */
+const waitMs = seconds => (seconds === NO_LIMIT_SECONDS ? NO_LIMIT_SECONDS : clampWait(seconds)) * 1000;
 
 /** The values the harness uses when nothing is configured (kept here only to explain the change in the panel). */
 export const HARNESS_DEFAULTS = {streamIdleTimeoutMs: 300_000, httpHeadersTimeoutMs: 300_000, retries: 5};
@@ -48,7 +52,7 @@ export const swapRetryPolicy = () => ({
  * @returns {{ops: {op: 'set', path: string[], value: any}[], managed: Record<string, string[]>, routes: string[]}}
  */
 export function planEnable(providers, waitSeconds, managed = {}) {
-  const wait = clampWait(waitSeconds) * 1000;
+  const wait = waitMs(waitSeconds);
   const ops = [], nextManaged = {}, routes = [];
   for (const [route, provider] of Object.entries(providers ?? {})) {
     if (!provider || typeof provider !== 'object' || !isLocalEndpoint(provider.baseURL)) continue;
@@ -78,6 +82,6 @@ export function planDisable(managed = {}) {
 
 /** Options for the Node HTTP layer: wait this long for the first byte, and this long between body chunks. */
 export function dispatcherOptions(waitSeconds) {
-  const wait = clampWait(waitSeconds) * 1000;
+  const wait = waitMs(waitSeconds);
   return {headersTimeout: wait, bodyTimeout: wait};
 }

@@ -49,7 +49,13 @@ export async function runDoctor({home, port, env = process.env, nodeVersion = pr
   if (!existsSync(settingsPath(home))) {
     add('settings', 'Settings', 'warn', 'No settings yet: Atelier has not been started with this folder.', 'Run atelier web once (or the desktop launcher), or connect a brain: atelier roles set brain --url <address> --model <name>');
   } else {
-    try { readSettings(home); add('settings', 'Settings', 'ok', settingsPath(home)); }
+    try {
+      const settings = readSettings(home);
+      add('settings', 'Settings', 'ok', settingsPath(home));
+      if (settings?.['atelier-guardrails']?.enabled === false) {
+        add('guardrails', 'Guardrails', 'info', 'Off: full file access, no approval prompts, no time limit on long waits.', 'Turn them back on: atelier settings set guardrails on (or Settings > Safety).');
+      }
+    }
     catch (error) { add('settings', 'Settings', 'fail', error.message, `Fix the YAML in ${settingsPath(home)}, or move it aside and start Atelier again to recreate it.`); }
   }
 

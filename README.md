@@ -11,7 +11,7 @@
 
 You describe the project; Atelier works through it with you, one visible step at a time. You can stop it, change the plan or take over at any time.
 
-> **Now available: Atelier 0.1.0, a free public preview.** Download it below for Windows, Linux or WSL. Expect rough edges, and please tell us what breaks through the [feedback form](https://docs.google.com/forms/d/e/1FAIpQLSeulyC06qEOVDn2aSjJqTlbCjifoYXqQzhDXb9Du16Ev5TiHA/viewform). More about ARCITECH: [arcitech.info](https://arcitech.info).
+> **Atelier 0.1.0 is a free public preview, available today.** Download it below for Windows, Linux or WSL. Expect rough edges, and please tell us what breaks through the [feedback form](https://docs.google.com/forms/d/e/1FAIpQLSeulyC06qEOVDn2aSjJqTlbCjifoYXqQzhDXb9Du16Ev5TiHA/viewform). More about ARCITECH: [arcitech.info](https://arcitech.info).
 
 ## Atelier at a glance
 
@@ -26,7 +26,8 @@ You describe the project; Atelier works through it with you, one visible step at
 ## Install in two minutes
 
 - **Windows 10/11:** download the installer above, open it, click through. It installs for your user only (no administrator rights), adds a Start menu entry (ARCITECH > Atelier Preview) and a desktop icon, and brings everything it needs. Not code-signed yet: if SmartScreen warns, choose **More info > Run anyway**.
-- **Linux and WSL2 (Ubuntu 22.04/24.04):** download the archive, then `tar -xzf atelier-preview-0.1.0-linux-x64.tar.gz && cd atelier-preview-0.1.0-linux-x64 && ./install.sh`.
+- **Linux and WSL2 (Ubuntu 22.04/24.04):** download the archive, then `tar -xzf atelier-preview-0.1.0-linux-x64.tar.gz && cd atelier-preview-0.1.0-linux-x64 && ./install.sh`. On WSL, copy the archive from your Windows Downloads folder first: see [the Linux and WSL steps](docs/INSTALL.md#wsl-windows-subsystem-for-linux).
+- These are the installers most people want. [Run from the source code](#run-from-the-source-code) is for developers and needs Node.js and pnpm.
 - Then **connect your model** on the Model roles page that opens the first time: Ollama, LM Studio, llama.cpp, vLLM, any OpenAI-compatible URL with a key, free cloud tiers through OmniRoute, or your ChatGPT plan.
 - **Use it free:** see the [free models guide](docs/FREE_MODELS.md).
 
@@ -54,7 +55,9 @@ Atelier is a fork of [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-
 - Optional: generated moodboard images through your own image endpoint (for example ComfyUI).
 - Optional: live modelling in IngeTrazo, which you install separately.
 
-New and optional: dictation, "Read aloud" and meaning-based search over your project folder, each switched on when you connect the model for it (see below). Not in this preview: wind studies, the tablet app and the full brief-to-board workflow. They follow as each piece is proven.
+New and optional: dictation, "Read aloud" and meaning-based search over your project folder, each switched on when you connect the model for it (see below).
+
+**Not in this preview:** the drawing-first workflow (drawing on layers, checking and then building from the drawings), the drawing checker, wind studies, presentation boards (the full brief-to-board workflow) and the tablet app. The canvas in this preview makes schematic concept plans and moodboards, not checked drawings. The rest follows as each piece is proven.
 
 ## Bring your own models
 
@@ -95,6 +98,7 @@ Prefer the keyboard? `atelier` opens a terminal UI on the same engine as the web
 - `atelier sessions list|open|export` lists, opens and saves your chats.
 - `atelier roles list|set|test` shows, changes and checks your model roles.
 - `atelier profile use vitruvius|vitruvius-zero|cloud` chooses the profile new chats start in.
+- `atelier settings set guardrails on|off` switches Atelier guardrails (turning them off asks for `--yes-i-understand`).
 - `atelier update check|apply|rollback` updates Atelier or goes back a version.
 - `atelier doctor` checks your setup and tells you how to fix problems.
 
@@ -115,13 +119,15 @@ The installer puts `atelier` on your PATH (Windows, Linux and WSL). From a check
 
 ## Privacy
 
+**Atelier guardrails (Settings > Safety), on by default:** chats read and write files only in their project folder and ask before anything wider. Turning them off (after a warning, or `atelier settings set guardrails off --yes-i-understand`) gives the model full file access and runs commands without asking; a **Guardrails off** chip stays in the session header until you turn them back on. Bottega pairing and the no-telemetry settings stay as they are either way. See the [FAQ](docs/FAQ.md#what-are-atelier-guardrails).
+
 Atelier sends no telemetry. The upstream DeepSeek Harness telemetry and session-title plugins are switched off in the shipped defaults, and the launcher sets `DSH_TELEMETRY_DISABLED=1`. Atelier talks only to the model and image endpoints you configure, to IngeTrazo on your own computer, and to web pages the agent fetches when you ask it to. The stock web-search tool calls DeepSeek's search API only if you set your own `DEEPSEEK_API_KEY`. Atelier contacts GitHub only when you press **Check for updates** in Settings > Updates, or if you turn automatic updates on (off by default).
 
 ## Honest limits
 
 - Concept plans and moodboards are schematic design aids. Check dimensions and clearances as you would a junior's drawing.
 - Generated images are concept images and a work in progress.
-- Wind studies are not in this preview. When they arrive they are early design guidance only, not engineering.
+- Wind studies, the drawing-first workflow and the drawing checker are not in this preview. Nothing checks a plan for you yet.
 - Vitruvius never certifies code compliance. Get qualified local review for structure, life safety, accessibility and permits.
 - The model can be wrong, and how well Vitruvius works depends on the model you connect.
 

@@ -22,6 +22,8 @@ const DEFAULT_MODEL = settingsNamespace('agent-default-model');
 const PLACEHOLDER_MODEL = 'YOUR_MODEL_ID', PLACEHOLDER_ROUTE = 'atelier-openai';
 const STATUS_TTL_MS = 30_000;
 const TEST_TIMEOUT_MS = 6000;
+/** How long a chat role may take to answer the one short test message (a local model may have to load first). */
+const ANSWER_TIMEOUT_MS = 60_000;
 
 const isUrl = value => { try { return ['http:', 'https:'].includes(new URL(value).protocol); } catch { return false; } };
 const trimBase = value => String(value ?? '').trim().replace(/\/+$/, '');
@@ -161,8 +163,33 @@ export function apply(ctx, config = {}) {
   }
   /** Vision and embedding calls wait 3 minutes; with "Wait for models to load" on (Mission Control) they wait as long as that is set to,
    *  so a model that swaps in from disk is not given up on. */
-  const roleFetchTimeout = () => Math.max(180_000, ctx.get('atelierMission')?.waitMs?.() ?? 0);
-  async function test(id, cfg = current(id)) {
+  // With Atelier guardrails off (Settings > Safety) they have no time limit.
+  const roleFetchTimeout = () => (globalThis[Symbol.for('arcitech.atelier.guardrails')]?.off === true ? 24 * 60 * 60 * 1000
+    : Math.max(180_000, ctx.get('atelierMission')?.waitMs?.() ?? 0));
+  /** One tiny chat message (max_tokens 16): listing /models only proves the server is up, this proves the model answers. */
+  async function answerCheck(id, cfg, model) {
+    const said = async response => {
+      try {
+        const raw = (await response.text()).trim();
+        let words = raw;
+        try { const body = JSON.parse(raw); words = body?.error?.message ?? body?.message ?? body?.detail ?? raw; } catch { /* plain text */ }
+        words = String(typeof words === 'string' ? words : JSON.stringify(words)).replace(/\s+/g, ' ').trim();
+        return words ? ` The server said: ${words.length > 240 ? `${words.slice(0, 240)}\u2026` : words}` : '';
+      } catch { return ''; }
+    };
+    const response = await call(id, '/chat/completions', {method: 'POST', headers: {'content-type': 'application/json'},
+      body: JSON.stringify({model, messages: [{role: 'user', content: 'Reply with the single word: OK'}], max_tokens: 16, temperature: 0, stream: false})}, cfg, ANSWER_TIMEOUT_MS);
+    if (response.status === 401 || response.status === 403) return {state: 'failing', message: `The model refused the test message: the key was not accepted (HTTP ${response.status}).${await said(response)}`};
+    if (!response.ok) return {state: 'failing', message: `The model did not answer a test message (HTTP ${response.status} at /chat/completions).${await said(response)}`};
+    let body;
+    try { body = await response.json(); } catch { return {state: 'failing', message: 'The model answered the test message with something that is not JSON.'}; }
+    if (body?.error) return {state: 'failing', message: `The model did not answer a test message. The server said: ${String(body.error.message ?? JSON.stringify(body.error)).slice(0, 240)}`};
+    if (!body?.choices?.[0] || typeof body.choices[0].message !== 'object') return {state: 'failing', message: 'The server answered the test message without a reply from the model.'};
+    return {state: 'connected', message: `Answers a test message with ${model}.`};
+  }
+  /** `answer` sends one tiny chat message to a chat role (the Test button and "Check all again"); the quiet status on
+   *  page load only lists /models, so opening the page never queues work on a busy model. */
+  async function test(id, cfg = current(id), {answer = true} = {}) {
     const role = roleById(id);
     if (!cfg?.baseURL) return {state: cfg?.managed ? 'connected' : 'not-set', message: cfg?.managed ? 'Uses a model from the Models settings.' : role.whenMissing};
     try {
@@ -172,7 +199,15 @@ export function apply(ctx, config = {}) {
         if (!response.ok) return {state: 'failing', message: `The server answered HTTP ${response.status} at /models.`};
         const ids = ((await response.json())?.data ?? []).map(m => m?.id).filter(Boolean);
         if (ids.length && cfg.model && !ids.includes(cfg.model)) return {state: 'failing', models: ids.slice(0, 50), message: `The server does not serve "${cfg.model}". It serves: ${ids.slice(0, 6).join(', ')}.`};
-        return {state: 'connected', models: ids.slice(0, 50), message: ids.length ? `Answers and serves ${cfg.model || ids[0]}.` : 'Answers.'};
+        const model = cfg.model || ids[0];
+        if (!answer) return {state: 'connected', models: ids.slice(0, 50), message: ids.length ? `Serves ${model}. Press Test to send it a test message.` : 'The server answers. Press Test to send a test message.'};
+        if (!model) return {state: 'failing', message: 'The server lists no models. Enter the model name.'};
+        try {
+          return {...await answerCheck(id, cfg, model), models: ids.slice(0, 50)};
+        } catch (error) {
+          const why = error?.name === 'TimeoutError' ? `no answer within ${Math.round(ANSWER_TIMEOUT_MS / 1000)} seconds (the model may still be loading; try again in a minute)` : describeFailure(error);
+          return {state: 'failing', models: ids.slice(0, 50), message: `The server lists ${model}, but the model did not answer a test message: ${why}`};
+        }
       }
       if (role.kind === 'embeddings') {
         const response = await call(id, '/embeddings', {method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify({model: cfg.model, input: 'Atelier test'})}, cfg);
@@ -199,7 +234,7 @@ export function apply(ctx, config = {}) {
   async function cachedStatus(id, force = false) {
     const hit = status.get(id);
     if (!force && hit && Date.now() - hit.at < STATUS_TTL_MS) return hit.value;
-    const value = await test(id);
+    const value = await test(id, current(id), {answer: force});
     status.set(id, {at: Date.now(), value});
     return value;
   }

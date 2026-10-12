@@ -5,6 +5,9 @@ import * as mcp from '@deepseek-ai/dsh-mcp-client';
 
 export const name = 'atelier-ingetrazo';
 export const inject = ['tools'];
+// Atelier guardrails (Settings > Safety, see atelier-start/guardrails.mjs): while they are off, long waits have no time limit.
+const guardrailsOff = () => globalThis[Symbol.for('arcitech.atelier.guardrails')]?.off === true;
+const NO_LIMIT_MS = 24 * 60 * 60 * 1000;
 
 /** Admit the optional integration only after the local bridge answers a model query. */
 export async function bridgeAnswers(port = 4763) {
@@ -43,5 +46,5 @@ export async function apply(ctx) {
   if (!Array.isArray(args) || args.some(value => typeof value !== 'string')) throw Error('Invalid official MCP arguments.');
   await mcp.apply(ctx, mcp.Config({serverName:'ingetrazo', transport:'stdio', command, args,
     env:{INGETRAZO_AI_HOST:'localhost',INGETRAZO_AI_PORT:String(port),PYTHONIOENCODING:'utf-8'},
-    failOnStartupError:false, toolCallTimeoutMs:300000, reconnect:{enabled:false}}));
+    failOnStartupError:false, toolCallTimeoutMs:guardrailsOff() ? NO_LIMIT_MS : 300000, reconnect:{enabled:false}}));
 }

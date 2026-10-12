@@ -4,12 +4,19 @@
 // line of model status. Everything here is scoped to the blank-session hero; the chat itself is untouched.
 // Slots used: conversation.hero.brand.mark (heading, root scope, so it shows before a workspace exists) and
 // conversation.input.dock (routes, recents, status; portalled below the composer so focus order follows the page).
+// Also the Atelier guardrails switch: settings.section "Safety" (with the confirmation before turning them off) and,
+// while they are off, a "Guardrails off" chip in conversation.session.header.utilities.
 window.__ModuleLoader__.load({id: '@arcitech/atelier-start', factory: require => {
   const React = require('react');
   const {createElement: h, Fragment, useEffect, useRef, useState, useSyncExternalStore} = React;
   const {createPortal} = require('react-dom');
   const exports = {};
   exports.inject = ['slots', 'sessions', 'connection'];
+
+  /** The same words as WARNING in guardrails.mjs (a test keeps them identical). */
+  const GUARDRAILS_WARNING = 'Turning off Atelier guardrails unlocks the full potential of the AI model: it can read, change and delete '
+    + 'files anywhere on this computer and run any command without asking you. This could damage your computer or your '
+    + 'work. Only turn this off if you understand the risk and trust the model you connected.';
 
   /** Starting routes. Each one fills the message box (never sends) and maps to a shipped skill or to Vitruvius itself. */
   const ROUTES = [
@@ -205,10 +212,12 @@ window.__ModuleLoader__.load({id: '@arcitech/atelier-start', factory: require =>
     const Head = () => {
       const sessions = useList();
       const current = sessions.current === undefined ? undefined : sessions.byId[sessions.current];
+      const off = useGuardrails()?.enabled === false;
       return h('div', {className: 'ats-scope ats-head'},
         h('div', {className: 'ats-title-row'}, h(Mark), h('h1', {className: 'ats-title'}, 'New session')),
         h('p', {className: 'ats-lede'}, current === undefined
-          ? 'Choose a project folder to begin. Atelier reads and writes files only there, and asks before it runs a command.'
+          ? (off ? 'Choose a project folder to begin. Atelier guardrails are off (Settings > Safety): Vitruvius can read and write files anywhere and runs commands without asking.'
+            : 'Choose a project folder to begin. Atelier reads and writes files only there, and asks before it runs a command.')
           : 'Brief Vitruvius on the project, or start from one of these routes.'));
     };
 
@@ -275,6 +284,118 @@ window.__ModuleLoader__.load({id: '@arcitech/atelier-start', factory: require =>
 
       return h(Fragment, null, h('span', {ref: anchor, className: 'ats-anchor', hidden: true}), host && createPortal(page, host));
     };
+
+    // ---------------- Atelier guardrails: Settings > Safety, the confirmation, and the "Guardrails off" chip ----------------
+    // The host half is guardrails.mjs. Reading the state goes through /atelier-start (a paired Bottega device sees the chip
+    // too); changing it goes through /atelier-guardrails, which Bottega never forwards, so only this computer can change it.
+    const guardrails = (() => {
+      let value = null;
+      const subs = new Set();
+      const emit = () => { for (const fn of subs) fn(); };
+      const refresh = async () => {
+        try { const r = await ctx.connection.rpc.call('/atelier-start', 'guardrails', {}); if (r.ok) { value = r.value; emit(); } } catch { /* next poll */ }
+      };
+      const set = async (enabled, confirmed = false) => {
+        const r = await ctx.connection.rpc.call('/atelier-guardrails', 'set', {enabled, confirmed});
+        if (!r.ok) throw Error(r.error?.message ?? 'That did not work.');
+        value = {enabled: r.value.enabled}; emit();
+      };
+      return {get: () => value, subscribe: fn => { subs.add(fn); return () => subs.delete(fn); }, refresh, set};
+    })();
+    const useGuardrails = () => {
+      const value = useSyncExternalStore(guardrails.subscribe, guardrails.get, guardrails.get);
+      useEffect(() => {
+        void guardrails.refresh();
+        // A change made in the terminal (atelier settings set guardrails ...) or in another window shows up here too.
+        const timer = setInterval(() => { if (!document.hidden) void guardrails.refresh(); }, 10000);
+        const shown = () => { if (!document.hidden) void guardrails.refresh(); };
+        document.addEventListener('visibilitychange', shown);
+        return () => { clearInterval(timer); document.removeEventListener('visibilitychange', shown); };
+      }, []);
+      return value;
+    };
+
+    /** The confirmation before guardrails go off. "Keep guardrails on" is the default (focused; Escape and the backdrop pick it). */
+    const ConfirmOff = ({onKeep, onTurnOff, busy, problem}) => {
+      const keep = useRef(null);
+      useEffect(() => {
+        keep.current?.focus();
+        const key = event => {
+          if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); onKeep(); return; }
+          if (event.key !== 'Tab') return;
+          const items = [...document.querySelectorAll('.agr-dialog button:not(:disabled)')];
+          if (items.length === 0) return;
+          const first = items[0], last = items[items.length - 1];
+          if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+          else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+        };
+        document.addEventListener('keydown', key, true);
+        return () => document.removeEventListener('keydown', key, true);
+      }, []);
+      return createPortal(h('div', {className: 'agr-scope agr-backdrop', onMouseDown: event => { if (event.target === event.currentTarget) onKeep(); }},
+        h('section', {className: 'agr-dialog', role: 'alertdialog', 'aria-modal': 'true', 'aria-labelledby': 'agr-confirm-title', 'aria-describedby': 'agr-confirm-text', 'data-atelier-guardrails-confirm': ''},
+          h('h2', {id: 'agr-confirm-title', className: 'agr-title'}, h('span', {className: 'agr-warn-icon', 'aria-hidden': true}, '!'), 'Turn off Atelier guardrails?'),
+          h('p', {id: 'agr-confirm-text', className: 'agr-text'}, GUARDRAILS_WARNING),
+          problem ? h('p', {className: 'agr-bad', role: 'alert'}, problem) : null,
+          h('div', {className: 'agr-actions'},
+            h('button', {type: 'button', className: 'agr-button agr-danger', disabled: busy, onClick: onTurnOff}, busy ? 'Turning off…' : 'Turn off guardrails'),
+            h('button', {type: 'button', ref: keep, className: 'agr-button agr-primary', disabled: busy, onClick: onKeep}, 'Keep guardrails on')))), document.body);
+    };
+
+    const SafetySection = () => {
+      const value = useGuardrails();
+      const [confirming, setConfirming] = useState(false);
+      const [busy, setBusy] = useState(false);
+      const [problem, setProblem] = useState('');
+      const on = value?.enabled !== false;
+      const change = async (enabled, confirmed) => {
+        setBusy(true); setProblem('');
+        try { await guardrails.set(enabled, confirmed); setConfirming(false); } catch (e) { setProblem(e.message); } finally { setBusy(false); }
+      };
+      return h('section', {className: 'agr-scope agr-page', 'data-atelier-safety': ''},
+        h('h2', {className: 'agr-h2'}, 'Safety'),
+        h('div', {className: 'agr-card', 'data-state': on ? 'on' : 'off'},
+          h('div', {className: 'agr-row'},
+            h('div', {className: 'agr-copy'},
+              h('h3', {className: 'agr-h3', id: 'agr-switch-label'}, 'Atelier guardrails'),
+              h('p', {className: 'agr-muted'}, on
+                ? 'On (recommended). Vitruvius works inside the chat’s project folder and asks you before anything wider, such as a command or a file outside it. Long waits have time limits.'
+                : 'Off. Vitruvius can read, change and delete files anywhere on this computer and runs any command without asking you. Long waits have no time limit.')),
+            h('button', {type: 'button', role: 'switch', className: 'agr-switch', 'aria-checked': on, 'aria-labelledby': 'agr-switch-label', disabled: busy || value === null,
+              'data-atelier-guardrails-switch': '', onClick: () => (on ? setConfirming(true) : change(true, false))},
+              h('span', {className: 'agr-knob', 'aria-hidden': true}), h('span', {className: 'agr-switch-word'}, on ? 'On' : 'Off'))),
+          !on ? h('p', {className: 'agr-alert', role: 'status'}, 'Guardrails are off. Turn them back on with the switch above; no confirmation is needed.') : null,
+          problem && !confirming ? h('p', {className: 'agr-bad', role: 'alert'}, problem) : null),
+        h('p', {className: 'agr-muted agr-small'}, 'Always on, whatever this switch says: Bottega pairing and its private-network checks, no telemetry, and the private login token of this browser. The switch is kept in settings.yaml (atelier-guardrails) and can also be changed with: atelier settings set guardrails on|off.'),
+        confirming ? h(ConfirmOff, {busy, problem, onKeep: () => { setConfirming(false); setProblem(''); }, onTurnOff: () => change(false, true)}) : null);
+    };
+    ctx.slots.inject('settings.section', () => ctx.slots.register({name: 'settings.section', id: 'atelier-safety', order: 13, label: () => 'Safety'}, SafetySection));
+
+    /** Shown in the session header only while guardrails are off; one click opens the switch to turn them back on. */
+    const GuardrailsChip = () => {
+      const value = useGuardrails();
+      const [open, setOpen] = useState(false);
+      const [busy, setBusy] = useState(false);
+      const [problem, setProblem] = useState('');
+      if (value?.enabled !== false) return null;
+      const turnOn = async () => {
+        setBusy(true); setProblem('');
+        try { await guardrails.set(true); setOpen(false); } catch (e) { setProblem(e.message); } finally { setBusy(false); }
+      };
+      return h(Fragment, null,
+        h('button', {type: 'button', className: 'agr-scope agr-chip', 'data-atelier-guardrails-chip': '', 'aria-haspopup': 'dialog', 'aria-expanded': open,
+          title: 'Atelier guardrails are off: full file access and no approval prompts. Click to turn them back on.', onClick: () => setOpen(v => !v)},
+          h('span', {className: 'agr-chip-dot', 'aria-hidden': true}), 'Guardrails off'),
+        open ? createPortal(h('div', {className: 'agr-scope agr-backdrop agr-backdrop-light', onMouseDown: event => { if (event.target === event.currentTarget) setOpen(false); }},
+          h('section', {className: 'agr-dialog', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'agr-chip-title', 'data-atelier-guardrails-popover': ''},
+            h('h2', {id: 'agr-chip-title', className: 'agr-title'}, 'Atelier guardrails are off'),
+            h('p', {className: 'agr-text'}, 'Vitruvius can read, change and delete files anywhere on this computer and runs commands without asking you. Turning guardrails back on takes effect at once, in open chats too.'),
+            problem ? h('p', {className: 'agr-bad', role: 'alert'}, problem) : null,
+            h('div', {className: 'agr-actions'},
+              h('button', {type: 'button', className: 'agr-button', disabled: busy, onClick: () => setOpen(false)}, 'Close'),
+              h('button', {type: 'button', className: 'agr-button agr-primary', disabled: busy, autoFocus: true, 'data-atelier-guardrails-on': '', onClick: turnOn}, busy ? 'Turning on…' : 'Turn guardrails on')))), document.body) : null);
+    };
+    ctx.slots.inject('conversation.session.header.utilities', () => ctx.slots.register({name: 'conversation.session.header.utilities', id: 'atelier-guardrails', order: 60}, GuardrailsChip));
 
     ctx.slots.inject('conversation.hero.brand.mark', () => ctx.slots.register({name: 'conversation.hero.brand.mark', priority: 10}, Head));
     ctx.slots.inject('conversation.input.dock', () => ctx.slots.register({name: 'conversation.input.dock', id: 'atelier-start', order: 90}, Body));
@@ -452,6 +573,52 @@ ${HERO} [data-input-scroll] [class*="_input"] { min-height: 72px; }
 [data-atelier-canvas-toggle]:hover { background: var(--dsw-alias-interactive-bg-hover); }
 [data-atelier-canvas-toggle]:focus-visible { outline: 2px solid var(--dsw-alias-label-primary); outline-offset: 2px; }
 [data-atelier-canvas-toggle][aria-expanded="true"] { background: var(--dsw-alias-interactive-bg-active, var(--dsw-alias-interactive-bg-hover)); }
+/* Atelier guardrails: Settings > Safety, the confirmation and the "Guardrails off" chip */
+.agr-scope {
+  --agr-ink: var(--dsw-alias-label-primary, #eceae6);
+  --agr-ink-2: var(--dsw-alias-label-secondary, #a7afc0);
+  --agr-rule: var(--dsw-alias-border-l2, #303746);
+  --agr-bg: var(--dsw-alias-bg-layer-1, #171c26);
+  --agr-hover: var(--dsw-alias-interactive-bg-hover, #252b38);
+  --agr-ok: #1f7a4a; --agr-warn: #a15c00; --agr-bad: #b3261e; --agr-warn-bg: #fdf1e0;
+}
+body[data-ds-dark-theme] .agr-scope { --agr-ok: #7fc79a; --agr-warn: #f0b545; --agr-bad: #f07878; --agr-warn-bg: #3a2a12; }
+.agr-page { display: flex; flex-direction: column; gap: 12px; max-width: 720px; color: var(--agr-ink); }
+.agr-h2 { margin: 0; font-size: 16px; line-height: 24px; font-weight: 500; }
+.agr-h3 { margin: 0; font-size: 14px; line-height: 20px; font-weight: 600; }
+.agr-muted { margin: 4px 0 0; font-size: 13px; line-height: 20px; color: var(--agr-ink-2); }
+.agr-small { font-size: 12px; line-height: 18px; }
+.agr-card { border: 1px solid var(--agr-rule); border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; background: var(--agr-bg); }
+.agr-card[data-state="off"] { border-color: var(--agr-warn); }
+.agr-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.agr-copy { min-width: 0; }
+.agr-switch { flex: none; display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 4px 12px 4px 4px; border: 1px solid var(--agr-rule); border-radius: 18px; background: transparent; color: var(--agr-ink); font: inherit; font-size: 13px; cursor: pointer; }
+.agr-switch:disabled { opacity: .5; cursor: default; }
+.agr-knob { width: 40px; height: 24px; border-radius: 12px; background: var(--agr-rule); position: relative; transition: background .15s; }
+.agr-knob::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: transform .15s; }
+.agr-switch[aria-checked="true"] .agr-knob { background: var(--agr-ok); }
+.agr-switch[aria-checked="true"] .agr-knob::after { transform: translateX(16px); }
+.agr-switch[aria-checked="false"] .agr-knob { background: var(--agr-warn); }
+.agr-alert { margin: 0; padding: 8px 10px; border-radius: 8px; background: var(--agr-warn-bg); color: var(--agr-ink); font-size: 13px; line-height: 20px; }
+.agr-bad { margin: 0; color: var(--agr-bad); font-size: 13px; line-height: 20px; }
+.agr-backdrop { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgb(0 0 0 / 45%); }
+.agr-backdrop-light { background: rgb(0 0 0 / 25%); }
+.agr-dialog { width: min(480px, 100%); display: flex; flex-direction: column; gap: 12px; padding: 20px; border-radius: 14px; border: 1px solid var(--agr-rule); background: var(--dsw-alias-bg-base, var(--agr-bg)); color: var(--agr-ink); box-shadow: 0 18px 48px rgb(0 0 0 / 35%); font-size: 14px; line-height: 21px; }
+.agr-title { margin: 0; display: flex; align-items: center; gap: 10px; font-size: 16px; line-height: 24px; font-weight: 600; }
+.agr-warn-icon { flex: none; display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--agr-warn); color: #fff; font-weight: 700; font-size: 14px; }
+.agr-text { margin: 0; }
+.agr-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+.agr-button { min-height: 36px; padding: 6px 14px; border-radius: 8px; border: 1px solid var(--agr-rule); background: transparent; color: var(--agr-ink); font: inherit; font-size: 13px; cursor: pointer; }
+.agr-button:hover:not(:disabled) { background: var(--agr-hover); }
+.agr-button:disabled { opacity: .5; cursor: default; }
+.agr-primary { background: var(--dsw-alias-button-primary-fill, #2f6fde); color: var(--dsw-alias-label-primary-foreground, #fff); border-color: transparent; }
+.agr-primary:hover:not(:disabled) { filter: brightness(1.08); background: var(--dsw-alias-button-primary-fill, #2f6fde); }
+.agr-danger { border-color: var(--agr-bad); color: var(--agr-bad); }
+.agr-scope button:focus-visible { outline: 2px solid var(--agr-ink); outline-offset: 2px; }
+.agr-chip { appearance: none; display: inline-flex; align-items: center; gap: 6px; min-height: 28px; padding: 0 10px; border: 1px solid var(--agr-warn); border-radius: 14px; background: var(--agr-warn-bg); color: var(--agr-ink); font: inherit; font-size: 12px; font-weight: 600; white-space: nowrap; cursor: pointer; }
+.agr-chip-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--agr-warn); }
+@media (max-width: 560px) { .agr-row { flex-direction: column; } .agr-actions .agr-button { flex: 1 1 100%; } }
+@media (pointer: coarse) { .agr-button, .agr-switch { min-height: 44px; } .agr-chip { min-height: 36px; } }
 `;
   return exports;
 }});

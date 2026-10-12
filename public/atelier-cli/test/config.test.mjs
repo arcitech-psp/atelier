@@ -73,8 +73,21 @@ test('roles set for other roles writes roles.json; bad input is refused', async 
 });
 
 test('roles test reports connected, wrong model, refused key and nothing listening', async () => {
+  let chatStatus = 200;
+  const chats = [];
   const server = createServer((req, res) => {
     if (req.headers.authorization === 'Bearer wrong') { res.writeHead(401); return res.end(); }
+    if (req.method === 'POST' && req.url.endsWith('/chat/completions')) {
+      let body = '';
+      req.on('data', chunk => { body += chunk; });
+      req.on('end', () => {
+        chats.push(JSON.parse(body));
+        res.writeHead(chatStatus, {'content-type': 'application/json'});
+        res.end(JSON.stringify(chatStatus === 200 ? {choices: [{message: {role: 'assistant', content: 'OK'}, finish_reason: 'stop'}]}
+          : {error: {message: 'No API key for provider'}}));
+      });
+      return;
+    }
     res.writeHead(200, {'content-type': 'application/json'});
     res.end(JSON.stringify({data: [{id: 'holo'}]}));
   });
@@ -83,7 +96,18 @@ test('roles test reports connected, wrong model, refused key and nothing listeni
   try {
     const dir = home();
     await setRole(dir, 'brain', {url: `http://127.0.0.1:${port}/v1`, model: 'holo', keyEnv: 'K'});
-    assert.equal((await testRole(dir, 'brain', {env: {}})).state, 'connected');
+    const ok = await testRole(dir, 'brain', {env: {}});
+    assert.equal(ok.state, 'connected');
+    assert.match(ok.message, /Answers a test message with holo/);
+    // The brain is only "connected" after one tiny chat message came back, not because /models answered.
+    assert.equal(chats.length, 1);
+    assert.equal(chats[0].model, 'holo');
+    assert.ok(chats[0].max_tokens <= 16);
+    chatStatus = 500;
+    const listedOnly = await testRole(dir, 'brain', {env: {}});
+    assert.equal(listedOnly.state, 'failing');
+    assert.match(listedOnly.message, /HTTP 500 at \/chat\/completions\)\. The server said: No API key for provider/);
+    chatStatus = 200;
     assert.equal((await testRole(dir, 'brain', {env: {K: 'wrong'}})).state, 'failing');
     await setRole(dir, 'brain', {url: `http://127.0.0.1:${port}/v1`, model: 'other'});
     assert.match((await testRole(dir, 'brain', {env: {}})).message, /does not serve "other"/);

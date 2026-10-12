@@ -1,6 +1,12 @@
 # Add your endpoint (connect a model)
 
-Atelier ships no AI model. It talks to a model server that you choose, through the common "OpenAI-compatible" interface that almost every server offers. This page shows each ready-made choice step by step. More detail on every model role (vision, speech, images...) is in [Model roles](ROLES_SETUP.md).
+Atelier ships no AI model; you connect it to one. Three words used on this page:
+
+- **Model server:** the program that loads the model and answers (Ollama, LM Studio, llama.cpp, vLLM, or a cloud service).
+- **Address (base URL):** where Atelier reaches that server, for example `http://localhost:11434/v1`.
+- **OpenAI-compatible:** the common way of talking to a model server that almost every server offers. Atelier needs nothing else.
+
+Start the model server first, then connect it here and press **Test**: it sends one short test message and shows the model names the server reports, so pick the name from that list. No graphics card? Use a cloud endpoint ([Choosing a model](choosing-a-model.md)). This page shows each ready-made choice step by step. More detail on every model role (vision, speech, images...) is in [Model roles](ROLES_SETUP.md).
 
 ## Where to connect it
 

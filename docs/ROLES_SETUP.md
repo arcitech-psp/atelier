@@ -88,7 +88,7 @@ Rough guidance; speed depends on the card and on how long the chat is.
 
 | Your computer | Brain | What to expect |
 |---|---|---|
-| No graphics card | Qwen3-VL 2B (4-bit) | Works, but slowly: a few words per second and long waits on big requests. Use Vitruvius Zero, or a cloud brain through OmniRoute. |
+| No graphics card | A cloud endpoint (recommended) | Point the roles at a cloud endpoint, for example free tiers through OmniRoute ([Choosing a model](choosing-a-model.md)). The kit can run Qwen3-VL 2B (4-bit) on the processor, but replies come a few words per second; use Vitruvius Zero if you try it. |
 | 8 GB | Qwen3-VL 4B (4-bit) | The minimum for a pleasant local experience. Good for design chat, images and short tasks. Vitruvius Zero fits better. |
 | 12 GB | Qwen3-VL 8B (4-bit) | Noticeably better answers and tool use. Full Vitruvius works with a 32K context. |
 | 16 GB | Qwen3-VL 8B (8-bit) | Higher precision and a longer context. A 14B-class model in 4-bit also fits. |

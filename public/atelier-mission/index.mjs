@@ -18,7 +18,10 @@ import {CURRENCIES, addEnergy, currencyForLocale, effectivePrice, integrateInter
 import {Ring, cpuPercent, cpuTicks, memoryNow, readNvidia} from './telemetry.mjs';
 import {UsageTracker, addStep, bumpDay, describeUsage, emptyStopwatch, emptyUsage, pruneDays, sinceSnapshot, stopwatchAction, takeSnapshot} from './ledger.mjs';
 import {PROVIDER_NAMES, applyWaiting, buildStatus, collectRoles, probeServer} from './models.mjs';
-import {DEFAULT_WAIT_SECONDS, clampWait, dispatcherOptions, planDisable, planEnable} from './swap.mjs';
+import {DEFAULT_WAIT_SECONDS, NO_LIMIT_SECONDS, clampWait, dispatcherOptions, planDisable, planEnable} from './swap.mjs';
+
+// Atelier guardrails (Settings > Safety, see atelier-start/guardrails.mjs): while they are off, the wait has no time limit.
+const guardrails = () => (globalThis[Symbol.for('arcitech.atelier.guardrails')] ??= {off: false, listeners: new Set()});
 
 export const name = 'atelier-mission';
 export const inject = [];
@@ -180,11 +183,12 @@ export function apply(ctx, config = {}) {
 
   // ---- wait for models to load -------------------------------------------------------------------------------------
   let previousDispatcher;
+  const effectiveWait = () => (guardrails().off ? NO_LIMIT_SECONDS : state.swap.waitSeconds);
   function applyDispatcher() {
     try {
       if (state.swap.enabled) {
         previousDispatcher ??= getGlobalDispatcher();
-        setGlobalDispatcher(new Agent(dispatcherOptions(state.swap.waitSeconds)));
+        setGlobalDispatcher(new Agent(dispatcherOptions(effectiveWait())));
       } else if (previousDispatcher) {
         setGlobalDispatcher(previousDispatcher); previousDispatcher = undefined;
       }
@@ -200,7 +204,7 @@ export function apply(ctx, config = {}) {
     if (section === undefined) throw new Error('The model settings are not loaded yet.');
     const providers = section.providers ?? {};
     if (state.swap.enabled) {
-      const plan = planEnable(providers, state.swap.waitSeconds, state.swap.managed);
+      const plan = planEnable(providers, effectiveWait(), state.swap.managed);
       if (plan.ops.length > 0) await settings.mutate(LLM, plan.ops);
       state.swap.managed = plan.managed; touch();
       return {routes: plan.routes};
@@ -233,7 +237,16 @@ export function apply(ctx, config = {}) {
 
   // Other Atelier parts ask how long to be patient with a model that has to load first (the vision and embedding calls of the
   // Model roles page do): 0 while "Wait for models to load" is off.
-  ctx.provide('atelierMission', {waitMs: () => (state.swap.enabled ? state.swap.waitSeconds * 1000 : 0)});
+  ctx.provide('atelierMission', {waitMs: () => (state.swap.enabled ? effectiveWait() * 1000 : 0)});
+
+  // Guardrails switched: the wait follows at once (no limit while they are off, the chosen minutes while they are on).
+  const onGuardrails = () => {
+    if (!state.swap.enabled) return;
+    applyDispatcher();
+    applySwapSettings().catch(error => ctx.logger?.warn?.('atelier-mission: %s', error.message));
+  };
+  guardrails().listeners.add(onGuardrails);
+  ctx.effect(() => () => { guardrails().listeners.delete(onGuardrails); }, 'atelier-mission guardrails');
 
   // ---- what the panel gets -----------------------------------------------------------------------------------------
   function snapshotCounters(time = Date.now()) {
@@ -276,7 +289,7 @@ export function apply(ctx, config = {}) {
       stopwatch: {status: stopwatch.status, startedAt: stopwatch.startedAt, elapsedMs: stopwatch.status === 'running' ? time - stopwatch.startedAt : 0,
         laps: stopwatch.laps, live: live ? {...live, usage: describeUsage(live.usage)} : null},
       history: state.history.map(run => ({...run, usage: describeUsage(run.usage), energy: summarizeEnergy(run.energy, prefs)})),
-      swap: {enabled: state.swap.enabled, waitSeconds: state.swap.waitSeconds, routes: Object.keys(state.swap.managed)},
+      swap: {enabled: state.swap.enabled, waitSeconds: state.swap.waitSeconds, unlimited: guardrails().off, routes: Object.keys(state.swap.managed)},
       providerNames: PROVIDER_NAMES,
       models: await modelsNow(false).catch(error => ({rows: [], servers: [], summary: null, error: error.message, configured: false})),
     };

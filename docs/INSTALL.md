@@ -52,7 +52,7 @@ Windows Settings > Apps > Installed apps > **Atelier (preview)** > Uninstall, or
 
 ## Linux
 
-Ubuntu 22.04 or 24.04 (or another 64-bit distribution with glibc 2.28 or newer), about 900 MB of free disk space. No root rights, Node.js or internet connection are needed for the install itself.
+Ubuntu 22.04 or 24.04 (or another 64-bit distribution with glibc 2.28 or newer), about 900 MB of free disk space. No root rights, Node.js or internet connection are needed for the install itself. Download the archive first, then open a terminal in the folder it was saved to (usually `~/Downloads`).
 
 ```sh
 # 1. Download atelier-preview-0.1.0-linux-x64.tar.gz from the Releases page, then:
@@ -78,17 +78,19 @@ Your chats and settings are in `~/.config/atelier-preview`. If `~/.local/bin` is
 You can run Atelier inside Ubuntu on WSL2 and use it from your normal Windows browser. This suits people who already keep their tools (or their model server) in WSL.
 
 1. If you do not have WSL yet, open PowerShell and run `wsl --install -d Ubuntu`, restart, and finish the Ubuntu set-up.
-2. In the Ubuntu terminal, download and install exactly as for [Linux](#linux):
+2. Download the archive in your Windows browser. Then, in the Ubuntu terminal, find your Windows user-folder name with `ls /mnt/c/Users`, and replace `your-windows-user` below with it (the folder name, which can differ from your display name):
 
    ```sh
    cd ~
-   tar -xzf /mnt/c/Users/<you>/Downloads/atelier-preview-0.1.0-linux-x64.tar.gz
-   cd atelier-preview-0.1.0-linux-x64 && ./install.sh
+   cp "/mnt/c/Users/your-windows-user/Downloads/atelier-preview-0.1.0-linux-x64.tar.gz" .
+   tar -xzf atelier-preview-0.1.0-linux-x64.tar.gz
+   cd atelier-preview-0.1.0-linux-x64
+   ./install.sh
    ```
 
 3. Atelier opens in your **Windows** browser by itself. Inside WSL it listens on `127.0.0.1`, and WSL passes `http://localhost:3081` through to Windows. If no browser opens, run `ATELIER_NO_BROWSER=1 atelier-preview` and paste the address it prints into your Windows browser.
 
-Keep Atelier's files inside the Linux file system (`~`), not under `/mnt/c`: it is much faster.
+Keep Atelier's installed files inside the Linux file system (`~`), not under `/mnt/c`: it is much faster.
 
 ### Reaching your model from WSL
 
@@ -98,7 +100,7 @@ Where your model server runs decides the address you give Atelier:
 |---|---|---|
 | WSL (the same Ubuntu) | `http://localhost:<port>/v1` | Nothing special. |
 | Windows, with WSL **mirrored networking** | `http://localhost:<port>/v1` | Mirrored mode is on when `%USERPROFILE%\.wslconfig` has `networkingMode=mirrored` under `[wsl2]` (Windows 11 22H2 or newer). Run `wsl --shutdown` after changing it. |
-| Windows, with WSL's default (NAT) networking | `http://<Windows host IP>:<port>/v1`, where the IP is what `ip route show default \| awk '{print $3}'` prints inside WSL | The server must listen on the network, not only on itself: Ollama `OLLAMA_HOST=0.0.0.0`, LM Studio "Serve on Local Network", llama.cpp and vLLM `--host 0.0.0.0`. Allow it through Windows Firewall for the WSL network only. |
+| Windows, with WSL's default (NAT) networking | `http://<Windows host IP>:<port>/v1`. In Ubuntu, run `ip route show default` and use the address after `via` as the Windows host IP. | The server must listen on the network, not only on itself: Ollama `OLLAMA_HOST=0.0.0.0`, LM Studio "Serve on Local Network", llama.cpp and vLLM `--host 0.0.0.0`. Allow it through Windows Firewall for the WSL network only. |
 | Another computer on your network | `http://<that computer's IP>:<port>/v1` | Same as above: listening on the network, firewall open, and an API key (`--api-key`) on anything not only for you. Never forward the port to the internet. |
 
 The other way round also works: a model server running in WSL is reachable from Windows programs at `http://localhost:<port>/v1`.

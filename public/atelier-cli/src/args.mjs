@@ -52,6 +52,14 @@ export const COMMANDS = {
       use: {options: {}, positionals: [1, 1], names: ['name'], choices: ['vitruvius', 'vitruvius-zero', 'cloud']},
     },
   },
+  settings: {
+    summary: 'see or change Atelier settings: guardrails on|off',
+    usage: 'atelier settings list [--json] | set guardrails on|off [--yes-i-understand]',
+    actions: {
+      list: {options: {json: {kind: 'bool'}}, positionals: [0, 0]},
+      set: {options: {'yes-i-understand': {kind: 'bool'}}, positionals: [2, 2], names: ['name', 'value']},
+    },
+  },
   update: {
     summary: 'check for, apply or roll back an Atelier update',
     usage: 'atelier update check|apply|rollback [--json]',
@@ -143,7 +151,7 @@ export function parseArgs(argv) {
   }
   if (tokens.length === 0 || tokens[0] === '-h' || tokens[0] === '--help') {
     if (tokens.length === 0 && command === 'sessions') return {command, action: 'list', options: {}, args: {}, positionals: []};
-    if (tokens.length === 0 && (command === 'roles' || command === 'profile')) return {command, action: 'list', options: {}, args: {}, positionals: []};
+    if (tokens.length === 0 && (command === 'roles' || command === 'profile' || command === 'settings')) return {command, action: 'list', options: {}, args: {}, positionals: []};
     if (tokens.length === 0 && command === 'update') return {command, action: 'check', options: {}, args: {}, positionals: []};
     return {help: command};
   }
@@ -186,6 +194,7 @@ Examples:
   atelier chat "Suggest three facade materials for a coastal cabin"
   atelier chat --json "List the rooms in a two-bed flat" | jq -r .text
   atelier roles set brain --url http://localhost:8000/v1 --model my-model
+  atelier settings set guardrails on
   atelier doctor
 
 Your chats, settings and roles are shared with the web app (atelier web).

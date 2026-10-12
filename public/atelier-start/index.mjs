@@ -1,11 +1,12 @@
 // Atelier new-chat page, host half: one read-only RPC that tells the page which model new chats use and whether its
-// endpoint answers, and the owner-only RPC channel of Bottega (team mode, ./bottega). The browser half (client.js)
-// draws the page.
+// endpoint answers, the owner-only RPC channel of Bottega (team mode, ./bottega), and the Atelier guardrails switch
+// (./guardrails.mjs). The browser half (client.js) draws the page, the Safety settings page and the "Guardrails off" chip.
 import { readFile } from 'node:fs/promises';
 import { dshHomePath } from '@deepseek-ai/dsh-home-paths';
 import { readStatus } from './status.mjs';
 import { createBottega, DEFAULT_PORT } from './bottega/bottega.mjs';
 import { tokenSource } from './bottega/host-session.mjs';
+import { applyGuardrails, guardrailsState } from './guardrails.mjs';
 
 export const inject = [];
 export const name = 'atelier-start';
@@ -25,10 +26,14 @@ export function apply(ctx) {
   ctx.inject(['connection'], ctx => ctx.effect(() => ctx.connection.rpc.handle('/atelier-start', async endpoint => {
     try {
       if (endpoint === 'status') return {ok: true, value: await status()};
+      // Read-only, so a paired Bottega device sees the "Guardrails off" chip too; only the host can change it.
+      if (endpoint === 'guardrails') return {ok: true, value: {enabled: !guardrailsState().off}};
       throw Error('Unknown start-page operation.');
     } catch (e) { return {ok: false, error: {code: 'bad-request', message: e.message}}; }
   })));
   ctx.inject(['connection', 'webServer'], ctx => ctx.effect(() => mountBottega(ctx), 'atelier-start: Bottega'));
+  // Atelier guardrails (Settings > Safety): on by default; see guardrails.mjs.
+  applyGuardrails(ctx);
 }
 
 const truthy = value => /^(1|yes|on|true)$/i.test(String(value ?? '').trim());

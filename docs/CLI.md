@@ -24,14 +24,15 @@ Atelier by ARCITECH has a command, `atelier`, and a terminal UI for people who p
 | `atelier sessions export <id> [--format md\|json\|zip] [--out file]` | Saves a chat. `md` is readable Markdown (the default), `json` is the transcript, and `zip` is the web app's full archive. |
 | `atelier roles list [--json]` | Shows which model does which job (Model roles). |
 | `atelier roles set <role> --url <address> --model <name> [--key-env VAR] [--vision] [--context N]` | Points a role at an OpenAI-compatible server. |
-| `atelier roles test [<role>] [--json]` | Checks that each role answers, the same way the web page's Test button does. |
+| `atelier roles test [<role>] [--json]` | Checks that each role answers, the same way the web page's Test button does. For the brain and the helper it sends one tiny chat message (16 tokens at most) and reports the server's own error if no answer comes back. |
 | `atelier profile list` / `atelier profile use <vitruvius\|vitruvius-zero\|cloud>` | Chooses the profile that new chats start in. |
+| `atelier settings list [--json]` / `atelier settings set guardrails on\|off [--yes-i-understand]` | Shows or switches Atelier guardrails (Settings > Safety). Turning them off prints the warning and only goes ahead with `--yes-i-understand`; turning them on never asks. A running Atelier applies the change at once. |
 | `atelier update check\|apply\|rollback` | Checks GitHub for a new version, installs it next to the current one, or goes back to the previous one. Atelier contacts GitHub only when you run `check` or `apply`. |
 | `atelier doctor [--json]` | Checks Node, the install, disk space, ports, your model endpoints and the IngeTrazo bridge, with a plain-English fix for each problem. |
 
 **Command details**
 
-- **`chat` options.** `--session <id>` continues a chat, `--profile vitruvius-zero` starts it in a given profile, `--attach <file>` (repeatable) adds files and images, `--cwd <dir>` sets the project folder, and `-q` hides progress. You can also pipe the prompt in: `cat brief.txt | atelier chat`.
+- **`chat` options.** Each `atelier chat` starts a new chat unless you pass `--session <id>` to continue one (the id is printed after every answer). `--profile vitruvius-zero` starts it in a given profile, `--attach <file>` (repeatable) adds files and images, `--cwd <dir>` sets the project folder, and `-q` hides progress. You can also pipe the prompt in: `cat brief.txt | atelier chat`.
 - **Roles.** Roles are `brain`, `vision`, `stt`, `tts`, `embeddings`, `image` and `helper`; [ROLES_SETUP.md](ROLES_SETUP.md) explains each one. `--key-env` takes the *name* of an environment variable that holds the key, for example `--key-env OPENROUTER_API_KEY`. Keys are never typed on the command line or printed.
 - **Profiles.** `cloud` adds the cloud routes (OmniRoute and your ChatGPT plan) and makes them the default. Your own model is kept, and switching back to `vitruvius` restores it.
 
