@@ -1,0 +1,30 @@
+{
+  "name": "@arcitech/atelier-brains",
+  "version": "0.1.0-preview",
+  "private": true,
+  "description": "Brains: which model is loaded right now on each computer and graphics card, with Load, Unload and Reload, in Settings.",
+  "type": "module",
+  "license": "PolyForm-Shield-1.0.0",
+  "exports": {
+    ".": "./index.mjs",
+    "./core": "./core.mjs",
+    "./client": "./client.js",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "dsh": {
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-settings",
+        "@deepseek-ai/dsh-client-ui-settings-general"
+      ]
+    }
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "workspace:^",
+    "@deepseek-ai/dsh-home-paths": "workspace:^"
+  }
+}

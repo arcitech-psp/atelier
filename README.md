@@ -18,6 +18,7 @@ You describe the project; Atelier works through it with you, one visible step at
 - **What it is:** a design assistant for architects, interior designers and students that runs on your own computer. You describe the project and it works through it with you, one visible step at a time, with concept plans and moodboards on a canvas.
 - **Free to use:** use free AI services, or run everything fully local on your own computer. Nothing to subscribe to. See the [free models guide](docs/FREE_MODELS.md).
 - **Bottega, team mode:** share one Atelier with your colleagues on your office network; they open it from their own browser, tablet or phone after a one-time pairing code. Tailscale support (reaching it from outside the office) is coming soon. See [Bottega](docs/BOTTEGA.md).
+- **Brains:** in Settings, the model that is really loaded now on your graphics card, with Load, Unload and Reload buttons. See [Brains](docs/brains.md).
 - **Mission Control:** a chip in the session header that shows which model is loaded, how hard your graphics card is working, tokens and speed, and what the session costs in electricity at your own price. See [Mission Control](docs/mission-control.md).
 - **Works on one 16 GB graphics card:** models are loaded only when they are needed, and Atelier waits for each load and shows its state. See [One graphics card, several models](docs/ONE_GPU.md).
 - **Download:** the Windows installer and the Linux/WSL archive are on the [Releases page](https://github.com/arcitech-psp/atelier/releases).

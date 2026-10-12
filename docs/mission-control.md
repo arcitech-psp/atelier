@@ -28,4 +28,4 @@ Your price, currency and estimate are kept in `atelier-mission/state.json` in yo
 
 - Tokens and timings come from the harness's own session events: the number of tokens each reply reported, and when it started and finished. Not the text.
 - The graphics card is read by running `nvidia-smi` on your computer. If it is not found, the panel says so and shows the processor and memory only. To switch card reading off completely, add `config: {readGpu: false}` to the `atelier-mission` entry in `cordis.patch.yml`.
-- Model state is read from your model server's own endpoints, about every 5 seconds while a chat is open. Atelier never loads or unloads a model by itself.
+- Model state is read from your model server's own endpoints, about every 5 seconds while a chat is open. Atelier never loads or unloads a model by itself. If you want buttons for that, the optional [Brains](brains.md) section in Settings does it, only when you press them.

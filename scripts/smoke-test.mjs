@@ -63,7 +63,12 @@ if (ready) {
   check('web app refuses requests without the token', anonymous.status === 401 || anonymous.status === 403 || anonymous.status === 404, `HTTP ${anonymous.status}`);
   const cookie = (page.headers?.getSetCookie?.() ?? []).map(value => value.split(';')[0]).join('; ');
   const boot = await fetch(new URL('/', url), {headers: {cookie}}).then(r => r.text()).catch(() => '');
-  check('Atelier plugins are in the page (canvas, updates, Mission Control)', boot.includes('atelier-canvas') && boot.includes('atelier-updates') && boot.includes('atelier-mission'));
+  check('Atelier plugins are in the page (canvas, updates, Mission Control, Brains)', boot.includes('atelier-canvas') && boot.includes('atelier-updates') && boot.includes('atelier-mission') && boot.includes('atelier-brains'));
+  // Brains: with no brains.json the route answers plainly instead of failing, and it needs the sign-in like everything else.
+  const brains = await fetch(new URL('/api/atelier-brains', url), {headers: {cookie}}).then(r => r.json()).catch(() => null);
+  check('Brains answers (not set up yet on a fresh install)', brains?.ok === true && brains.configured === false && brains.missing === true);
+  const brainsAnon = await fetch(new URL('/api/atelier-brains', url), {redirect: 'manual'}).catch(() => ({status: 0}));
+  check('Brains refuses requests without the sign-in', brainsAnon.status === 401 || brainsAnon.status === 403 || brainsAnon.status === 404, `HTTP ${brainsAnon.status}`);
 }
 // Stop exactly what we started: the launcher, then its web-server child (found by parent process id on Windows).
 const serverPid = ready ? JSON.parse(readFileSync(urlFile, 'utf8')).serverPid : undefined;

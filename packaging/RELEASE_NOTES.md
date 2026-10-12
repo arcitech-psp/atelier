@@ -20,6 +20,7 @@ Installation steps with pictures: [docs/INSTALL.md](https://github.com/arcitech-
 - **Free to use.** Use free AI services, or run fully local on your own computer: see the [free models guide](https://github.com/arcitech-psp/atelier/blob/main/docs/FREE_MODELS.md).
 - **Works on one 16 GB graphics card.** Models are loaded when they are needed, and Atelier waits for each load and shows its state: see [One graphics card, several models](https://github.com/arcitech-psp/atelier/blob/main/docs/ONE_GPU.md).
 - **Mission Control.** A chip in the session header shows which model is loaded, graphics card use, tokens and speed, and the energy cost at your own electricity price: see [Mission Control](https://github.com/arcitech-psp/atelier/blob/main/docs/mission-control.md).
+- **Brains.** Settings > General shows the model that is really loaded now on each computer and graphics card, with Load, Unload and Reload (one brain at a time per card, with a confirm step and progress): see [Brains](https://github.com/arcitech-psp/atelier/blob/main/docs/brains.md).
 - **Bottega, team mode.** Share one Atelier with colleagues on your office network (details below). Tailscale support is coming soon.
 
 - **Vitruvius** and **Vitruvius Zero** (for small models), a design canvas with concept plans and material/colour moodboards, and an optional bridge to IngeTrazo (installed separately, GPL-3.0-or-later).

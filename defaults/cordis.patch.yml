@@ -24,3 +24,7 @@
     # Mission Control for this computer: tokens, graphics card use, energy cost at your price, and which model is loaded now.
     - id: atelier-mission
       name: '@arcitech/atelier-mission'
+    # Brains (Settings > General): what is loaded now on this computer's graphics card, with Load, Unload and Reload.
+    # What may be started or stopped is listed in brains.json (see docs/brains.md); the browser can not send commands.
+    - id: atelier-brains
+      name: '@arcitech/atelier-brains'

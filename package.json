@@ -236,6 +236,7 @@
     "@deepseek-ai/dsh-session-log-export": "workspace:*",
     "@deepseek-ai/dsh-webhook": "workspace:*",
     "@deepseek-ai/dsh-webhook-github": "workspace:*",
+    "@arcitech/atelier-brains": "workspace:*",
     "@arcitech/atelier-canvas": "workspace:*",
     "@arcitech/atelier-ingetrazo": "workspace:*",
     "@arcitech/atelier-updates": "workspace:*",

@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "machines": [
+    {
+      "id": "this-computer",
+      "name": "This computer",
+      "gpu": "Your graphics card (for example NVIDIA RTX 4090)",
+      "vramGb": 24,
+      "control": "full",
+      "transport": { "type": "local" },
+      "brains": [
+        {
+          "id": "qwen3-14b",
+          "name": "Qwen3 14B",
+          "blurb": "quick and light, 32K context",
+          "engine": "llama.cpp",
+          "port": 8080,
+          "vramGb": 10,
+          "loadTimeoutSec": 120,
+          "metricsUrl": "http://127.0.0.1:8080/metrics",
+          "logFile": "/path/to/logs/qwen3-14b.log",
+          "start": [
+            {
+              "type": "spawn",
+              "file": "/path/to/llama-server",
+              "args": ["--model", "/path/to/models/Qwen3-14B-Q4_K_M.gguf", "--host", "127.0.0.1", "--port", "8080", "--ctx-size", "32768", "--n-gpu-layers", "999", "--metrics"]
+            }
+          ],
+          "stop": [ { "type": "kill-port", "port": 8080 } ]
+        },
+        {
+          "id": "qwen3-32b",
+          "name": "Qwen3 32B",
+          "blurb": "slower, more careful, 16K context",
+          "engine": "vLLM",
+          "port": 8000,
+          "vramGb": 22,
+          "loadTimeoutSec": 300,
+          "logFile": "/path/to/logs/qwen3-32b.log",
+          "start": [
+            {
+              "type": "spawn",
+              "file": "/path/to/vllm",
+              "args": ["serve", "Qwen/Qwen3-32B-AWQ", "--host", "127.0.0.1", "--port", "8000", "--max-model-len", "16384"]
+            }
+          ],
+          "stop": [ { "type": "kill-port", "port": 8000 } ]
+        }
+      ]
+    }
+  ]
+}

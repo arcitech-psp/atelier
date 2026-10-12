@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@arcitech/atelier-brains':
+        specifier: workspace:*
+        version: link:public/atelier-brains
       '@arcitech/atelier-canvas':
         specifier: workspace:*
         version: link:public/atelier-canvas
@@ -698,6 +701,9 @@ importers:
 
   harness/apps/cli:
     dependencies:
+      '@arcitech/atelier-brains':
+        specifier: workspace:*
+        version: link:../../../public/atelier-brains
       '@arcitech/atelier-canvas':
         specifier: workspace:*
         version: link:../../../public/atelier-canvas
@@ -7053,6 +7059,15 @@ importers:
       '@deepseek-ai/cosmokit':
         specifier: workspace:^
         version: link:../cosmokit
+
+  public/atelier-brains:
+    dependencies:
+      '@deepseek-ai/cordis':
+        specifier: workspace:^
+        version: link:../../harness/vendor/cordis
+      '@deepseek-ai/dsh-home-paths':
+        specifier: workspace:^
+        version: link:../../harness/packages/util/home-paths
 
   public/atelier-canvas:
     dependencies:
