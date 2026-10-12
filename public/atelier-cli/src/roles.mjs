@@ -8,7 +8,7 @@ import {join} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {parse as parseYaml} from 'yaml';
 import {APP_ROOT} from './paths.mjs';
-import {mutateRoles, mutateSettings, readRoles, readSettings} from './settings.mjs';
+import {ensureKeylessCredential, mutateRoles, mutateSettings, readRoles, readSettings} from './settings.mjs';
 
 // The role list itself belongs to the Model roles package; this fallback only covers a build without it.
 const FALLBACK_ROLES = [
@@ -105,6 +105,8 @@ export async function setRole(home, id, input) {
         if (PLACEHOLDER.test(String(doc.getIn(['llm-pi-ai', 'providers', 'atelier-openai', 'baseURL']) ?? ''))) doc.deleteIn(['llm-pi-ai', 'providers', 'atelier-openai']);
       }
     });
+    // Without --key-env and without a stored key, the server is taken to need none (as on the Model roles page).
+    if (input.keyEnv === undefined && !resolveKey(home, keyRefFor(id))) await ensureKeylessCredential(home, keyRefFor(id));
     await mutateRoles(home, value => { value.roles[id] = {...value.roles[id], preset: 'custom', source: 'cli'}; });
   } else {
     await mutateRoles(home, value => {
@@ -120,7 +122,8 @@ export function resolveKey(home, name, env = process.env) {
   if (!name) return undefined;
   if (env[name]) return env[name];
   try {
-    const value = parseYaml(readFileSync(join(home, '.credentials.yaml'), 'utf8'))?.[name];
+    const doc = parseYaml(readFileSync(join(home, '.credentials.yaml'), 'utf8'));
+    const value = doc?.refs?.[name] ?? doc?.[name];
     return typeof value === 'string' ? value : undefined;
   } catch { return undefined; }
 }

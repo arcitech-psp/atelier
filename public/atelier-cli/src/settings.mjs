@@ -39,6 +39,25 @@ export async function mutateSettings(home, edit) {
   });
 }
 
+/**
+ * A keyless local model server (llama.cpp, vLLM, Ollama, LM Studio) still needs a value for the OpenAI client. Like the
+ * Model roles page, store the placeholder "not-needed" under `name` in the harness's local credentials file, unless a
+ * value is already there. The file stays owner-only; nothing secret is written.
+ */
+export async function ensureKeylessCredential(home, name) {
+  const file = join(home, '.credentials.yaml');
+  mkdirSync(dirname(file), {recursive: true, mode: 0o700});
+  return withFileLock(file, async () => {
+    const doc = parseDocument(readText(file) ?? 'version: 1\nrecords: {}\n');
+    if (doc.errors.length) throw Error(`.credentials.yaml could not be read, so it was left as it is: ${doc.errors[0].message}`);
+    if (doc.getIn(['refs', name]) !== undefined) return false;
+    if (doc.get('version') === undefined) doc.set('version', 1);
+    doc.setIn(['refs', name], 'not-needed');
+    await writeFileAtomic(file, String(doc), {mode: 0o600, dirMode: 0o700});
+    return true;
+  });
+}
+
 /** roles.json as the Model roles page keeps it: {roles: {<id>: {baseURL, model, ...}}, kit: {...}}. */
 export function readRoles(home) {
   const text = readText(rolesPath(home));
