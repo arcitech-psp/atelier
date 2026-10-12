@@ -41,23 +41,20 @@ export const WIDER_MODES: Record<string, readonly SandboxMode[]> = {
 export const ESCALATION_TARGETS: readonly SandboxMode[] = ['workspace-write', 'danger-full-access']
 
 /**
- * Validate the escalation argument pairing a tool schema cannot express:
- * `sandbox_permissions` and `justification` travel together — an approval
- * prompt without a reason, or a reason driving nothing, is a malformed ask —
- * and the justification must be a non-empty sentence.
- * @param sandboxPermissions - the raw `sandbox_permissions` argument, if given.
- * @param justification - the raw `justification` argument, if given.
+ * Validate the escalation argument pairing a tool schema cannot express.
+ *
+ * Atelier change (ARCITECH): a malformed pairing is tolerated rather than
+ * thrown. A `sandbox_permissions` without a justification, an empty
+ * justification, or a justification without `sandbox_permissions` used to
+ * fail the whole call, and models looped on that error instead of doing the
+ * work. The callers only escalate when both fields are present, and the
+ * approval step (when one runs) still asks the user, so nothing is widened
+ * without consent.
+ * @param _sandboxPermissions - the raw `sandbox_permissions` argument, if given.
+ * @param _justification - the raw `justification` argument, if given.
  */
-export function validateEscalationArgs(sandboxPermissions: string | undefined, justification: string | undefined): void {
-  if (sandboxPermissions !== undefined && justification === undefined) {
-    throw new Error('invalid escalation: sandbox_permissions requires a justification')
-  }
-  if (justification !== undefined && sandboxPermissions === undefined) {
-    throw new Error('invalid escalation: justification is only valid together with sandbox_permissions')
-  }
-  if (justification !== undefined && justification.trim().length === 0) {
-    throw new Error('invalid justification: expected a non-empty sentence')
-  }
+export function validateEscalationArgs(_sandboxPermissions: string | undefined, _justification: string | undefined): void {
+  // Tolerated by design (see above): never throws.
 }
 
 /**
@@ -146,10 +143,15 @@ export interface EscalationRequest {
  * channel, then map every outcome — the ordered fail-closed sequence both
  * enforcing families share. Returns the granted mode to stamp onto exactly
  * this call; throws the distinct verbatim text for every other path (a
- * non-widening request, a missing approval service, an agent-less execution,
- * a rejection, a cancellation, an unanswerable ask) — the tool registry turns
- * the throw into the call's isError result, and nothing has run. A
- * non-widening request never prompts a human.
+ * missing approval service, an agent-less execution, a rejection, a
+ * cancellation, an unanswerable ask) — the tool registry turns the throw into
+ * the call's isError result, and nothing has run.
+ *
+ * Atelier change (ARCITECH): a request that is NOT wider than the call's
+ * effective mode (the same mode, or a narrower one) is a no-op: it returns
+ * the effective mode, so the call runs exactly as it would have without the
+ * request, and it never prompts a human. It used to throw "not strictly
+ * wider", and models looped on that error and could not write their files.
  * @param request - the escalation to judge (see {@link EscalationRequest}).
  * @param approval - the approval ingredients the tool holds (see {@link EscalationApproval}).
  * @returns the granted mode, consumed by the one call that asked.
@@ -158,9 +160,10 @@ export async function approveEscalation<A, C>(request: EscalationRequest, approv
   const { requestedMode: mode, effectiveMode, justification, subject } = request
   // Strict widening is an EXECUTION check against the call's effective mode —
   // deliberately not a schema constraint (the enum is the closed target
-  // vocabulary; the effective mode is per-call truth).
+  // vocabulary; the effective mode is per-call truth). A request that does not
+  // widen is a no-op: the call keeps its current mode and nobody is asked.
   if (!(WIDER_MODES[effectiveMode] ?? []).includes(mode as SandboxMode)) {
-    throw new Error(`sandbox escalation to "${mode}" is not strictly wider than this call's current "${effectiveMode}" mode`)
+    return effectiveMode
   }
   if (approval.approver === undefined) {
     throw new Error(`sandbox escalation to "${mode}" requires approval, but no approval service is composed`)

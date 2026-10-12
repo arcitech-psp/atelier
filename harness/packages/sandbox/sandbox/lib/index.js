@@ -47,10 +47,10 @@ const ESCALATION_TARGETS = ["workspace-write", "danger-full-access"];
 * @param sandboxPermissions - the raw `sandbox_permissions` argument, if given.
 * @param justification - the raw `justification` argument, if given.
 */
-function validateEscalationArgs(sandboxPermissions, justification) {
-	if (sandboxPermissions !== void 0 && justification === void 0) throw new Error("invalid escalation: sandbox_permissions requires a justification");
-	if (justification !== void 0 && sandboxPermissions === void 0) throw new Error("invalid escalation: justification is only valid together with sandbox_permissions");
-	if (justification !== void 0 && justification.trim().length === 0) throw new Error("invalid justification: expected a non-empty sentence");
+function validateEscalationArgs(_sandboxPermissions, _justification) {
+	// Atelier change (ARCITECH): a malformed escalation pairing is tolerated, not thrown; models looped on the error.
+	// A missing or empty justification, or a justification without sandbox_permissions, is accepted. The callers
+	// escalate only when both fields are present, and the approval step (when one runs) still asks the user.
 }
 /**
 * The model-facing denial marker — the one vocabulary both enforcing families
@@ -91,7 +91,9 @@ function escalationHintMarker(subject) {
 */
 async function approveEscalation(request, approval) {
 	const { requestedMode: mode, effectiveMode, justification, subject } = request;
-	if (!(WIDER_MODES[effectiveMode] ?? []).includes(mode)) throw new Error(`sandbox escalation to "${mode}" is not strictly wider than this call's current "${effectiveMode}" mode`);
+	// Atelier change (ARCITECH): a mode that is not wider than the call's effective mode is a no-op, not an error: the
+	// call keeps its current mode and nobody is asked. It used to throw "not strictly wider", and models looped on it.
+	if (!(WIDER_MODES[effectiveMode] ?? []).includes(mode)) return effectiveMode;
 	if (approval.approver === void 0) throw new Error(`sandbox escalation to "${mode}" requires approval, but no approval service is composed`);
 	if (approval.agent === void 0) throw new Error(`sandbox escalation to "${mode}" requires approval, but the call has no agent to route it through`);
 	const outcome = await approval.approver.request({
