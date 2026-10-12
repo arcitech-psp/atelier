@@ -10,7 +10,7 @@ Yes. Atelier's own parts are source-available under the PolyForm Shield License 
 No. You connect one: a model on your computer (Ollama, LM Studio, llama.cpp, vLLM), a server on your network, a cloud service, or your ChatGPT plan. See [Add your endpoint](add-your-endpoint.md).
 
 **Do I need a graphics card?**
-Only to run the model yourself. With a cloud route, Atelier runs on any recent Windows or Linux computer. The [graphics card table](add-your-endpoint.md#which-model-for-my-graphics-card) gives honest guidance per size.
+Only to run the model yourself. Atelier starts on as little as one 16 GB graphics card. On one card the models take turns: each loads when its job comes up, and Atelier waits for it and shows what is loading. More cards, a bigger card or a model server keep them loaded side by side, so everything is faster. No GPU? Point the roles at a cloud endpoint. With a cloud route, Atelier runs on any recent Windows or Linux computer. The [graphics card table](add-your-endpoint.md#which-model-for-my-graphics-card) gives honest guidance per size.
 
 **Which systems does it run on?**
 Windows 10 and 11 (64-bit), Linux x64 (Ubuntu 22.04 / 24.04), and Ubuntu on WSL2. See [Installing Atelier](INSTALL.md).

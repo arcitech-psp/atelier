@@ -9,7 +9,7 @@ Mission Control is the chip in the session header, next to **Canvas**. It shows 
 | **Tokens and speed** | Tokens and requests today and since Atelier started, writing speed (tokens per second), time to the first token, and how often a reply waited more than 15 seconds for a model to load. |
 | **Energy and cost** | Energy used today, since Atelier started and during a stopwatch run, with the cost at your own price. |
 | **Stopwatch** | Start, Lap, Stop: time, tokens, energy and cost for one piece of work. Earlier runs can be downloaded as a CSV file. |
-| **Wait for models to load** | The switch for computers that swap models in and out of one graphics card. See [One graphics card, several models](ONE_GPU.md#wait-for-models-to-load). |
+| **Wait for models to load** | On by default. The switch for computers that swap models in and out of one graphics card. See [One graphics card, several models](ONE_GPU.md#wait-for-models-to-load). |
 
 ## Energy and cost
 

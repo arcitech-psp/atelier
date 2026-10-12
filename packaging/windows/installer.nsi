@@ -59,7 +59,7 @@ VIAddVersionKey "LegalCopyright" "(c) 2026 ARCITECH. PolyForm Shield 1.0.0; DSH 
 !define MUI_WELCOMEFINISHPAGE_BITMAP "${STAGE}\welcome.bmp"
 !define MUI_UNWELCOMEFINISHPAGE_BITMAP "${STAGE}\welcome.bmp"
 !define MUI_WELCOMEPAGE_TITLE "Welcome to Atelier ${VERSION}"
-!define MUI_WELCOMEPAGE_TEXT "Atelier by ARCITECH is a design assistant for architects, interior designers and students. This is a public preview.$\r$\n$\r$\nAtelier is powered by DSH (DeepSeek Harness) ${DSH_VERSION} by DeepSeek-AI, MIT licence.$\r$\n$\r$\nAtelier ships no AI model. After installing, you connect the model you use: one on this computer (Ollama, LM Studio, llama.cpp, vLLM) or a cloud service.$\r$\n$\r$\nNo administrator rights are needed. Click Next to continue."
+!define MUI_WELCOMEPAGE_TEXT "Atelier by ARCITECH is a design assistant for architects, interior designers and students. This is a public preview.$\r$\n$\r$\nAtelier is powered by DSH (DeepSeek Harness) ${DSH_VERSION} by DeepSeek-AI, MIT licence.$\r$\n$\r$\nAtelier ships no AI model. After installing, you connect the model you use: one on this computer (Ollama, LM Studio, llama.cpp, vLLM) or a cloud service.$\r$\n$\r$\nStarts on as little as one 16 GB graphics card: on one card the models take turns, each loading when its job comes up, and Atelier shows what is loading. No GPU? Point the roles at a cloud endpoint.$\r$\n$\r$\nNo administrator rights are needed. Click Next to continue."
 !define MUI_LICENSEPAGE_TEXT_TOP "Atelier's own parts are source-available under the PolyForm Shield License 1.0.0. DSH (DeepSeek Harness) stays MIT."
 !define MUI_COMPONENTSPAGE_NODESC
 !define MUI_FINISHPAGE_RUN

@@ -8,7 +8,7 @@
 | Disk | About 900 MB | Atelier and its own Node.js runtime. Models are separate and take many gigabytes if you run them yourself. |
 | A model | One OpenAI-compatible endpoint | Your own graphics card, a machine on your network, or a cloud route. See [Add your endpoint](add-your-endpoint.md). |
 | IngeTrazo | Optional | Free 3D modelling program, installed separately. See [Connecting IngeTrazo](ingetrazo.md). |
-| A graphics card | Only if you run the model yourself | No graphics card is needed for the cloud routes. |
+| A graphics card | Only if you run the model yourself | Starts on as little as one 16 GB graphics card. On one card the models take turns: each loads when its job comes up, and Atelier waits for it and shows what is loading. More cards, a bigger card or a model server keep them loaded side by side, so everything is faster. No GPU? Point the roles at a cloud endpoint. |
 
 The installers bring their own Node.js; you do not need to install anything else.
 

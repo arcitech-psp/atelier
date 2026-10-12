@@ -243,7 +243,7 @@ test('wait settings are clamped to something sensible', () => {
 });
 
 test('only this computer and its own network count as local endpoints', () => {
-  for (const url of ['http://localhost:1234/v1', 'http://127.0.0.1:8080/v1', 'http://[::1]:11434/v1', 'http://192.168.1.20:8000/v1', 'http://10.0.0.5/v1', 'http://studio.local:1234/v1', 'http://box.lan/v1']) {
+  for (const url of ['http://localhost:1234/v1', 'http://127.0.0.1:8080/v1', 'http://[::1]:11434/v1', 'http://192.168.1.20:8000/v1', 'http://10.20.30.40/v1', 'http://studio.local:1234/v1', 'http://box.lan/v1']) {
     assert.equal(isLocalEndpoint(url), true, url);
   }
   for (const url of ['https://api.openai.com/v1', 'https://openrouter.ai/api/v1', 'http://8.8.8.8/v1', 'not a url', undefined]) {

@@ -10,7 +10,7 @@ llm-pi-ai:
         - id: YOUR_MODEL_ID
           name: Your model
           contextWindow: 32768
-          maxTokens: 4096
+          maxTokens: 8192
 agent-default-model:
   provider: atelier-openai
   model: YOUR_MODEL_ID

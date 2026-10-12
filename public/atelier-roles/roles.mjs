@@ -112,7 +112,7 @@ export const TIERS = [
   {id: '12gb', label: '12 GB graphics card', brain: 'Qwen3-VL 8B (Q4)', context: 32768,
     advice: 'Noticeably better answers and tool use than 4B. Full Vitruvius works with a 32K context.'},
   {id: '16gb', label: '16 GB graphics card', brain: 'Qwen3-VL 8B (Q8)', context: 65536,
-    advice: 'Higher-precision 8B with a longer context. A 14B-class model at Q4 also fits if you prefer it.'},
+    advice: 'Higher-precision 8B with a longer context. A 14B-class model at Q4 also fits if you prefer it. The other roles take turns with the brain on this card; Atelier waits for each load and shows what is loading.'},
   {id: '24gb', label: '24 GB graphics card or more', brain: 'ARCITECH recommended brain (27B, 4-bit, vLLM)', context: 65536,
     advice: 'Runs the 27B brain Atelier is tuned for on vLLM: about 32K context on 24 GB (64K is tight), 128K on 32 GB. The kit installs the 8B model; follow the model card for the 27B brain.'},
 ];

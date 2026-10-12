@@ -33,9 +33,11 @@ const HISTORY_ROWS = 120;       // about ten minutes of charts at 5 s
 
 const emptyEnergy = () => ({measuredWh: 0, estimatedWh: 0});
 
+// "Wait for models to load" is on by default: on one graphics card the models take turns, and a first load must be waited
+// for, not failed. It only touches routes on this computer or its own network; hosted APIs keep their timers.
 function defaultState() {
   return {version: 1, prefs: normalizePrefs({currency: currencyForLocale(Intl.DateTimeFormat().resolvedOptions().locale)}), days: {},
-    totals: {usage: emptyUsage(), energy: emptyEnergy()}, stopwatch: emptyStopwatch(), history: [], swap: {enabled: false, waitSeconds: DEFAULT_WAIT_SECONDS, managed: {}}};
+    totals: {usage: emptyUsage(), energy: emptyEnergy()}, stopwatch: emptyStopwatch(), history: [], swap: {enabled: true, waitSeconds: DEFAULT_WAIT_SECONDS, managed: {}}};
 }
 
 export function apply(ctx, config = {}) {

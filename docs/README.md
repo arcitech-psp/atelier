@@ -7,7 +7,7 @@ Read in this order the first time:
 1. [Installing Atelier](INSTALL.md): Windows installer, Linux and WSL, updates, uninstalling. ([Getting started](getting-started.md) is the short version.)
 2. [Add your endpoint](add-your-endpoint.md): connect Ollama, LM Studio, llama.cpp, vLLM, a URL with a key, free cloud tiers or your ChatGPT plan; which model for which graphics card. More in [Choosing a model](choosing-a-model.md).
    Then [Model roles](ROLES_SETUP.md): which model does what (brain, vision, speech, embeddings, images, helper), bring your own for each, or the one-click Set me up.
-   Only one 16 GB graphics card? [One graphics card, several models](ONE_GPU.md): let LM Studio, Ollama or llama-swap swap the models, and see which is loaded.
+   Only one 16 GB graphics card? The models take turns: each loads when its job comes up, and Atelier waits for it and shows what is loading ([One graphics card, several models](ONE_GPU.md)). More cards, a bigger card or a model server keep them loaded side by side, so everything is faster. No GPU? Point the roles at a cloud endpoint.
    Start your own model servers (llama.cpp, vLLM)? [Brains](brains.md): see what is really loaded and Load, Unload or Reload it from Settings.
 3. [Your first chat](first-chat.md): workspace, Vitruvius, the canvas and moodboards.
 4. [Connecting IngeTrazo](ingetrazo.md): live modelling in a real 3D drawing.

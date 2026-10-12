@@ -191,6 +191,7 @@ window.__ModuleLoader__.load({id: '@arcitech/atelier-roles', factory: require =>
         h('div', {className: 'grid'}, ...data.roles.map(role => h(RoleCard, {key: role.id + (role.config?.baseURL ?? '') + (role.config?.model ?? ''), role, data, onChanged: setData}))),
         h('details', {className: 'card'}, h('summary', null, h('strong', null, 'Which brain for my graphics card?')),
           h('table', null, h('tbody', null, ...data.tiers.map(t => h('tr', {key: t.id}, h('td', null, t.label), h('td', null, t.brain), h('td', null, t.advice))))),
+          h('p', {className: 'small'}, 'Starts on as little as one 16 GB graphics card. On one card the models take turns: each loads when its job comes up, and Atelier waits for it and shows what is loading. More cards, a bigger card or a model server keep them loaded side by side, so everything is faster. No GPU? Point the roles at a cloud endpoint.'),
           h('p', {className: 'small'}, 'Rough guidance; speed depends on the card and the length of the chat. The ARCITECH recommended brain is at ',
             h('a', {href: `https://huggingface.co/${data.brainRepo}`, target: '_blank', rel: 'noreferrer'}, data.brainRepo), '. Any model works.')));
     };

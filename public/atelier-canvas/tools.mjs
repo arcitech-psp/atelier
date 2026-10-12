@@ -37,7 +37,7 @@ export function apply(ctx, config = {}) {
         const response = role
           ? await roles.fetch('image', '', {method: 'POST', headers: {'content-type': 'application/json'}, body: request, signal: exec.signal})
           : await fetch(url, {method: 'POST', headers: {'content-type': 'application/json', ...(key ? {Authorization: `Bearer ${key}`} : {})},
-            body: request, signal: AbortSignal.any([exec.signal, AbortSignal.timeout(120000)]), redirect: 'error'});
+            body: request, signal: AbortSignal.any([exec.signal, AbortSignal.timeout(600000)]), redirect: 'error'});
         if (!response.ok) throw Error(`Image endpoint returned HTTP ${response.status}.`);
         const bytes = await response.arrayBuffer(); if (bytes.byteLength > 12 * 1024 * 1024) throw Error('Image response exceeds the admitted limit.');
         const body = JSON.parse(new TextDecoder().decode(bytes)); const b64 = body.data?.[0]?.b64_json;

@@ -43,5 +43,5 @@ export async function apply(ctx) {
   if (!Array.isArray(args) || args.some(value => typeof value !== 'string')) throw Error('Invalid official MCP arguments.');
   await mcp.apply(ctx, mcp.Config({serverName:'ingetrazo', transport:'stdio', command, args,
     env:{INGETRAZO_AI_HOST:'localhost',INGETRAZO_AI_PORT:String(port),PYTHONIOENCODING:'utf-8'},
-    failOnStartupError:false, toolCallTimeoutMs:120000, reconnect:{enabled:false}}));
+    failOnStartupError:false, toolCallTimeoutMs:300000, reconnect:{enabled:false}}));
 }

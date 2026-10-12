@@ -9,6 +9,8 @@ Atelier by ARCITECH runs on your own computer and opens in your web browser. Pic
 
 Atelier ships **no AI model**. After installing, you connect the model you use: see [Add your endpoint](add-your-endpoint.md). Downloads are on the [GitHub Releases page](https://github.com/arcitech-psp/atelier/releases).
 
+**Hardware.** Atelier starts on as little as one 16 GB graphics card. On one card the models take turns: each loads when its job comes up, and Atelier waits for it and shows what is loading ([One graphics card, several models](ONE_GPU.md)). More cards, a bigger card or a model server keep them loaded side by side, so everything is faster. No GPU? Point the roles at a cloud endpoint.
+
 ## Windows
 
 You need Windows 10 (version 1803 or newer) or Windows 11, 64-bit, and about 900 MB of free disk space. No administrator rights and no other software are needed: the installer brings everything Atelier runs on.

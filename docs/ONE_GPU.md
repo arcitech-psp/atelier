@@ -1,6 +1,8 @@
 # One graphics card, several models (16 GB and under)
 
-Atelier works best with a few models, each with its own job: the **main model** (the brain), a **vision** model that reads plans and photos, an **embeddings** model for project search, and sometimes a small **helper** ([Model roles](ROLES_SETUP.md)). On a computer with one 16 GB graphics card they do not all fit in memory at once. That is fine: let your model server **swap** them. A model is loaded when Atelier first asks for it and unloaded again when it has been idle for a while or when another one needs the room.
+Atelier works best with a few models, each with its own job: the **main model** (the brain), a **vision** model that reads plans and photos, an **embeddings** model for project search, and sometimes a small **helper** ([Model roles](ROLES_SETUP.md)). On a computer with one 16 GB graphics card they do not all fit in memory at once, so they take turns: each loads when its job comes up, and Atelier waits for it and shows what is loading. Your model server does the **swapping**: a model is loaded when Atelier first asks for it and unloaded again when it has been idle for a while or when another one needs the room. Taking turns costs time (each switch waits for a load), so it is slower than having everything loaded.
+
+More cards, a bigger card or a model server keep the models loaded side by side, so everything is faster. No GPU? Point the roles at a cloud endpoint ([Add your endpoint](add-your-endpoint.md)).
 
 You do not need anything new for this. LM Studio, Ollama and llama-swap already do the swapping. Atelier adds two things:
 
@@ -85,9 +87,9 @@ Atelier's **Set me up** kit (Model roles page) starts one `llama-server` per rol
 
 ## Wait for models to load
 
-By default the harness gives up on a model after five minutes with no answer, and a model that swaps in from a slow disk can take longer than that. Open **Mission Control** (the chip in the session header) and use the **Wait for models to load** panel at the bottom:
+On its own the harness gives up on a model after five minutes with no answer, and a model that swaps in from a slow disk can take longer than that. So Atelier turns **Wait for models to load** on by default, with a 15-minute wait. You find it in **Mission Control** (the chip in the session header), in the panel at the bottom:
 
-- Press **Turn on**, and choose how many minutes to wait (default 15, at most 60).
+- Choose how many minutes to wait (default 15, at most 60), or press **Turn off** to go back to the harness timers.
 - For every model route that points to this computer or your own network, Atelier then raises three timers, so that the load is waited for rather than failed: the HTTP wait for the first byte of the reply, the provider's request timeout (`timeoutMs`), and the stream idle timer (`streamIdleTimeoutMs`). It also allows more retries (8, with pauses up to 15 s) for a refused connection or a server error while the server swaps. A silent server is still not retried after a long wait: that would hide a stuck server for hours.
 - Routes that point to hosted APIs on the internet keep their normal timers. A value you set yourself in `settings.yaml` is never overwritten, and **Turn off** removes only what Atelier added.
 - The vision and project-search (embeddings) calls of the [Model roles](ROLES_SETUP.md) normally wait 3 minutes for a reply; with this switch on they wait as long as you set.

@@ -20,7 +20,7 @@ You describe the project; Atelier works through it with you, one visible step at
 - **Bottega, team mode:** share one Atelier with your colleagues on your office network; they open it from their own browser, tablet or phone after a one-time pairing code. Tailscale support (reaching it from outside the office) is coming soon. See [Bottega](docs/BOTTEGA.md).
 - **Brains:** in Settings, the model that is really loaded now on your graphics card, with Load, Unload and Reload buttons. See [Brains](docs/brains.md).
 - **Mission Control:** a chip in the session header that shows which model is loaded, how hard your graphics card is working, tokens and speed, and what the session costs in electricity at your own price. See [Mission Control](docs/mission-control.md).
-- **Works on one 16 GB graphics card:** models are loaded only when they are needed, and Atelier waits for each load and shows its state. See [One graphics card, several models](docs/ONE_GPU.md).
+- **Starts on as little as one 16 GB graphics card.** On one card the models take turns: each loads when its job comes up, and Atelier waits for it and shows what is loading. More cards, a bigger card or a model server keep them loaded side by side, so everything is faster. No GPU? Point the roles at a cloud endpoint. See [One graphics card, several models](docs/ONE_GPU.md).
 - **Download, now available:** the Windows installer and the Linux/WSL archive are on the [Releases page](https://github.com/arcitech-psp/atelier/releases).
 
 ## Install in two minutes
@@ -50,7 +50,7 @@ Atelier is a fork of [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-
 - The four stock DeepSeek Harness agent presets (Standard, PTC, Minimal and Creator modes) and its launcher profiles (web, headless, acp, sdk, sdk-minimal).
 - Works with **any OpenAI-compatible model endpoint**, on your computer or elsewhere.
 - **Mission Control** (the chip in the session header): which model is loaded now, graphics card use, tokens and speed, and the energy cost at your own electricity price. See [Mission Control](docs/mission-control.md).
-- Models swapped in and out of one 16 GB graphics card (LM Studio, Ollama, llama-swap): Atelier waits for the load and shows its state. See [One graphics card, several models](docs/ONE_GPU.md).
+- On one 16 GB graphics card the models take turns (LM Studio, Ollama or llama-swap load each one when its job comes up), and Atelier waits for it and shows what is loading. More cards, a bigger card or a model server keep them loaded side by side, so everything is faster. See [One graphics card, several models](docs/ONE_GPU.md).
 - Optional: generated moodboard images through your own image endpoint (for example ComfyUI).
 - Optional: live modelling in IngeTrazo, which you install separately.
 
