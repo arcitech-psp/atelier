@@ -10,16 +10,17 @@ Read in this order the first time:
    Only one 16 GB graphics card? The models take turns: each loads when its job comes up, and Atelier waits for it and shows what is loading ([One graphics card, several models](ONE_GPU.md)). More cards, a bigger card or a model server keep them loaded side by side, so everything is faster. No GPU? Point the roles at a cloud endpoint.
    Start your own model servers (llama.cpp, vLLM)? [Brains](brains.md): see what is really loaded and Load, Unload or Reload it from Settings.
 3. [Your first chat](first-chat.md): workspace, Vitruvius, the canvas and moodboards.
-4. [Knowledge shelf](knowledge.md): save source-backed notes locally and recall them in later chats.
-5. [Connecting IngeTrazo](ingetrazo.md): live modelling in a real 3D drawing.
-6. [Saving and reopening work](saving-and-reopening.md): where chats, boards and geometry are kept.
-7. [Exporting to Unreal Engine](export-to-unreal.md): IngeTrazo to GLB to Unreal, at real scale.
-8. [Skills on demand](skills.md): how Vitruvius (and Vitruvius Zero) stays light, and how to write your own skill.
-9. [Bottega: team mode](BOTTEGA.md): share one Atelier with colleagues on your office network, paired once with a code. Off by default.
-10. [Troubleshooting](troubleshooting.md) and the [FAQ](FAQ.md)
-11. [Licence in plain words](licence.md)
-12. [Credits](credits.md): the projects Atelier is built on.
-13. For maintainers: [Following DSH releases](UPSTREAM_SYNC.md).
+4. [Public assistant profiles](profiles.md): Einsteinium for research, Picaso for visual direction and Hydra for coding.
+5. [Knowledge shelf](knowledge.md): save source-backed notes locally and recall them in later chats.
+6. [Connecting IngeTrazo](ingetrazo.md): live modelling in a real 3D drawing.
+7. [Saving and reopening work](saving-and-reopening.md): where chats, boards and geometry are kept.
+8. [Exporting to Unreal Engine](export-to-unreal.md): IngeTrazo to GLB to Unreal, at real scale.
+9. [Skills on demand](skills.md): how Vitruvius (and Vitruvius Zero) stays light, and how to write your own skill.
+10. [Bottega: team mode](BOTTEGA.md): share one Atelier with colleagues on your office network, paired once with a code. Off by default.
+11. [Troubleshooting](troubleshooting.md) and the [FAQ](FAQ.md)
+12. [Licence in plain words](licence.md)
+13. [Credits](credits.md): the projects Atelier is built on.
+14. For maintainers: [Following DSH releases](UPSTREAM_SYNC.md).
 
 ## What is in this preview, honestly
 

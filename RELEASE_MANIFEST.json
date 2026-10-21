@@ -8,7 +8,10 @@
     "ptc",
     "cordis",
     "vitruvius",
-    "vitruvius-zero"
+    "vitruvius-zero",
+    "einsteinium",
+    "picaso",
+    "hydra"
   ],
   "launcherProfiles": [
     "web",
@@ -12527,6 +12530,24 @@
           "packaging/RELEASE_NOTES.md",
           "package.json",
           "harness/apps/cli/package.json"
+        ]
+      },
+      {
+        "at": "2026-10-20",
+        "by": "public-profiles",
+        "summary": "Public assistant profiles: add Einsteinium for sourced jurisdiction-aware research, Picaso for image concepts and presentation direction, and Hydra for coding; document their public tools and role requirements.",
+        "files": [
+          "harness/packages/preset/agent-presets/presets/einsteinium/README.md",
+          "harness/packages/preset/agent-presets/presets/einsteinium/agent.cordis.yml",
+          "harness/packages/preset/agent-presets/presets/einsteinium/preset.yml",
+          "harness/packages/preset/agent-presets/presets/picaso/README.md",
+          "harness/packages/preset/agent-presets/presets/picaso/agent.cordis.yml",
+          "harness/packages/preset/agent-presets/presets/picaso/preset.yml",
+          "harness/packages/preset/agent-presets/presets/hydra/README.md",
+          "harness/packages/preset/agent-presets/presets/hydra/agent.cordis.yml",
+          "harness/packages/preset/agent-presets/presets/hydra/preset.yml",
+          "docs/profiles.md",
+          "docs/README.md"
         ]
       }
     ]
