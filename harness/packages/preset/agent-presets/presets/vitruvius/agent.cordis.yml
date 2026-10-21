@@ -40,6 +40,13 @@
   config:
     includeDefaultRoots: false
     customSkillDirs: !!js (process.env.ATELIER_SKILLS_DIR || process.cwd() + '/skills/public;' + process.cwd() + '/skills/community').split(';')
+# Web search and fetch (v0.2): the `web` service and the SearXNG provider live in the host composition (Settings >
+# Model roles > Web search); this row gives Vitruvius the model-facing web_search / web_fetch tools.
+- id: tool-web
+  name: '@deepseek-ai/dsh-tool-web'
+  config:
+    fetch: true
+    searchTimeoutMs: 60000
 - id: tool-skill
   name: '@deepseek-ai/dsh-tool-skill'
   config:

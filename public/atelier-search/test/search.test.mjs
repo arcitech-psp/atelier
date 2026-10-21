@@ -37,3 +37,8 @@ test('uses the fallback endpoint when the primary is unavailable', async () => {
   assert.deepEqual(visited, ['primary.test', 'fallback.test']);
   assert.equal(result.sources.length, 1);
 });
+
+test('reads SearXNG answers given as strings or objects', () => {
+  const result = mapResponse({results: [], answers: ['plain answer', {answer: 'object answer', url: 'https://example.com'}, {}]});
+  assert.equal(result.content, ['plain answer', 'object answer'].join(String.fromCharCode(10)));
+});

@@ -51,7 +51,8 @@ export function mapResponse(json, {limit = DEFAULTS.maxResults, snippetChars = D
     all.push({url, ...(title ? {title} : {}), ...(snippet ? {snippet} : {})});
   }
   const sources = all.slice(0, limit);
-  const answers = (Array.isArray(json.answers) ? json.answers : []).map(answer => clip(answer, 600)).filter(Boolean);
+  // SearXNG 2024+ returns answers as objects ({answer, url}); older instances return strings.
+  const answers = (Array.isArray(json.answers) ? json.answers : []).map(answer => clip(answer && typeof answer === 'object' ? answer.answer ?? answer.text ?? '' : answer, 600)).filter(Boolean);
   return {...(answers.length ? {content: answers.join('\n')} : {}), sources, truncated: sources.length < all.length};
 }
 
