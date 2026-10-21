@@ -41,6 +41,12 @@ if find . -type l -lname '/*' | grep -q .; then echo "absolute package links fou
 broken=$(find . -xtype l | wc -l)
 [ "$broken" -eq 0 ] || { echo "$broken broken package links"; exit 1; }
 
+# pnpm's metadata records the absolute build and store paths of this machine; the runtime does not read it.
+find "$stage/app" -path '*/node_modules/.modules.yaml' -delete
+find "$stage/app" -path '*/node_modules/.pnpm/lock.yaml' -delete
+say "Private string check on the staged artifact"
+"$nodedir/bin/node" "$stage/app/scripts/check-private-strings.mjs" --artifact --root "$stage/app" || { echo "private strings found; release stopped"; exit 1; }
+
 cp "$stage/app/packaging/linux/install.sh" "$stage/app/packaging/linux/uninstall.sh" "$stage/"
 chmod 755 "$stage/install.sh" "$stage/uninstall.sh" "$stage/app/packaging/linux/atelier-preview" "$stage/app/packaging/linux/atelier"
 cat > "$stage/README.txt" <<EOF

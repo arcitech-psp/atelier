@@ -97,7 +97,8 @@ async function filesBelow(root, accept, depth = 7) {
     for (const entry of await children(path)) {
       const full = `${path}/${entry.name}`;
       if (entry.isFile() && accept(entry.name)) found.push(full);
-      else if (entry.isDirectory() || entry.isSymbolicLink()) await visit(full, level + 1);
+      // Real directories only: device/ symlinks (subsystem, driver, drm, consumer:*) lead to other devices.
+      else if (entry.isDirectory()) await visit(full, level + 1);
     }
   }
   await visit(root, 0);
@@ -111,6 +112,26 @@ function busyPercent(path, counter, now = Date.now()) {
   if (!prior || counter < prior.counter || now <= prior.now) return null;
   // Intel engine busy files are cumulative nanoseconds; AMD's gpu_busy_percent is already a percentage.
   return Math.max(0, Math.min(100, 100 * (counter - prior.counter) / ((now - prior.now) * 1e6)));
+}
+
+// Cumulative counters (energy in microjoules, idle residency in ms) turned into rates between two readings.
+const rateCounters = new Map();
+const energyCards = new Set();
+let xpuDiscovery;   // cached once: discovery only supplies names and card numbers
+// Driver counters advance in uneven chunks (the xe energy counter was seen moving 33, 0, 0, 41, 0, 13 J in successive
+// seconds), so a rate is taken over a rolling window: newest sample against the oldest one kept from the last 30 s,
+// and only once at least 8 s are covered.
+const RATE_WINDOW_MS = 30000, RATE_MIN_SPAN_MS = 8000;
+function rate(key, value, now) {
+  if (value === null) return null;
+  let samples = rateCounters.get(key) ?? [];
+  if (samples.length && (value < samples[samples.length - 1].value || now <= samples[samples.length - 1].now)) samples = [];
+  samples.push({value, now});
+  while (samples.length > 2 && now - samples[1].now >= RATE_WINDOW_MS) samples.shift();
+  rateCounters.set(key, samples);
+  const first = samples[0];
+  if (now - first.now < RATE_MIN_SPAN_MS) return null;
+  return (value - first.value) / (now - first.now);
 }
 
 /** Read local Intel and AMD DRM sysfs data. All paths and reads are local and read-only. */
@@ -136,15 +157,35 @@ export async function readDrmGpus({root = SYSFS_DRM, now = Date.now()} = {}) {
     const hwmon = await filesBelow(device, file => /^(?:temp\d+_input|power\d+_(?:average|input))$/.test(file));
     const temps = hwmon.filter(path => /temp\d+_input$/.test(path));
     const powers = hwmon.filter(path => /power\d+_(?:average|input)$/.test(path));
-    const power = await firstNumber(powers, 1e6);
+    let power = await firstNumber(powers, 1e6);
+    if (power === null) {
+      // Intel i915/xe hwmon report energy, not power: watts = microjoules per millisecond / 1000.
+      const energy = (await filesBelow(device, file => file === 'energy1_input'))[0];
+      if (energy) energyCards.add(card.name);
+      const perMs = energy ? rate(energy, numberOrNull(await readText(energy)), now) : null;
+      power = perMs === null ? null : perMs / 1000;
+    }
+    let idleUtil = null;
+    if (intel && !busyPath) {
+      // xe: tile*/gt*/gtidle/idle_residency_ms below the device; i915: gt/gt*/rc6_residency_ms beside it. Busy = 100 - idle share.
+      const idleFiles = [...await filesBelow(device, file => file === 'idle_residency_ms'),
+        ...await filesBelow(`${root}/${card.name}/gt`, file => file === 'rc6_residency_ms', 2)];
+      const busy = [];
+      for (const file of idleFiles) {
+        const idlePerMs = rate(file, numberOrNull(await readText(file)), now);
+        // Some xe releases advance this counter faster than wall time (not milliseconds); such a reading is unusable.
+        if (idlePerMs !== null && idlePerMs <= 1.05) busy.push(100 * (1 - Math.min(1, idlePerMs)));
+      }
+      if (busy.length) idleUtil = Math.max(...busy);
+    }
     gpus.push({
       index: numberOrNull(card.name.slice(4)) ?? gpus.length,
       name,
-      util: util === null ? null : Math.max(0, Math.min(100, util)),
+      util: (util ?? idleUtil) === null ? null : Math.max(0, Math.min(100, util ?? idleUtil)),
       vramUsedMiB: used,
       vramTotalMiB: total,
       tempC: await firstNumber(temps, 1000),
-      powerW: power,
+      powerW: power === null ? null : Math.round(power * 10) / 10,
       powerLimitW: null,
     });
   }
@@ -232,13 +273,19 @@ export async function readOtherGpus({exec = run, root = SYSFS_DRM} = {}) {
   const vendors = new Set(sysfs.map(gpu => /^Intel\b/i.test(gpu.name) ? VENDOR_INTEL : VENDOR_AMD));
   const vendor = new Map([[VENDOR_INTEL, []], [VENDOR_AMD, []]]);
   if (vendors.has(VENDOR_INTEL)) {
-    let discovery;
-    try { discovery = JSON.parse(await exec('xpu-smi', ['discovery', '-j']) ?? 'null'); } catch { discovery = null; }
-    for (const device of discovery?.device_list ?? []) {
+    // xpu-smi stats takes ~1.5 s and was seen to stall the xe energy counter while it runs (one call: 1.7 J counted
+    // instead of ~64 J), so it is asked for stats only for cards without a sysfs energy counter; discovery is cached.
+    if (xpuDiscovery === undefined) {
+      try { xpuDiscovery = JSON.parse(await exec('xpu-smi', ['discovery', '-j']) ?? 'null'); } catch { xpuDiscovery = null; }
+    }
+    for (const device of xpuDiscovery?.device_list ?? []) {
       if (!Number.isInteger(Number(device.device_id))) continue;
-      const stats = parseXpuSmi(await exec('xpu-smi', ['stats', '-d', String(device.device_id), '-j']) ?? '');
       const card = /card(\d+)/.exec(device.drm_device ?? '')?.[1];
-      for (const gpu of stats) vendor.get(VENDOR_INTEL).push({...gpu, index: card ? Number(card) : gpu.index, name: device.device_name ?? gpu.name});
+      const named = {index: card ? Number(card) : Number(device.device_id), name: device.device_name ?? 'Intel GPU',
+        util: null, vramUsedMiB: null, vramTotalMiB: null, tempC: null, powerW: null, powerLimitW: null};
+      if (card && energyCards.has(`card${card}`)) { vendor.get(VENDOR_INTEL).push(named); continue; }
+      const stats = parseXpuSmi(await exec('xpu-smi', ['stats', '-d', String(device.device_id), '-j']) ?? '');
+      for (const gpu of stats) vendor.get(VENDOR_INTEL).push({...gpu, index: named.index, name: named.name});
     }
   }
   if (vendors.has(VENDOR_AMD)) vendor.set(VENDOR_AMD, parseRocmSmi(await exec('rocm-smi', ['--json', '--showuse', '--showmeminfo', 'vram', '--showtemp', '--showpower']) ?? ''));
@@ -249,7 +296,7 @@ export async function readOtherGpus({exec = run, root = SYSFS_DRM} = {}) {
     const extra = readings.find(item => item.index === gpu.index) ?? readings[vendorIndices.get(type)];
     vendorIndices.set(type, vendorIndices.get(type) + 1);
     if (!extra) return gpu;
-    return {...gpu,
+    return {...gpu, name: /^(?:Intel|AMD) GPU$/.test(gpu.name) && extra.name && !/^(?:Intel|AMD) GPU$/.test(extra.name) ? extra.name : gpu.name,
       util: gpu.util ?? extra.util, vramUsedMiB: gpu.vramUsedMiB ?? extra.vramUsedMiB,
       vramTotalMiB: gpu.vramTotalMiB ?? extra.vramTotalMiB, tempC: gpu.tempC ?? extra.tempC,
       powerW: gpu.powerW ?? extra.powerW, powerLimitW: gpu.powerLimitW ?? extra.powerLimitW};

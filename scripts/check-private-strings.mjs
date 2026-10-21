@@ -4,6 +4,12 @@ import {readFile, readdir, stat} from 'node:fs/promises';
 import {resolve, relative, sep} from 'node:path';
 import {spawnSync} from 'node:child_process';
 
+// Markers that can only come from the build machine or private network; used for third-party packages in --artifact.
+const MACHINE_PATTERNS = [
+  ['10.0.0', '.'].join(''), ['Users', '\\', 'parth'].join(''), ['Users', '/', 'parth'].join(''), ['/home', '/', 'psp'].join(''),
+  ['atelier-ship', '-build'].join(''), ['dsh-', 'ha', 'des-', 'unreal'].join(''), ['Cold', ' Fusion'].join(''),
+];
+
 const DEFAULT_PATTERNS = [
   ['10.0.0', '.'].join(''), ['Users', '\\', 'parth'].join(''), ['/home', '/', 'psp'].join(''),
   ['HA', 'DES'].join(''), ['POSE', 'IDON'].join(''), ['ZE', 'US'].join(''), ['At', 'las'].join(''),
@@ -12,15 +18,16 @@ const DEFAULT_PATTERNS = [
 ];
 
 function usage() {
-  process.stderr.write('Usage: node scripts/check-private-strings.mjs [--root DIR] [--list FILE] [--all] [FILE ...]\n');
+  process.stderr.write('Usage: node scripts/check-private-strings.mjs [--root DIR] [--list FILE] [--all | --artifact] [FILE ...]\n');
 }
 
 function parseArgs(args) {
-  const options = {root: process.cwd(), list: null, files: [], all: false};
+  const options = {root: process.cwd(), list: null, files: [], all: false, artifact: false};
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--root' && args[i + 1]) options.root = resolve(args[++i]);
     else if (args[i] === '--list' && args[i + 1]) options.list = resolve(args[++i]);
     else if (args[i] === '--all') options.all = true;
+    else if (args[i] === '--artifact') options.artifact = true;
     else if (args[i] === '--help') options.help = true;
     else if (args[i].startsWith('-')) throw new Error(`Unknown option: ${args[i]}`);
     else options.files.push(resolve(args[i]));
@@ -37,7 +44,7 @@ function matcher(value) {
 }
 
 async function readPatterns(path) {
-  if (!path) return DEFAULT_PATTERNS;
+  if (!path) return [...new Set([...DEFAULT_PATTERNS, ...MACHINE_PATTERNS])];
   return (await readFile(path, 'utf8')).split(/\r?\n/).map(line => line.trim()).filter(line => line && !line.startsWith('#'));
 }
 
@@ -77,6 +84,26 @@ async function allFiles(root) {
   return files;
 }
 
+/** Every text file under a staged release, node_modules included; binaries (NUL in the first 8 KB) and files over 8 MB skipped. */
+async function artifactRows(root) {
+  const rows = [];
+  async function walk(dir) {
+    for (const entry of await readdir(dir, {withFileTypes: true})) {
+      const path = resolve(dir, entry.name);
+      if (entry.isDirectory()) { await walk(path); continue; }
+      if (!entry.isFile()) continue;
+      const info = await stat(path);
+      if (info.size > 8 << 20) continue;
+      const buffer = await readFile(path);
+      if (buffer.subarray(0, 8192).includes(0)) continue;
+      const thirdParty = relative(root, path).split(sep).includes('node_modules');
+      buffer.toString('utf8').split(/\r?\n/).forEach((text, index) => rows.push({file: path, row: index + 1, text, thirdParty}));
+    }
+  }
+  await walk(root);
+  return rows;
+}
+
 async function main() {
   let options;
   try { options = parseArgs(process.argv.slice(2)); }
@@ -84,9 +111,12 @@ async function main() {
   if (options.help) { usage(); return; }
   const patterns = await readPatterns(options.list);
   const rules = patterns.map((value, index) => ({index: index + 1, value, regex: matcher(value)}));
+  const machine = new Set(MACHINE_PATTERNS);
   const findings = [];
   let rows;
-  if (options.files.length) {
+  if (options.artifact) {
+    rows = await artifactRows(options.root);
+  } else if (options.files.length) {
     rows = [];
     for (const file of options.files) {
       let content;
@@ -123,11 +153,15 @@ async function main() {
     let info;
     try { info = await stat(file); } catch { continue; }
     if (!info.isFile()) continue;
-    for (const rule of rules) if (rule.regex.test(item.text)) findings.push({file, row: item.row, rule: rule.index});
+    for (const rule of rules) {
+      if (item.thirdParty && !options.list && !machine.has(rule.value)) continue;
+      if (rule.regex.test(item.text)) findings.push({file, row: item.row, rule: rule.index, value: rule.value});
+    }
   }
   if (findings.length) {
     process.stderr.write(`Private string check failed: ${findings.length} match${findings.length === 1 ? '' : 'es'} in ${new Set(findings.map(item => item.file)).size} file(s).\n`);
-    for (const item of findings) process.stderr.write(`  ${relative(options.root, item.file).split(sep).join('/')}:${item.row} (rule ${item.rule})\n`);
+    for (const item of findings.slice(0, 200)) process.stderr.write(`  ${relative(options.root, item.file).split(sep).join('/')}:${item.row} (rule ${item.rule})\n`);
+    if (findings.length > 200) process.stderr.write(`  ... ${findings.length - 200} more\n`);
     process.exitCode = 1;
   } else process.stdout.write(`Private string check passed: ${scanned.length} lines, ${rules.length} rules, 0 matches.\n`);
 }
