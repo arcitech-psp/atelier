@@ -239,6 +239,7 @@
     "@arcitech/atelier-brains": "workspace:*",
     "@arcitech/atelier-canvas": "workspace:*",
     "@arcitech/atelier-ingetrazo": "workspace:*",
+    "@arcitech/atelier-knowledge": "workspace:*",
     "@arcitech/atelier-updates": "workspace:*",
     "@arcitech/atelier-mission": "workspace:*",
     "@arcitech/atelier-roles": "workspace:*",

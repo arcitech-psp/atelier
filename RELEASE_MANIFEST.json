@@ -31,6 +31,12 @@
       "license": "PolyForm-Shield-1.0.0"
     },
     {
+      "name": "@arcitech/atelier-knowledge",
+      "version": "0.1.0-preview",
+      "path": "public/atelier-knowledge",
+      "license": "PolyForm-Shield-1.0.0"
+    },
+    {
       "name": "@arcitech/atelier-roles",
       "version": "0.1.0-preview",
       "path": "public/atelier-roles",
@@ -12492,6 +12498,23 @@
             "bytes": 6980,
             "sha256": "19524a463f60578fe37c73f6bd1fab0344efcf3859e5198614bde6d332533071"
           }
+        ]
+      },
+      {
+        "at": "2026-10-20",
+        "by": "atelier-knowledge",
+        "summary": "Local knowledge shelf: source-backed notes persist across chats; knowledge_save, knowledge_grep and knowledge_read work offline; empty by default.",
+        "files": [
+          "public/atelier-knowledge/package.json",
+          "public/atelier-knowledge/index.mjs",
+          "public/atelier-knowledge/core.mjs",
+          "public/atelier-knowledge/test/core.test.mjs",
+          "defaults/cordis.patch.yml",
+          "docs/knowledge.md",
+          "docs/README.md",
+          "packaging/RELEASE_NOTES.md",
+          "package.json",
+          "harness/apps/cli/package.json"
         ]
       }
     ]

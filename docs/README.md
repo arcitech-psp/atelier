@@ -10,7 +10,8 @@ Read in this order the first time:
    Only one 16 GB graphics card? The models take turns: each loads when its job comes up, and Atelier waits for it and shows what is loading ([One graphics card, several models](ONE_GPU.md)). More cards, a bigger card or a model server keep them loaded side by side, so everything is faster. No GPU? Point the roles at a cloud endpoint.
    Start your own model servers (llama.cpp, vLLM)? [Brains](brains.md): see what is really loaded and Load, Unload or Reload it from Settings.
 3. [Your first chat](first-chat.md): workspace, Vitruvius, the canvas and moodboards.
-4. [Connecting IngeTrazo](ingetrazo.md): live modelling in a real 3D drawing.
+4. [Knowledge shelf](knowledge.md): save source-backed notes locally and recall them in later chats.
+5. [Connecting IngeTrazo](ingetrazo.md): live modelling in a real 3D drawing.
 5. [Saving and reopening work](saving-and-reopening.md): where chats, boards and geometry are kept.
 6. [Exporting to Unreal Engine](export-to-unreal.md): IngeTrazo to GLB to Unreal, at real scale.
 7. [Skills on demand](skills.md): how Vitruvius (and Vitruvius Zero) stays light, and how to write your own skill.
