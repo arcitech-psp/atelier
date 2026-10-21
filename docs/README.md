@@ -19,6 +19,7 @@ Read in this order the first time:
 10. [Licence in plain words](licence.md)
 11. [Credits](credits.md): the projects Atelier is built on.
 12. For maintainers: [Following DSH releases](UPSTREAM_SYNC.md).
+13. [Undo a turn](turn-undo.md): restore changed files and keep the post-turn copies.
 
 ## What is in this preview, honestly
 

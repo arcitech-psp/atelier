@@ -7,6 +7,8 @@ import { readStatus } from './status.mjs';
 import { createBottega, DEFAULT_PORT } from './bottega/bottega.mjs';
 import { tokenSource } from './bottega/host-session.mjs';
 import { applyGuardrails, guardrailsState } from './guardrails.mjs';
+import { apply as applyConsentGuard } from './consent.mjs';
+import { apply as applyUndo } from '@arcitech/atelier-undo';
 
 export const inject = [];
 export const name = 'atelier-start';
@@ -34,6 +36,8 @@ export function apply(ctx) {
   ctx.inject(['connection', 'webServer'], ctx => ctx.effect(() => mountBottega(ctx), 'atelier-start: Bottega'));
   // Atelier guardrails (Settings > Safety): on by default; see guardrails.mjs.
   applyGuardrails(ctx);
+  applyConsentGuard(ctx);
+  ctx.inject(['tools', 'webServer', 'connection'], applyUndo);
 }
 
 const truthy = value => /^(1|yes|on|true)$/i.test(String(value ?? '').trim());

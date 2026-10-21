@@ -26,6 +26,7 @@ Installation steps: [docs/INSTALL.md](https://github.com/arcitech-psp/atelier/bl
 - Works with any OpenAI-compatible model endpoint: Ollama, LM Studio, llama.cpp, vLLM, a custom URL with a key, cloud free tiers through OmniRoute, or your ChatGPT plan.
 - **Bottega (team mode)**: share one Atelier with colleagues on your office network. Other devices open it in their browser, tablet or phone after a one-time pairing code; you see and revoke every device. Off by default, private networks only, plain HTTP. Tailscale support is planned and coming soon.
 - **Atelier guardrails (Settings > Safety)**, on by default: chats read and write files only in their project folder and ask before anything wider. Turning them off (after a warning, or `atelier settings set guardrails off --yes-i-understand`) gives the model full file access, skips approval prompts and lifts the time limits on long waits; a **Guardrails off** chip stays in the session header until you turn them back on. Bottega pairing and no telemetry stay as they are.
+- **Undo turn:** restore files changed during a completed turn while preserving its post-turn copies; shell installs and system changes require consent naming the software or change.
 - **Settings > Updates**: the version, credits, "Check for updates", and opt-in automatic updates (off by default). Updates install beside the current version, which is kept for one-click rollback.
 
 ## Privacy
