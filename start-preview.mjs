@@ -130,13 +130,18 @@ try {
     if (row?.id) ids.add(row.id);
     for (const item of Array.isArray(row?.insert) ? row.insert : []) if (item?.id) ids.add(item.id);
   }
-  const missing = (yaml.load(readFileSync(defaultsPatch, 'utf8')) ?? []).flatMap(row => Array.isArray(row?.insert) ? row.insert : [])
+  const defaultRows = yaml.load(readFileSync(defaultsPatch, 'utf8')) ?? [];
+  const missing = defaultRows.flatMap(row => Array.isArray(row?.insert) ? row.insert : [])
     .filter(item => item?.id && typeof item.name === 'string' && item.name.startsWith('@arcitech/') && !ids.has(item.id));
-  if (Array.isArray(homeRows) && missing.length > 0) {
+  // Top-level overrides that are new in this version (for example the web search route); same rule: an id the home
+  // already has, changed or not, is left alone.
+  const overrides = defaultRows.filter(row => row?.id && !Array.isArray(row?.insert) && !ids.has(row.id));
+  if (Array.isArray(homeRows) && (missing.length > 0 || overrides.length > 0)) {
     const text = readFileSync(homePatch, 'utf8');
-    const block = `# Added when Atelier was updated: plugins that are new in this version.\n${yaml.dump([{insert: missing}])}`;
+    const rows = [...overrides, ...(missing.length ? [{insert: missing}] : [])];
+    const block = `# Added when Atelier was updated: settings and plugins that are new in this version.\n${yaml.dump(rows)}`;
     writeFileSync(homePatch, homeRows.length === 0 ? block : `${text}${text.endsWith('\n') ? '' : '\n'}${block}`);
-    say(`Updated your settings with the new Atelier parts: ${missing.map(item => item.id).join(', ')}.`);
+    say(`Updated your settings with the new Atelier parts: ${[...overrides, ...missing].map(item => item.id).join(', ')}.`);
   }
 } catch (error) {
   say(`Could not check cordis.patch.yml for new Atelier parts (${error.message}); Atelier starts as before.`);
