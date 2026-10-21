@@ -19,6 +19,9 @@
     # Model roles: one endpoint per job (brain, vision, speech, embeddings, images, helper) and "Set me up".
     - id: atelier-roles
       name: '@arcitech/atelier-roles'
+    # Local source-backed notes that persist across chats on this installation.
+    - id: atelier-knowledge
+      name: '@arcitech/atelier-knowledge'
     - id: atelier-start
       name: '@arcitech/atelier-start'
     # Mission Control for this computer: tokens, graphics card use, energy cost at your price, and which model is loaded now.
