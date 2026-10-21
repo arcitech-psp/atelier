@@ -7153,6 +7153,9 @@ importers:
 
   public/atelier-roles:
     dependencies:
+      '@arcitech/atelier-search':
+        specifier: workspace:*
+        version: link:../atelier-search
       '@deepseek-ai/cordis':
         specifier: workspace:^
         version: link:../../harness/vendor/cordis
@@ -7171,6 +7174,12 @@ importers:
       '@deepseek-ai/dsh-tools':
         specifier: workspace:^
         version: link:../../harness/packages/core/tools
+
+  public/atelier-search:
+    dependencies:
+      '@deepseek-ai/dsh-web':
+        specifier: workspace:^
+        version: link:../../harness/packages/web/web
 
   public/atelier-start:
     dependencies:

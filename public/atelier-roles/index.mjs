@@ -13,9 +13,10 @@ import {credentialRef} from '@deepseek-ai/dsh-credentials';
 import {settingsNamespace} from '@deepseek-ai/dsh-settings';
 import {ROLES, ROLE_IDS, roleById, keyRefFor, BRAIN_ROUTE, HELPER_ROUTE, PRESETS, RECOMMENDED, TIERS, ARCITECH_BRAIN_REPO} from './roles.mjs';
 import {Kit, defaultKitFolder} from './setup.mjs';
+import {SearxngSearchProvider, resolveConfig as resolveSearchConfig} from '@arcitech/atelier-search';
 
 export const name = 'atelier-roles';
-export const inject = [];
+export const inject = ['web'];
 
 const LLM = settingsNamespace('llm-pi-ai');
 const DEFAULT_MODEL = settingsNamespace('agent-default-model');
@@ -65,6 +66,12 @@ export function apply(ctx, config = {}) {
     const temp = join(root, randomUUID() + '.pending');
     await writeFile(temp, JSON.stringify(saved, null, 2), {mode: 0o600}); await rename(temp, file);
   };
+  const searchConfig = () => ({
+    baseUrl: process.env.ATELIER_SEARCH_URL || saved.search?.baseUrl || '',
+    fallbackUrl: process.env.ATELIER_SEARCH_FALLBACK_URL || saved.search?.fallbackUrl || '',
+  });
+  const searchProvider = new SearxngSearchProvider(searchConfig);
+  ctx.web.registerSearchProvider(searchProvider);
   const credentials = () => ctx.get('credentials');
   const readKey = async id => {
     try { return (await credentials()?.resolve(credentialRef(keyRefFor(id))))?.value; } catch { return undefined; }
@@ -323,7 +330,10 @@ export function apply(ctx, config = {}) {
   }
   async function list(force) {
     const roles = await Promise.all(ROLE_IDS.map(async id => ({...await describe(id), status: await cachedStatus(id, force)})));
-    return {roles, presets: PRESETS, recommended: RECOMMENDED, tiers: TIERS, brainRepo: ARCITECH_BRAIN_REPO,
+    const search = searchConfig();
+    return {roles, search: {baseUrl: search.baseUrl, fallbackUrl: search.fallbackUrl,
+      fromEnvironment: Boolean(process.env.ATELIER_SEARCH_URL), configured: Boolean(search.baseUrl)},
+      presets: PRESETS, recommended: RECOMMENDED, tiers: TIERS, brainRepo: ARCITECH_BRAIN_REPO,
       kit: kit.summary(), defaultKitFolder: defaultKitFolder()};
   }
   const draftOf = (id, payload) => {
@@ -344,6 +354,14 @@ export function apply(ctx, config = {}) {
         case 'available': return {ok: true, value: Object.fromEntries(ROLE_IDS.map(r => [r, service.isSet(r)]))};
         case 'save': await save(id, payload); return {ok: true, value: await list(false)};
         case 'reset': await reset(id); return {ok: true, value: await list(false)};
+        case 'search-save': {
+          if (process.env.ATELIER_SEARCH_URL) throw Error('The search URL is controlled by ATELIER_SEARCH_URL.');
+          const baseUrl = text(payload?.baseUrl, 500), fallbackUrl = text(payload?.fallbackUrl, 500);
+          if (baseUrl) resolveSearchConfig({baseUrl, fallbackUrl});
+          else if (fallbackUrl) throw Error('Set the primary SearXNG URL before setting a fallback.');
+          saved.search = {baseUrl, fallbackUrl}; await persist();
+          return {ok: true, value: await list(false)};
+        }
         case 'test': {
           const value = await test(id, draftOf(id, payload));
           if (!payload?.draft) status.set(id, {at: Date.now(), value});

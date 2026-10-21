@@ -178,6 +178,30 @@ window.__ModuleLoader__.load({id: '@arcitech/atelier-roles', factory: require =>
           kit?.installed && !running ? h('button', {type: 'button', onClick: async () => { setKit(await call('kit-run')); onChanged(await call('list', {force: true})); }}, 'Start local servers') : null));
     };
 
+    const WebSearch = ({data, onChanged}) => {
+      const [draft, setDraft] = useState({baseUrl: data.search.baseUrl, fallbackUrl: data.search.fallbackUrl});
+      const [busy, setBusy] = useState(false), [error, setError] = useState('');
+      useEffect(() => setDraft({baseUrl: data.search.baseUrl, fallbackUrl: data.search.fallbackUrl}), [data.search.baseUrl, data.search.fallbackUrl]);
+      const save = async () => {
+        setBusy(true); setError('');
+        try { onChanged(await call('search-save', draft)); }
+        catch (e) { setError(e.message); }
+        finally { setBusy(false); }
+      };
+      return h('section', {className: 'card', 'data-atelier-search': ''},
+        h('div', {className: 'row spread'}, h('h3', null, 'Web search'),
+          h('span', {className: `pill ${data.search.configured ? 'ok' : 'off'}`}, data.search.configured ? 'Configured' : 'Not configured')),
+        h('p', {className: 'muted'}, 'Connect your own SearXNG instance. Search uses only the address you set here.'),
+        h('div', {className: 'fields'},
+          h('label', {className: 'wide'}, 'SearXNG URL', h('input', {type: 'text', value: draft.baseUrl, disabled: data.search.fromEnvironment,
+            onChange: e => setDraft(d => ({...d, baseUrl: e.target.value})), placeholder: 'http://localhost:8080', spellCheck: false})),
+          h('label', {className: 'wide'}, 'Fallback URL (optional)', h('input', {type: 'text', value: draft.fallbackUrl, disabled: data.search.fromEnvironment,
+            onChange: e => setDraft(d => ({...d, fallbackUrl: e.target.value})), placeholder: 'http://localhost:8081', spellCheck: false}))),
+        data.search.fromEnvironment ? h('p', {className: 'small'}, 'Configured by ATELIER_SEARCH_URL in the environment.') : null,
+        error ? h('p', {className: 'small bad'}, error) : null,
+        !data.search.fromEnvironment ? h('div', {className: 'row'}, h('button', {type: 'button', className: 'primary', onClick: save, disabled: busy}, busy ? 'Saving…' : 'Save')) : null);
+    };
+
     // ---------------- the settings page ----------------
     const RolesSection = () => {
       const [data, setData] = useState(null), [error, setError] = useState('');
@@ -188,6 +212,7 @@ window.__ModuleLoader__.load({id: '@arcitech/atelier-roles', factory: require =>
         h('div', {className: 'row spread'}, h('h2', null, 'Model roles'), h('button', {type: 'button', onClick: () => load(true)}, 'Check all again')),
         h('p', {className: 'muted'}, 'Atelier uses a few models, each for one job. Bring your own: any OpenAI-compatible server works, on your computer or hosted. Roles you leave empty simply switch their feature off. Keys stay on this computer.'),
         h(SetMeUp, {data, onChanged: setData}),
+        h(WebSearch, {data, onChanged: setData}),
         h('div', {className: 'grid'}, ...data.roles.map(role => h(RoleCard, {key: role.id + (role.config?.baseURL ?? '') + (role.config?.model ?? ''), role, data, onChanged: setData}))),
         h('details', {className: 'card'}, h('summary', null, h('strong', null, 'Which brain for my graphics card?')),
           h('table', null, h('tbody', null, ...data.tiers.map(t => h('tr', {key: t.id}, h('td', null, t.label), h('td', null, t.brain), h('td', null, t.advice))))),
