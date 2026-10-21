@@ -11,6 +11,14 @@
   disabled: true
 - id: llm-deepseek
   disabled: true
+# Web search goes to the user's own SearXNG (Settings > Model roles > Web search, or ATELIER_SEARCH_URL). The base
+# bundle pins DeepSeek's hosted search, which needs a DeepSeek key and would answer every search with a key error.
+- id: web
+  config:
+    searchProvider: atelier-searxng
+    fetchProvider: http
+- id: web-search-deepseek
+  disabled: true
 - id: ui-brand-official
   disabled: true
 - insert:
