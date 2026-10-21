@@ -2,7 +2,7 @@
   "name": "@arcitech/atelier-mission",
   "version": "0.1.0-preview",
   "private": true,
-  "description": "Mission Control for this computer: session timings, tokens, GPU use, energy cost at your own price, and which model is loaded now on a one-GPU setup.",
+  "description": "Mission Control for this computer: session timings, tokens, GPU use, energy cost at your own price, and which model is loaded now.",
   "type": "module",
   "license": "PolyForm-Shield-1.0.0",
   "exports": {

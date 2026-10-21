@@ -15,7 +15,7 @@ import {dshHomePath} from '@deepseek-ai/dsh-home-paths';
 import {credentialRef} from '@deepseek-ai/dsh-credentials';
 import {settingsNamespace} from '@deepseek-ai/dsh-settings';
 import {CURRENCIES, addEnergy, currencyForLocale, effectivePrice, integrateInterval, localDay, normalizePrefs, summarizeEnergy} from './energy.mjs';
-import {Ring, cpuPercent, cpuTicks, memoryNow, readNvidia} from './telemetry.mjs';
+import {Ring, cpuPercent, cpuTicks, memoryNow, readGpus} from './telemetry.mjs';
 import {UsageTracker, addStep, bumpDay, describeUsage, emptyStopwatch, emptyUsage, pruneDays, sinceSnapshot, stopwatchAction, takeSnapshot} from './ledger.mjs';
 import {PROVIDER_NAMES, applyWaiting, buildStatus, collectRoles, probeServer} from './models.mjs';
 import {DEFAULT_WAIT_SECONDS, NO_LIMIT_SECONDS, clampWait, dispatcherOptions, planDisable, planEnable} from './swap.mjs';
@@ -105,7 +105,7 @@ export function apply(ctx, config = {}) {
     if (!force && !stillWanted && !lastTick) return undefined;
     ticking = (async () => {
       const time = Date.now();
-      const gpu = config.readGpu === false ? {ok: false, gpus: [], reason: 'Graphics card reading is switched off in the Atelier settings (readGpu: false).'} : await readNvidia();
+      const gpu = config.readGpu === false ? {ok: false, gpus: [], reason: 'Graphics card reading is switched off in the Atelier settings (readGpu: false).'} : await readGpus();
       const cpu = cpuTicks();
       const percent = cpuPercent(lastCpu, cpu); lastCpu = cpu;
       const powerW = gpu.ok && gpu.gpus.length > 0 && gpu.gpus.every(card => card.powerW !== null) ? gpu.gpus.reduce((sum, card) => sum + card.powerW, 0) : null;

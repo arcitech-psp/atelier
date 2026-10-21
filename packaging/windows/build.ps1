@@ -21,6 +21,9 @@ param(
 )
 $ErrorActionPreference = "Stop"
 $repo = (Resolve-Path "$PSScriptRoot\..\..").Path
+$node = (Get-Command node -ErrorAction Stop).Source
+& $node "$repo\scripts\check-private-strings.mjs" --root $repo
+if ($LASTEXITCODE -ne 0) { throw "Private string check failed; Windows build stopped." }
 $pkg = Get-Content "$repo\package.json" -Raw | ConvertFrom-Json
 $version = $pkg.version -replace '-preview$', ''
 $pnpm = ($pkg.packageManager -replace '\+.*$', '')

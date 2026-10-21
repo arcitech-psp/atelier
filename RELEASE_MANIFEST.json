@@ -31,6 +31,12 @@
       "license": "PolyForm-Shield-1.0.0"
     },
     {
+      "name": "@arcitech/atelier-mission",
+      "version": "0.1.0-preview",
+      "path": "public/atelier-mission",
+      "license": "PolyForm-Shield-1.0.0"
+    },
+    {
       "name": "@arcitech/atelier-roles",
       "version": "0.1.0-preview",
       "path": "public/atelier-roles",

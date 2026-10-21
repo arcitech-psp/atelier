@@ -17,6 +17,9 @@ param(
 )
 $ErrorActionPreference = "Stop"
 $repo = (Resolve-Path "$PSScriptRoot\..").Path
+$node = (Get-Command node -ErrorAction Stop).Source
+& $node "$repo\scripts\check-private-strings.mjs" --root $repo
+if ($LASTEXITCODE -ne 0) { throw "Private string check failed; release build stopped." }
 $out = "$repo\dist-release"
 $version = ((Get-Content "$repo\package.json" -Raw | ConvertFrom-Json).version) -replace '-preview$', ''
 New-Item -ItemType Directory -Force $out | Out-Null
