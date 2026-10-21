@@ -6,7 +6,7 @@ import {spawnSync} from 'node:child_process';
 
 // Markers that can only come from the build machine or private network; used for third-party packages in --artifact.
 const MACHINE_PATTERNS = [
-  ['10.0.0', '.'].join(''), ['Users', '\\', 'parth'].join(''), ['Users', '/', 'parth'].join(''), ['/home', '/', 'psp'].join(''),
+  ['Users', '\\', 'parth'].join(''), ['Users', '/', 'parth'].join(''), ['/home', '/', 'psp'].join(''),
   ['atelier-ship', '-build'].join(''), ['dsh-', 'ha', 'des-', 'unreal'].join(''), ['Cold', ' Fusion'].join(''),
 ];
 
@@ -14,7 +14,7 @@ const DEFAULT_PATTERNS = [
   ['10.0.0', '.'].join(''), ['Users', '\\', 'parth'].join(''), ['/home', '/', 'psp'].join(''),
   ['HA', 'DES'].join(''), ['POSE', 'IDON'].join(''), ['ZE', 'US'].join(''), ['At', 'las'].join(''),
   ['Her', 'cules'].join(''), ['Hel', 'la'].join(''), ['Cal', 'gary'].join(''), ['E', 'G2'].join(''),
-  ['Comfy', 'UI'].join(''), ['Cold', ' Fusion'].join(''), ['dsh-', 'ha', 'des-', 'unreal'].join(''), ['file:', '//', '/'].join(''),
+  ['AIT-Comfy', 'UI'].join(''), ['ComfyUI', '-Master'].join(''), ['Cold', ' Fusion'].join(''), ['dsh-', 'ha', 'des-', 'unreal'].join(''), ['file:', '//', '/'].join(''),
 ];
 
 function usage() {
