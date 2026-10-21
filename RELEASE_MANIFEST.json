@@ -37,6 +37,12 @@
       "license": "PolyForm-Shield-1.0.0"
     },
     {
+      "name": "@arcitech/atelier-search",
+      "version": "0.1.0-preview",
+      "path": "public/atelier-search",
+      "license": "PolyForm-Shield-1.0.0"
+    },
+    {
       "name": "@deepseek-ai/cordis",
       "version": "4.0.1",
       "path": "harness/vendor/cordis",

@@ -32,6 +32,7 @@
     "@deepseek-ai/dsh-client-connection": "workspace:^",
     "@deepseek-ai/dsh-home-paths": "workspace:^",
     "@deepseek-ai/dsh-settings": "workspace:^",
-    "@deepseek-ai/dsh-credentials": "workspace:^"
+    "@deepseek-ai/dsh-credentials": "workspace:^",
+    "@arcitech/atelier-search": "workspace:*"
   }
 }
