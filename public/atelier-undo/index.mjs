@@ -32,14 +32,22 @@ function walk(root,limit=LIMITS) {
   }; visit(root); return {files,skipped,bytes};
 }
 function argsOf(exec){if(typeof exec.arguments==='string'){try{return JSON.parse(exec.arguments)}catch{return {text:exec.arguments}}}return exec.arguments??{};}
+// Tools that can change files. Everything else (read, grep, glob, web, knowledge, todo...) passes through untouched:
+// snapshotting every call meant two full scans of the workspace (up to 2000 files / 64 MB) around each read.
+export const MUTATING=/(?:^|_)(?:write|edit|patch|move|rename|delete|remove|mkdir|notebook|bash|pwsh|powershell|shell|exec|command|terminal)/i;
+const SHELL=/(?:^|_)(?:bash|pwsh|powershell|shell|exec|command|terminal)/i;
 function rootsFor(exec){
-  const a=argsOf(exec), candidates=[a.cwd,a.workdir,a.directory,exec.cwd,exec.agent?.cwd,exec.agent?.workdir];
-  for(const key of ['path','filePath','filename','file','target'])if(typeof a[key]==='string'&&isAbsolute(a[key])){candidates.push(a[key]);try{candidates.push(statSync(a[key]).isDirectory()?a[key]:dirname(a[key]));}catch{candidates.push(dirname(a[key]));}}
-  for(const paths of [a.paths,a.files])if(Array.isArray(paths))for(const p of paths)if(typeof p==='string'&&isAbsolute(p))candidates.push(p,dirname(p));
+  const a=argsOf(exec), name=String(exec?.name??'');
+  const targets=[];
+  for(const key of ['path','filePath','file_path','filename','file','target','destination','source'])if(typeof a[key]==='string'&&isAbsolute(a[key]))targets.push(a[key]);
+  for(const paths of [a.paths,a.files])if(Array.isArray(paths))for(const p of paths)if(typeof p==='string'&&isAbsolute(p))targets.push(p);
+  // A file-targeted tool: snapshot exactly those files (a missing file is a creation; its parent is not scanned).
+  if(targets.length&&!SHELL.test(name))return [...new Set(targets.map(x=>resolve(x)))];
+  const candidates=[...targets,a.cwd,a.workdir,a.directory,exec.cwd,exec.agent?.cwd,exec.agent?.workdir,exec.agent?.session?.header?.cwd,exec.agent?.session?.cwd];
   const text=[typeof exec.arguments==='string'?exec.arguments:'',...Object.values(a).filter(v=>typeof v==='string')].join('\n');
   for(const m of text.matchAll(/(?:FILES YOU MAY EDIT|JOB SCOPE|WORKING DIRECTORY|CWD):\s*([^\r\n]+)/gi)) for(const bit of m[1].split(/[;,]/)) if(isAbsolute(bit.trim())) candidates.push(bit.trim());
-  const roots=[...new Set(candidates.filter(x=>typeof x==='string'&&isAbsolute(x)).map(x=>resolve(x)))];
-  return roots.length?roots:[process.cwd()];
+  // No known folder: no snapshot (never the host's own install folder).
+  return [...new Set(candidates.filter(x=>typeof x==='string'&&isAbsolute(x)).map(x=>resolve(x)))];
 }
 function turnKey(exec){const agent=exec.agent;const events=agent?.session?.events??[];let start;for(let i=events.length-1;i>=0;i--)if(events[i]?.type==='turn/start'){start=events[i];break;}return String(agent?.session?.id??agent?.id??'session')+':'+String(start?.seq??start?.data?.turn??'active');}
 function saveBlob(store,data){const h=hash(data),p=blobPath(store,h);mkdirSync(dirname(p),{recursive:true});if(!existsSync(p))writeFileSync(p,data,{flag:'wx'});return h;}
@@ -48,11 +56,12 @@ function persist(store,m){mkdirSync(join(store,'turns'),{recursive:true});writeF
 
 /** Reusable store API; the scope is scanned before and after the supplied operation. */
 export function createTurnUndo({store=STORE,limits=LIMITS}={}) {
+  const storeDir=store;
   const active=new Map();
   async function around(exec,next){
     const key=turnKey(exec);let state=active.get(key);
     if(!state){const events=exec.agent?.session?.events??[];const start=[...events].reverse().find(e=>e?.type==='turn/start');const lastAssistant=[...events].reverse().find(e=>e?.type==='assistant/message');state={id:randomUUID(),key,sessionId:exec.agent?.session?.id??null,turnNumber:start?.data?.turn??null,assistantMessageId:lastAssistant?.data?.message?.id??null,startedAt:new Date().toISOString(),entries:new Map(),skipped:[],roots:[],status:'recording'};active.set(key,state);}
-    const roots=rootsFor(exec);state.roots=[...new Set([...state.roots,...roots])];
+    const roots=rootsFor(exec);if(!roots.length)return next();state.roots=[...new Set([...state.roots,...roots])];
     const before=new Map();
     const recordSkipped=(items,root)=>{for(const item of items){if(state.skipped.length<1000)state.skipped.push({...item,root});else{state.skippedOverflow??={};state.skippedOverflow[item.reason]=(state.skippedOverflow[item.reason]??0)+1;}}};
     for(const root of roots){const scan=walk(root,limits);recordSkipped(scan.skipped,root);for(const [p,v] of scan.files)before.set(p,v);}
@@ -84,12 +93,13 @@ export function createTurnUndo({store=STORE,limits=LIMITS}={}) {
     }
     m.status='undone';m.undoneAt=new Date().toISOString();m.archive=archive;persist(store,m);return {ok:true,archive,files:Object.keys(m.entries).length};
   }
-  return {around,finish,undo,latest,active};
+  function matching(sessionId,messageId){const dir=join(store,'turns');if(!existsSync(dir))return [];return readdirSync(dir).filter(f=>f.endsWith('.json')).map(f=>loadManifest(store,f.slice(0,-5))).filter(m=>m.status==='finished'&&m.sessionId===sessionId&&m.assistantMessageId===messageId);}
+  return {around,finish,undo,latest,active,matching,store:storeDir};
 }
 
 export function apply(ctx, config = {}){
   const engine=createTurnUndo({store: config.store ?? STORE});
-  ctx.on('tools/execute',(exec,next)=>exec?.name==='undo_turn'?next():engine.around(exec,next));
+  ctx.on('tools/execute',(exec,next)=>exec?.name==='undo_turn'||!MUTATING.test(String(exec?.name??''))?next():engine.around(exec,next));
   const schema={type:'object',properties:{turnId:{type:'string'}},additionalProperties:false};
   const tool={name:'undo_turn',description:'Undo a completed tool turn. Restores its pre-turn files and archives the post-turn versions. Refuses if a later turn changed those files.',parameters:schema,execute(args){const id=args?.turnId??engine.latest();if(!id)return {text:'No undoable turn was found.'};return engine.undo(id);},output:{schema:{type:'object'},render:(_a,v)=>[{type:'text',text:v.message??(v.ok?`Turn restored. ${v.files} file(s) moved to archive ${v.archive}.`:'Undo failed.')} ]}};
   if(ctx.effect)ctx.effect(()=>ctx.tools.register(tool));else ctx.tools?.register?.(tool);
@@ -99,7 +109,7 @@ export function apply(ctx, config = {}){
     if(req.method!=='POST'){res.writeHead(405,{allow:'POST'});res.end();return;}
     let body='';for await(const c of req){body+=c;if(body.length>4096){res.writeHead(413);res.end();return;}}
     try{const input=JSON.parse(body);let id=input.turnId;if(!id&&typeof input.sessionId==='string'&&typeof input.messageId==='string'){
-      const matches=readdirSync(join(STORE,'turns')).filter(f=>f.endsWith('.json')).map(f=>loadManifest(STORE,f.slice(0,-5))).filter(m=>m.status==='finished'&&m.sessionId===input.sessionId&&m.assistantMessageId===input.messageId);
+      const matches=engine.matching(input.sessionId,input.messageId);
       if(matches.length!==1){res.writeHead(matches.length?409:404,{'content-type':'application/json'});res.end(JSON.stringify({ok:false,message:matches.length?'More than one turn matches this message.':'No completed turn matches this message.'}));return;}id=matches[0].id;
     }if(typeof id!=='string')throw Error();const result=engine.undo(id);res.writeHead(result.ok?200:409,{'content-type':'application/json','cache-control':'no-store'});res.end(JSON.stringify(result));}catch{res.writeHead(400,{'content-type':'application/json'});res.end(JSON.stringify({ok:false,message:'Invalid turn id.'}));}
   }}));

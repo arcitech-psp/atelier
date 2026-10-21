@@ -3,7 +3,7 @@ import {mkdtempSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, wri
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {test} from 'node:test';
-import {createTurnUndo} from '../index.mjs';
+import {MUTATING, apply, createTurnUndo} from '../index.mjs';
 
 const fixture = () => {
   const root = mkdtempSync(join(tmpdir(), 'atelier-undo-'));
@@ -56,5 +56,31 @@ test('undo refuses if a file changed after the completed turn', async () => {
     writeFileSync(file, 'later');
     assert.match(undo.undo(id).message, /changed since this turn/);
     assert.equal(readFileSync(file, 'utf8'), 'later');
+  } finally { f.close(); }
+});
+
+test('only file-changing tools are snapshotted', () => {
+  for (const name of ['write', 'edit', 'apply_patch', 'bash', 'pwsh', 'exec_command']) assert.ok(MUTATING.test(name), name);
+  for (const name of ['read', 'grep', 'glob', 'web_search', 'web_fetch', 'knowledge_grep', 'todo_write'.replace('_write', ''), 'skill']) assert.ok(!MUTATING.test(name), name);
+});
+
+test('a file-targeted edit snapshots only that file, and a tool without a folder is not scanned', async () => {
+  const f = fixture();
+  try {
+    mkdirSync(f.files);
+    const target = join(f.files, 'target.txt'), neighbour = join(f.files, 'neighbour.txt');
+    writeFileSync(target, 'before'); writeFileSync(neighbour, 'untouched');
+    const session = {id: 's2', events: [{type: 'turn/start', seq: 5, data: {turn: 1}}]};
+    const undo = createTurnUndo({store: f.store});
+    await undo.around({name: 'edit', arguments: {path: target}, agent: {session}}, async () => writeFileSync(target, 'after'));
+    let ran = false;
+    await undo.around({name: 'bash', arguments: {command: 'true'}, agent: {session: {id: 's3', events: []}}}, async () => { ran = true; });
+    assert.equal(ran, true);
+    const id = undo.finish('s2:5', {session}, 1);
+    const manifest = JSON.parse(readFileSync(join(f.store, 'turns', `${id}.json`), 'utf8'));
+    assert.deepEqual(Object.keys(manifest.entries), [target]);
+    assert.equal(undo.undo(id).ok, true);
+    assert.equal(readFileSync(target, 'utf8'), 'before');
+    assert.equal(readFileSync(neighbour, 'utf8'), 'untouched');
   } finally { f.close(); }
 });
