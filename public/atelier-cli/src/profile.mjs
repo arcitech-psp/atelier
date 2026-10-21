@@ -13,8 +13,12 @@ import {mutateSettings, readCliState, readSettings, writeCliState} from './setti
 export const PROFILES = [
   {id: 'vitruvius', name: 'Vitruvius', description: 'The full design assistant, on your own model.'},
   {id: 'vitruvius-zero', name: 'Vitruvius Zero', description: 'The lightest start, for small local models and modest computers.'},
+  {id: 'einsteinium', name: 'Einsteinium', description: 'Research codes, regulations and data for any jurisdiction you name, with sources.'},
+  {id: 'picaso', name: 'Picaso', description: 'Image concepts, moodboards and presentation direction.'},
+  {id: 'hydra', name: 'Hydra', description: 'Plan, write, debug and review code in your project workspace.'},
   {id: 'cloud', name: 'Cloud', description: 'Vitruvius on cloud AI (OmniRoute free tiers, your keys or your ChatGPT plan). Your messages leave this computer.'},
 ];
+const AGENT_PRESETS = new Set(['vitruvius', 'vitruvius-zero', 'einsteinium', 'picaso', 'hydra']);
 
 const CLOUD_BRIDGE = '127.0.0.1:18345';
 const cloudSettings = () => parseYaml(readFileSync(join(APP_ROOT, 'profiles', 'cloud', 'settings.yaml'), 'utf8'));
@@ -24,7 +28,8 @@ export function currentProfile(settings) {
   const pick = settings?.['agent-default-model'];
   const provider = pick?.provider && settings?.['llm-pi-ai']?.providers?.[pick.provider];
   if (provider && String(provider.baseURL ?? '').includes(CLOUD_BRIDGE)) return 'cloud';
-  return settings?.['agent-presets']?.default === 'vitruvius-zero' ? 'vitruvius-zero' : 'vitruvius';
+  const preset = settings?.['agent-presets']?.default;
+  return AGENT_PRESETS.has(preset) ? preset : 'vitruvius';
 }
 
 export function listProfiles(home) {
@@ -77,6 +82,6 @@ export async function useProfile(home, id) {
     if (currentProfile(after) === 'cloud') notes.push('No model of your own is set yet. Connect one with: atelier roles set brain --url <address> --model <name>');
     else notes.push(`New chats use your own model again (${after['agent-default-model']?.model}).`);
   }
-  notes.push(id === 'vitruvius-zero' ? 'New chats start in Vitruvius Zero, the lightest profile.' : 'New chats start in Vitruvius.');
+  notes.push(`New chats start in ${PROFILES.find(p => p.id === id).name}${id === 'vitruvius-zero' ? ', the lightest profile' : ''}.`);
   return {profile: id, notes};
 }

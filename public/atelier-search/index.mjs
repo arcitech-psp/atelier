@@ -63,7 +63,9 @@ export class SearxngSearchProvider {
     this.fetchImpl = fetchImpl;
   }
 
-  available() { return Boolean(this.getConfig()?.baseUrl) && typeof this.fetchImpl === 'function'; }
+  // Always selectable, so a missing URL reaches search() and the model gets the plain
+  // "web search is not configured" instead of the registry's generic "registered but unavailable".
+  available() { return typeof this.fetchImpl === 'function'; }
 
   async search(request, signal) {
     const query = String(request?.query ?? '').trim();

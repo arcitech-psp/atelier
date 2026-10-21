@@ -20,7 +20,7 @@ test('bounds results, clips snippets and removes duplicate or unsafe URLs', () =
 
 test('reports an absent endpoint in plain language', async () => {
   const provider = new SearxngSearchProvider(() => ({}));
-  assert.equal(provider.available(), false);
+  assert.equal(provider.available(), true);
   await assert.rejects(provider.search({query: 'test'}), /web search is not configured/);
 });
 

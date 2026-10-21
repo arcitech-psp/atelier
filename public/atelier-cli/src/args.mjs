@@ -46,10 +46,10 @@ export const COMMANDS = {
   },
   profile: {
     summary: 'see or choose the profile new chats start in',
-    usage: 'atelier profile list [--json] | use <vitruvius|vitruvius-zero|cloud>',
+    usage: 'atelier profile list [--json] | use <vitruvius|vitruvius-zero|einsteinium|picaso|hydra|cloud>',
     actions: {
       list: {options: {json: {kind: 'bool'}}, positionals: [0, 0]},
-      use: {options: {}, positionals: [1, 1], names: ['name'], choices: ['vitruvius', 'vitruvius-zero', 'cloud']},
+      use: {options: {}, positionals: [1, 1], names: ['name'], choices: ['vitruvius', 'vitruvius-zero', 'einsteinium', 'picaso', 'hydra', 'cloud']},
     },
   },
   settings: {

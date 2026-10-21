@@ -1,6 +1,6 @@
 # Atelier documentation
 
-Atelier is a studio assistant for architects, interior designers and students. You describe the project; it works through it with you one visible step at a time, on your own computer. This is the documentation for the **public preview (0.1.0-preview)**, now available free for Windows, Linux and WSL from the [Releases page](https://github.com/arcitech-psp/atelier/releases).
+Atelier is a studio assistant for architects, interior designers and students. You describe the project; it works through it with you one visible step at a time, on your own computer. This is the documentation for the **public preview (0.2.0-preview)**, now available free for Windows, Linux and WSL from the [Releases page](https://github.com/arcitech-psp/atelier/releases).
 
 Read in this order the first time:
 
@@ -25,7 +25,7 @@ Read in this order the first time:
 
 ## What is in this preview, honestly
 
-| Part | State in 0.1.0-preview |
+| Part | State in 0.2.0-preview |
 |---|---|
 | Atelier app and the Vitruvius profile | Ready. Fresh install and a first chat tested on Windows 11. |
 | Vitruvius Zero (light profile for small models) | New. About half the startup text of Vitruvius. Tested on a 27B model; small-model runs still to come. |
