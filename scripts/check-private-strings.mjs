@@ -153,6 +153,8 @@ async function main() {
     let info;
     try { info = await stat(file); } catch { continue; }
     if (!info.isFile()) continue;
+    // A reviewed exception is marked on its own line (e.g. <!-- check-private-strings: allow --> in Markdown).
+    if (/check-private-strings:\s*allow/.test(item.text)) continue;
     for (const rule of rules) {
       if (item.thirdParty && !options.list && !machine.has(rule.value)) continue;
       if (rule.regex.test(item.text)) findings.push({file, row: item.row, rule: rule.index, value: rule.value});

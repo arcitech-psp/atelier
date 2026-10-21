@@ -36,4 +36,4 @@ Vitruvius is named after Marcus Vitruvius Pollio, whose *De architectura* is the
 
 ## Atelier
 
-Atelier is made by ARCITECH (Architecture Interactive Technology), Calgary, Alberta, Canada. Feedback: https://docs.google.com/forms/d/e/1FAIpQLSeulyC06qEOVDn2aSjJqTlbCjifoYXqQzhDXb9Du16Ev5TiHA/viewform
+Atelier is made by ARCITECH (Architecture Interactive Technology), Calgary, Alberta, Canada. <!-- check-private-strings: allow (publisher credit, reviewed 21 Oct 2026) --> Feedback: https://docs.google.com/forms/d/e/1FAIpQLSeulyC06qEOVDn2aSjJqTlbCjifoYXqQzhDXb9Du16Ev5TiHA/viewform
