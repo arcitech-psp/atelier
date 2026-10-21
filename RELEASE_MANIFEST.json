@@ -1376,6 +1376,12 @@
       "version": "3.18.1",
       "path": "harness/vendor/schemastery",
       "license": "MIT"
+    },
+    {
+      "name": "@arcitech/atelier-undo",
+      "version": "0.1.0-preview",
+      "path": "public/atelier-undo",
+      "license": "PolyForm-Shield-1.0.0"
     }
   ],
   "transformations": [
@@ -12548,6 +12554,19 @@
           "harness/packages/preset/agent-presets/presets/hydra/preset.yml",
           "docs/profiles.md",
           "docs/README.md"
+        ]
+      },
+      {
+        "at": "2026-10-20",
+        "by": "atelier-undo",
+        "summary": "Turn-scoped file undo with archived post-turn copies, assistant message action, and named-consent shell guard in Atelier guardrails.",
+        "files": [
+          "public/atelier-undo",
+          "public/atelier-start/consent.mjs",
+          "public/atelier-start/index.mjs",
+          "public/atelier-start/client.js",
+          "docs/turn-undo.md",
+          "packaging/RELEASE_NOTES.md"
         ]
       }
     ]

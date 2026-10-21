@@ -29,7 +29,8 @@
     }
   },
   "dependencies": {
-    "yaml": "2.9.0"
+    "yaml": "2.9.0",
+    "@arcitech/atelier-undo": "workspace:*"
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": "workspace:^",

@@ -7198,6 +7198,9 @@ importers:
 
   public/atelier-start:
     dependencies:
+      '@arcitech/atelier-undo':
+        specifier: workspace:*
+        version: link:../atelier-undo
       '@deepseek-ai/cordis':
         specifier: workspace:^
         version: link:../../harness/vendor/cordis
@@ -7216,6 +7219,24 @@ importers:
       yaml:
         specifier: 2.9.0
         version: 2.9.0
+
+  public/atelier-undo:
+    dependencies:
+      '@deepseek-ai/cordis':
+        specifier: workspace:^
+        version: link:../../harness/vendor/cordis
+      '@deepseek-ai/dsh-client-connection':
+        specifier: workspace:^
+        version: link:../../harness/packages/client/connection
+      '@deepseek-ai/dsh-home-paths':
+        specifier: workspace:^
+        version: link:../../harness/packages/util/home-paths
+      '@deepseek-ai/dsh-host-webserver':
+        specifier: workspace:^
+        version: link:../../harness/packages/host/webserver
+      '@deepseek-ai/dsh-tools':
+        specifier: workspace:^
+        version: link:../../harness/packages/core/tools
 
   public/atelier-updates:
     dependencies:

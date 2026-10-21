@@ -14,13 +14,14 @@ Read in this order the first time:
 5. [Knowledge shelf](knowledge.md): save source-backed notes locally and recall them in later chats.
 6. [Connecting IngeTrazo](ingetrazo.md): live modelling in a real 3D drawing.
 7. [Saving and reopening work](saving-and-reopening.md): where chats, boards and geometry are kept.
-8. [Exporting to Unreal Engine](export-to-unreal.md): IngeTrazo to GLB to Unreal, at real scale.
-9. [Skills on demand](skills.md): how Vitruvius (and Vitruvius Zero) stays light, and how to write your own skill.
-10. [Bottega: team mode](BOTTEGA.md): share one Atelier with colleagues on your office network, paired once with a code. Off by default.
-11. [Troubleshooting](troubleshooting.md) and the [FAQ](FAQ.md)
-12. [Licence in plain words](licence.md)
-13. [Credits](credits.md): the projects Atelier is built on.
-14. For maintainers: [Following DSH releases](UPSTREAM_SYNC.md).
+8. [Undo a turn](turn-undo.md): restore changed files and keep the post-turn copies.
+9. [Exporting to Unreal Engine](export-to-unreal.md): IngeTrazo to GLB to Unreal, at real scale.
+10. [Skills on demand](skills.md): how Vitruvius (and Vitruvius Zero) stays light, and how to write your own skill.
+11. [Bottega: team mode](BOTTEGA.md): share one Atelier with colleagues on your office network, paired once with a code. Off by default.
+12. [Troubleshooting](troubleshooting.md) and the [FAQ](FAQ.md)
+13. [Licence in plain words](licence.md)
+14. [Credits](credits.md): the projects Atelier is built on.
+15. For maintainers: [Following DSH releases](UPSTREAM_SYNC.md).
 
 ## What is in this preview, honestly
 

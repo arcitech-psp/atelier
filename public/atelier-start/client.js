@@ -62,6 +62,27 @@ window.__ModuleLoader__.load({id: '@arcitech/atelier-start', factory: require =>
     requestAnimationFrame(() => requestAnimationFrame(run));
   };
 
+  function UndoTurnAction({messageId, sessionId}) {
+    const [busy, setBusy] = useState(false), [notice, setNotice] = useState('');
+    async function undo() {
+      if (busy) return;
+      setBusy(true); setNotice('');
+      try {
+        const response = await fetch('/api/turn-undo', {method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify({sessionId, messageId})});
+        const result = await response.json();
+        setNotice(result.ok ? 'Turn undone.' : result.message ?? 'Undo failed.');
+      } catch { setNotice('Undo service unavailable.'); }
+      finally { setBusy(false); }
+    }
+    return h('span', {style: {display: 'inline-flex', alignItems: 'center'}},
+      h('button', {type: 'button', title: busy ? 'Undoing…' : 'Undo turn', disabled: busy, 'aria-busy': busy || undefined, 'aria-label': 'Undo turn', 'data-turn-undo': '', onClick: () => void undo(), style: {
+        display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, padding: 6,
+        border: 0, borderRadius: 28, background: 'transparent', color: 'var(--dsw-alias-label-tertiary)', cursor: busy ? 'default' : 'pointer', opacity: busy ? 0.4 : 1,
+      }}, h('svg', {width: 16, height: 16, viewBox: '0 0 16 16', fill: 'none', stroke: 'currentColor', strokeWidth: 1.4, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true},
+        h('path', {d: 'M5 2.6 1.8 5.8 5 9'}), h('path', {d: 'M2.2 5.8h7.6a4.1 4.1 0 0 1 0 8.2H6.2'}))),
+      notice ? h('span', {role: 'status', style: {paddingLeft: 4, color: 'var(--dsw-alias-label-tertiary)', fontSize: 13, whiteSpace: 'nowrap'}}, notice) : null);
+  }
+
   const ago = time => {
     if (!Number.isFinite(time)) return '';
     const seconds = (Date.now() - time) / 1000;
@@ -119,6 +140,10 @@ window.__ModuleLoader__.load({id: '@arcitech/atelier-start', factory: require =>
   };
 
   exports.apply = ctx => {
+    ctx.slots.inject('conversation.chat.assistant-actions', () => ctx.slots.register({
+      name: 'conversation.chat.assistant-actions', id: 'turn-undo', order: 90,
+      inject: sessionId => ({sessionId: String(sessionId)}),
+    }, UndoTurnAction));
     const list = ctx.sessions.list;
     const subscribe = listener => list.subscribe(listener);
     const snapshot = () => list.getSnapshot();
