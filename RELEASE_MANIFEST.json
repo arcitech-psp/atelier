@@ -1366,6 +1366,12 @@
       "version": "3.18.1",
       "path": "harness/vendor/schemastery",
       "license": "MIT"
+    },
+    {
+      "name": "@arcitech/atelier-fleet-config",
+      "version": "0.1.0-preview",
+      "path": "public/atelier-fleet-config",
+      "license": "PolyForm-Shield-1.0.0"
     }
   ],
   "transformations": [
