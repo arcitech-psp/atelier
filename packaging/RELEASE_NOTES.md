@@ -56,3 +56,4 @@ Feedback goes through the [feedback form](https://docs.google.com/forms/d/e/1FAI
 - Adds a jurisdiction-neutral bylaw research profile; no local bylaw library is bundled.
 - Private CAD application connectors are omitted; the profile works with supplied files and public tools.
 - Private 3D application connectors are omitted; no live scene editing is claimed.
+- Private CAD application connectors are omitted; the profile can prepare plans and scripts from supplied files.
