@@ -18,7 +18,8 @@
     "freecad",
     "ems",
     "marco-polo",
-    "dsh-assist"
+    "dsh-assist",
+    "dsh-coder"
   ],
   "launcherProfiles": [
     "web",
