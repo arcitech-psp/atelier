@@ -55,3 +55,4 @@ Feedback goes through the [feedback form](https://docs.google.com/forms/d/e/1FAI
 - Adds jurisdiction-neutral, source-first research for codes, regulations, documents and data.
 - Adds a jurisdiction-neutral bylaw research profile; no local bylaw library is bundled.
 - Private CAD application connectors are omitted; the profile works with supplied files and public tools.
+- Private 3D application connectors are omitted; no live scene editing is claimed.
