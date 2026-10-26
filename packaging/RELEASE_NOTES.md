@@ -61,3 +61,4 @@ Feedback goes through the [feedback form](https://docs.google.com/forms/d/e/1FAI
 - Adds Marco Polo for citation-first web research through the user's configured provider.
 - Adds DSH Assist for bounded file-based support work with public workspace tools.
 - Adds DSH Code Proposals as a no-tools profile for reviewed, packet-based coding work.
+- Updates Standard with portable file and configured web tools and no machine-specific assumptions.
