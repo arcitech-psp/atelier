@@ -59,3 +59,4 @@ Feedback goes through the [feedback form](https://docs.google.com/forms/d/e/1FAI
 - Private CAD application connectors are omitted; the profile can prepare plans and scripts from supplied files.
 - Adds EMS as a flexible profile using public file and web tools configured by the user.
 - Adds Marco Polo for citation-first web research through the user's configured provider.
+- Adds DSH Assist for bounded file-based support work with public workspace tools.
