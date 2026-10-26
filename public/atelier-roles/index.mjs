@@ -53,10 +53,11 @@ export function apply(ctx, config = {}) {
   const file = join(root, 'roles.json');
   const status = new Map();
   let settings;   // the harness settings service, once mounted
-  let saved = {roles: {}, kit: {}};
+  let saved = {roles: {}, kit: {}, missionAssignments: {}};
+  let ready = Promise.resolve();
 
   const load = async () => {
-    try { saved = {roles: {}, kit: {}, ...JSON.parse(await readFile(file, 'utf8'))}; }
+    try { saved = {roles: {}, kit: {}, missionAssignments: {}, ...JSON.parse(await readFile(file, 'utf8'))}; }
     catch (e) { if (e.code !== 'ENOENT') ctx.logger?.warn?.('atelier-roles: could not read roles.json: %s', e.message); }
     return saved;
   };
@@ -97,11 +98,13 @@ export function apply(ctx, config = {}) {
       const found = routeEndpoint(provider, model);
       if (!found) return {baseURL: '', model, route: provider, managed: true, preset: saved.roles.brain?.preset, source: 'models'};
       if (found.baseURL.includes('YOUR_OPENAI_COMPATIBLE_HOST')) return undefined;
-      return {...found, preset: saved.roles.brain?.preset, source: provider === BRAIN_ROUTE ? (saved.roles.brain?.source ?? 'roles') : 'models'};
+      return {...found, preset: saved.roles.brain?.preset, source: provider === BRAIN_ROUTE ? (saved.roles.brain?.source ?? 'roles') : 'models',
+        deviceId: saved.roles.brain?.deviceId, gpuId: saved.roles.brain?.gpuId};
     }
     if (id === 'helper') {
       const found = routeEndpoint(HELPER_ROUTE);
-      return found ? {...found, preset: saved.roles.helper?.preset, source: saved.roles.helper?.source ?? 'roles'} : undefined;
+      return found ? {...found, preset: saved.roles.helper?.preset, source: saved.roles.helper?.source ?? 'roles',
+        deviceId: saved.roles.helper?.deviceId, gpuId: saved.roles.helper?.gpuId} : undefined;
     }
     const role = saved.roles[id];
     if (role?.baseURL) return role;
@@ -111,9 +114,9 @@ export function apply(ctx, config = {}) {
   const brainReadsImages = () => current('brain')?.vision === true;
 
   // ---------- writing a role ----------
-  async function writeRoute(route, {baseURL, model, vision, contextWindow, displayName}) {
+  async function writeRoute(route, {baseURL, model, vision, contextWindow, displayName, apiKeyEnv}) {
     const models = [{id: model, name: model, contextWindow: contextWindow || 32768, maxTokens: Math.min(8192, contextWindow || 32768), input: vision ? ['text', 'image'] : ['text']}];
-    await settings.mutate(LLM, [{op: 'set', path: ['providers', route], value: {displayName, api: 'openai-completions', baseURL, apiKeyEnv: keyRefFor(route === BRAIN_ROUTE ? 'brain' : 'helper'), models}}]);
+    await settings.mutate(LLM, [{op: 'set', path: ['providers', route], value: {displayName, api: 'openai-completions', baseURL, apiKeyEnv: apiKeyEnv || keyRefFor(route === BRAIN_ROUTE ? 'brain' : 'helper'), models}}]);
   }
   async function save(id, input, source = 'roles') {
     const role = roleById(id); if (!role) throw Error('Unknown role.');
@@ -124,14 +127,16 @@ export function apply(ctx, config = {}) {
     const contextWindow = Number.isInteger(input.contextWindow) && input.contextWindow >= 2048 ? input.contextWindow : undefined;
     if (id === 'brain' || id === 'helper') {
       if (!settings) throw Error('Settings are not available in this Atelier mode.');
-      // A server without a key still needs a value for the OpenAI client; it is stored locally like any key.
-      if (!(await readKey(id))) await storeKey(id, 'not-needed');
-      await writeRoute(id === 'brain' ? BRAIN_ROUTE : HELPER_ROUTE, {baseURL, model, vision: input.vision === true, contextWindow,
+      const apiKeyEnv = text(input.apiKeyEnv, 160) || keyRefFor(id);
+      // Local endpoints may not need a key; the placeholder stays in the private credential store, never in the profile.
+      if (apiKeyEnv === keyRefFor(id) && !(await readKey(id))) await storeKey(id, 'not-needed');
+      await writeRoute(id === 'brain' ? BRAIN_ROUTE : HELPER_ROUTE, {baseURL, model, vision: input.vision === true, contextWindow, apiKeyEnv,
         displayName: id === 'brain' ? 'Brain (Model roles)' : 'Small helper (Model roles)'});
       if (id === 'brain') { await settings.mutate(DEFAULT_MODEL, [{op: 'set', path: ['provider'], value: BRAIN_ROUTE}, {op: 'set', path: ['model'], value: model}]); await dropPlaceholder(); }
-      saved.roles[id] = {preset: text(input.preset, 40), source};
+      saved.roles[id] = {preset: text(input.preset, 40), source, deviceId: text(input.deviceId, 80) || undefined, gpuId: text(input.gpuId, 100) || undefined};
     } else {
-      saved.roles[id] = {baseURL, model, preset: text(input.preset, 40), voice: text(input.voice, 80) || undefined, source};
+      saved.roles[id] = {baseURL, model, preset: text(input.preset, 40), voice: text(input.voice, 80) || undefined, source,
+        deviceId: text(input.deviceId, 80) || undefined, gpuId: text(input.gpuId, 100) || undefined};
     }
     await persist(); status.delete(id);
   }
@@ -280,7 +285,20 @@ export function apply(ctx, config = {}) {
   const service = {
     roles: ROLE_IDS,
     /** The role's address and model (no key), or undefined when the role is not set. */
-    peek: id => { const cfg = current(id); return cfg?.baseURL ? {baseURL: cfg.baseURL, model: cfg.model, voice: cfg.voice} : undefined; },
+    peek: id => { const cfg = current(id); return cfg?.baseURL ? {baseURL: cfg.baseURL, model: cfg.model, voice: cfg.voice, vision: cfg.vision, contextWindow: cfg.contextWindow, apiKeyEnv: cfg.apiKeyEnv, deviceId: cfg.deviceId, gpuId: cfg.gpuId} : undefined; },
+    assign: async (id, input) => {
+      const existing = current(id), sameOrigin = existing?.baseURL && isUrl(existing.baseURL) && isUrl(input?.baseURL)
+        && new URL(existing.baseURL).origin === new URL(input.baseURL).origin;
+      const apiKeyEnv = input?.apiKeyEnv ?? (sameOrigin ? existing.apiKeyEnv : undefined);
+      return save(id, {...input, apiKeyEnv}, 'mission-control');
+    },
+    reset: async id => reset(id),
+    ready: () => ready,
+    missionAssignment: id => saved.missionAssignments?.[id] ?? undefined,
+    setMissionAssignment: async (id, assignment) => {
+      if (assignment) saved.missionAssignments[id] = assignment; else delete saved.missionAssignments[id];
+      await persist();
+    },
     isSet: id => Boolean(current(id)?.baseURL),
     brainReadsImages,
     /** fetch() against a role's endpoint with its stored key; path is appended to the role's base address. */
@@ -291,7 +309,8 @@ export function apply(ctx, config = {}) {
   ctx.provide('atelierRoles', service);
 
   ctx.effect(() => {
-    void load().then(() => kit.resume(saved.kit)).catch(e => ctx.logger?.warn?.('atelier-roles: %s', e.message));
+    ready = load().then(() => kit.resume(saved.kit));
+    void ready.catch(e => ctx.logger?.warn?.('atelier-roles: %s', e.message));
     return () => kit.dispose();
   });
   // The shipped settings.yaml carries a placeholder provider ("Not connected yet") so the harness always has a default

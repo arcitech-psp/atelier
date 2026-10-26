@@ -1,9 +1,10 @@
 # Mission Control: what this computer is doing, and what it costs
 
-Mission Control is the chip in the session header, next to **Canvas**. It shows your main model and whether it is loaded; press it to open the full panel. Everything in it is about **this computer only**. Nothing is sent anywhere.
+Mission Control is the chip in the session header, next to **Canvas**. It shows the current model and local usage; press it to open the panel. **Devices and services** is also available in Settings > General, before a chat starts. Device inventory and assignments stay in your Atelier config. Devices are checked at their configured addresses, and config is sent to a config server only when you press **Publish to clients**.
 
 | Panel | What it shows |
 |---|---|
+| **Devices and services** | Connected machine status, accelerator inventory, service health and the device/GPU assignment for each service. Add a read-only device agent to report accelerator memory. |
 | **Models** | Every model role you have set up (main model, helper, vision, embeddings...) with its state: loaded, loading, not loaded, offline. See [One graphics card, several models](ONE_GPU.md). |
 | **This computer** | Graphics card use, memory, temperature and power (NVIDIA cards, read with `nvidia-smi`), processor and memory use, and charts of the last ten minutes. |
 | **Tokens and speed** | Tokens and requests today and since Atelier started, writing speed (tokens per second), time to the first token, and how often a reply waited more than 15 seconds for a model to load. |
@@ -27,5 +28,25 @@ Your price, currency and estimate are kept in `atelier-mission/state.json` in yo
 ## What it reads
 
 - Tokens and timings come from the harness's own session events: the number of tokens each reply reported, and when it started and finished. Not the text.
-- The graphics card is read by running `nvidia-smi` on your computer. If it is not found, the panel says so and shows the processor and memory only. To switch card reading off completely, add `config: {readGpu: false}` to the `atelier-mission` entry in `cordis.patch.yml`.
-- Model state is read from your model server's own endpoints, about every 5 seconds while a chat is open. Atelier never loads or unloads a model by itself. If you want buttons for that, the optional [Brains](brains.md) section in Settings does it, only when you press them.
+- Graphics card readings use local driver data only: `nvidia-smi`, Intel `xpu-smi` when available, AMD `rocm-smi` when available, and Linux graphics sysfs. Unsupported readings stay unavailable instead of being guessed. On other systems without a supported local reader, the panel shows processor and memory only. To switch card reading off completely, add `config: {readGpu: false}` to the `atelier-mission` entry in `cordis.patch.yml`.
+- The current model state is read from your model server's own endpoints, about every 5 seconds while the panel is open. Assigned service health uses its configured health route, at most once per 30 seconds with backoff after failures. Atelier never loads or unloads a model by itself. If you want buttons for that, the optional [Brains](brains.md) section in Settings does it, only when you press them.
+
+## Devices and services
+
+The **Devices and services** panel is part of Mission Control. Add a device by its HTTP address. For accelerator inventory and memory, start the read-only device agent on that machine:
+
+```sh
+node public/atelier-mission/agent.mjs
+```
+
+It listens on loopback port 41920 by default. To let another machine query it, set `ATELIER_MISSION_AGENT_HOST` to a network interface and `ATELIER_MISSION_AGENT_PORT` to a reachable port before starting it. Then add `http://machine:41920` in Mission Control. The agent only answers `GET /api/atelier-mission/agent`; it does not run commands or manage models. Without the agent, a device address is checked directly and no GPU inventory is shown.
+
+Choose a service, device, accelerator, endpoint and the endpoint's own health route. Test checks that route; Save tests again unless a recent successful service check is still within the 30-second limit, then stores the assignment. Assignments are written to the existing Model roles configuration used by the harness, including device and accelerator IDs. Chat, image, speech and embeddings also update their active role endpoints; video, 3D and search retain the same assignment data for profile consumers. Each change writes `control.backup.json`; **Undo last change** restores the prior Mission Control config and, for a Model roles entry, its previous role config.
+
+Health checks are made at most once per service per 30 seconds. A failed check waits 60 seconds before the next attempt, doubling to a 15-minute ceiling. Device reachability is refreshed every 30 seconds.
+
+### Config server draft
+
+No `CONFIG-SCHEMA.md` was present in the shared reference folder when this page was written. The candidate schema is [config-server-schema-draft.json](config-server-schema-draft.json), version 1. The current hook uses `POST /api/config/publish` with `{schemaVersion, devices, assignments}` and `GET /api/config/current` with that document as the response. Confirm these paths and the schema with the config-server job before calling the contract final.
+
+Mission Control is also available at **Settings > General > Devices and services**, so device and service assignments work before a chat session starts.
