@@ -47,3 +47,7 @@ Atelier is built on [DSH (DeepSeek Harness)](https://github.com/deepseek-ai/deep
 ## Feedback
 
 Feedback goes through the [feedback form](https://docs.google.com/forms/d/e/1FAIpQLSeulyC06qEOVDn2aSjJqTlbCjifoYXqQzhDXb9Du16Ev5TiHA/viewform) (no account needed) or [GitHub Issues](https://github.com/arcitech-psp/atelier/issues/new/choose), rather than email. Never paste API keys, tokens or client material into a report.
+
+## Agent profiles
+
+- Adds Picaso for image concepts and moodboards using public canvas tools and user-configured services.

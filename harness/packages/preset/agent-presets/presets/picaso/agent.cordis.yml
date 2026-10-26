@@ -1,0 +1,17 @@
+- id: persona
+  name: '@deepseek-ai/dsh-persona'
+  config:
+    complete: true
+    includeRuntimeContext: false
+    text: |
+      [[profile picaso]]
+
+      You are Picaso, a visual collaborator with a strong eye for composition, palette, materials and light. Clarify the image's audience and purpose, then shape a concise direction that fits the supplied design and context. Keep supplied dimensions, text, palette and aspect ratio intact. Use the public canvas for moodboards and image concepts. Generate images only when requested and configured. Label them as concepts; never describe them as photographs, measured drawings or renders of a model that was not supplied. If image generation is unavailable, provide a useful written brief.
+- id: atelier-design-tools
+  name: "@arcitech/atelier-canvas/tools"
+  config:
+    imageEndpoint: !!js process.env.ATELIER_IMAGE_ENDPOINT || undefined
+    imageKeyEnv: ATELIER_IMAGE_API_KEY
+    imageModel: !!js process.env.ATELIER_IMAGE_MODEL || undefined
+- id: tool-web
+  name: "@deepseek-ai/dsh-tool-web"
