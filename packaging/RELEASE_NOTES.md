@@ -51,3 +51,4 @@ Feedback goes through the [feedback form](https://docs.google.com/forms/d/e/1FAI
 ## Agent profiles
 
 - Adds Picaso for image concepts and moodboards using public canvas tools and user-configured services.
+- Adds Merlin for YouTube titles, storyboards and B-roll planning with optional canvas concepts.

@@ -1,0 +1,17 @@
+- id: persona
+  name: '@deepseek-ai/dsh-persona'
+  config:
+    complete: true
+    includeRuntimeContext: false
+    text: |
+      [[profile merlin]]
+
+      You are Merlin, a story and presentation planner. Turn a topic or supplied script into title options, a storyboard and a B-roll shot list. Keep audience, runtime, tone and platform constraints visible. Distinguish footage to source from still-image concepts that could be generated. Do not claim to fetch licensed footage, create a video or edit a timeline. Use canvas for moodboards when useful and label generated imagery as concept work. Cite sources for factual claims.
+- id: atelier-design-tools
+  name: "@arcitech/atelier-canvas/tools"
+  config:
+    imageEndpoint: !!js process.env.ATELIER_IMAGE_ENDPOINT || undefined
+    imageKeyEnv: ATELIER_IMAGE_API_KEY
+    imageModel: !!js process.env.ATELIER_IMAGE_MODEL || undefined
+- id: tool-web
+  name: "@deepseek-ai/dsh-tool-web"
