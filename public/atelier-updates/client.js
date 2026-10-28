@@ -25,6 +25,19 @@ window.__ModuleLoader__.load({id: '@arcitech/atelier-updates', factory: require 
         try { setS(await call(endpoint, payload)); } catch (e) { setError(e.message); } finally { setBusy(''); }
       };
       if (!s) return h('section', {style: {padding: 4}}, h('p', null, error || 'Loading...'));
+      if (s.mode === 'channel') return h('section', {'data-atelier-channel-updates': '', style: {padding: 4, maxWidth: 640, overflowWrap: 'anywhere'}},
+        h('h3', null, `Atelier ${s.current || s.version || 'development'} · ${s.channel}`),
+        h('p', {style: muted}, `Checks the configured release service every ${Math.round(s.intervalMs / 60000)} minutes. Every release is signed and its files are checked before installation.`),
+        h('div', {style: row}, h('button', {type: 'button', disabled: !!busy || s.job.state !== 'idle', onClick: act('check', 'check')}, s.job.state === 'checking' ? 'Checking…' : 'Check now'),
+          s.lastCheck ? h('span', {style: muted}, `Last checked ${new Date(s.lastCheck).toLocaleString()}`) : null),
+        s.latest && s.latest !== s.current && s.latest !== s.pending ? h('div', {style: row},
+          h('span', null, `Version ${s.latest} is available.`), h('button', {type: 'button', disabled: !!busy || s.job.state !== 'idle', onClick: act('install', 'install')}, 'Download update')) : null,
+        s.pending ? h('div', {style: row}, h('span', null, `Version ${s.pending} is ready for the next launch.`), h('button', {type: 'button', disabled: !!busy, onClick: act('cancel', 'cancel')}, 'Cancel pending update')) : null,
+        s.previous && s.previous !== s.current && !s.pending ? h('button', {type: 'button', disabled: !!busy, onClick: act('rollback', 'rollback')}, `Roll back to ${s.previous} on next launch`) : null,
+        h('label', {style: row}, h('input', {type: 'checkbox', checked: s.auto, disabled: !!busy, onChange: e => act('auto', 'auto', {enabled: e.target.checked})()}), 'Download updates automatically; apply at the next launch.'),
+        s.githubTag ? h('p', {style: muted}, `GitHub signalled ${s.githubTag}. Only releases verified by your channel key can be installed.`) : null,
+        s.job.state === 'installing' ? h('p', null, 'Downloading and verifying…') : null,
+        s.job.error || error ? h('p', {role: 'alert'}, s.job.error || error) : null);
       const check = s.job.lastCheck, latest = check?.latest, state = s.install;
       const installed = s.mode === 'installed';
       const pending = state.pending && state.pending !== state.current ? state.pending : null;

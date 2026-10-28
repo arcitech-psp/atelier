@@ -2,6 +2,12 @@
 
 Atelier by ARCITECH is a design assistant for architects, interior designers and students. It is powered by DSH (DeepSeek Harness) 0.1.2-alpha.1 by DeepSeek-AI (MIT). This first public preview is now available, free to use: expect rough edges, and please tell us what breaks.
 
+## 27 Oct 2026 — public modules
+
+- Add optional fast image preset, BIMCraft design adapter, and five SolidCraft recipe containers.
+- Keep optional modules disabled until users configure their compatible service or application.
+- Keep video generation and its panel out of the public package.
+- Do not bundle local bylaw text, staging sources, or unqualified 3D assets.
 ## Download
 
 | File | Size | SHA-256 |
@@ -19,16 +25,13 @@ Installation steps: [docs/INSTALL.md](https://github.com/arcitech-psp/atelier/bl
 
 - **Free to use.** Use free AI services, or run fully local on your own computer: see the [free models guide](https://github.com/arcitech-psp/atelier/blob/main/docs/FREE_MODELS.md).
 - **Starts on as little as one 16 GB graphics card.** On one card the models take turns: each loads when its job comes up, and Atelier waits for it and shows what is loading. More cards, a bigger card or a model server keep them loaded side by side, so everything is faster. No GPU? Point the roles at a cloud endpoint. See [One graphics card, several models](https://github.com/arcitech-psp/atelier/blob/main/docs/ONE_GPU.md).
-- **Mission Control.** A chip in the session header shows which model is loaded, NVIDIA, Intel and AMD graphics readings, tokens and speed, and the energy cost at your own electricity price: see [Mission Control](https://github.com/arcitech-psp/atelier/blob/main/docs/mission-control.md).
-- **Web search.** Connect your own SearXNG instance in Model roles or with environment variables; a fallback URL is supported. See [Web search](https://github.com/arcitech-psp/atelier/blob/main/docs/web-search.md).
+- **Mission Control.** A chip in the session header shows which model is loaded, NVIDIA, Intel and AMD graphics readings, tokens and speed, and the energy cost at your own electricity price: see [Mission Control](https://github.com/arcitech-psp/atelier/blob/main/docs/mission-control.md). Mission Control now also connects devices, assigns services to a device and accelerator, checks service health, and supports config-server publish/pull.
 - **Brains.** Settings > General shows the model that is really loaded now on each computer and graphics card, with Load, Unload and Reload (one brain at a time per card, with a confirm step and progress): see [Brains](https://github.com/arcitech-psp/atelier/blob/main/docs/brains.md).
-- **Knowledge shelf.** Save source-backed notes locally and find them in later chats with `knowledge_save`, `knowledge_grep` and `knowledge_read`; the shelf starts empty and works offline: see [Knowledge shelf](https://github.com/arcitech-psp/atelier/blob/main/docs/knowledge.md).
 - **Vitruvius** and **Vitruvius Zero** (for small models), a design canvas with concept plans and material/colour moodboards, and an optional bridge to IngeTrazo (installed separately, GPL-3.0-or-later).
 - The stock DeepSeek Harness agent presets (Standard, PTC, Minimal and Creator modes) and launcher profiles.
 - Works with any OpenAI-compatible model endpoint: Ollama, LM Studio, llama.cpp, vLLM, a custom URL with a key, cloud free tiers through OmniRoute, or your ChatGPT plan.
 - **Bottega (team mode)**: share one Atelier with colleagues on your office network. Other devices open it in their browser, tablet or phone after a one-time pairing code; you see and revoke every device. Off by default, private networks only, plain HTTP. Tailscale support is planned and coming soon.
 - **Atelier guardrails (Settings > Safety)**, on by default: chats read and write files only in their project folder and ask before anything wider. Turning them off (after a warning, or `atelier settings set guardrails off --yes-i-understand`) gives the model full file access, skips approval prompts and lifts the time limits on long waits; a **Guardrails off** chip stays in the session header until you turn them back on. Bottega pairing and no telemetry stay as they are.
-- **Undo turn:** restore files changed during a completed turn while preserving its post-turn copies; shell installs and system changes require consent naming the software or change.
 - **Settings > Updates**: the version, credits, "Check for updates", and opt-in automatic updates (off by default). Updates install beside the current version, which is kept for one-click rollback.
 
 ## Privacy
@@ -50,3 +53,22 @@ Atelier is built on [DSH (DeepSeek Harness)](https://github.com/deepseek-ai/deep
 ## Feedback
 
 Feedback goes through the [feedback form](https://docs.google.com/forms/d/e/1FAIpQLSeulyC06qEOVDn2aSjJqTlbCjifoYXqQzhDXb9Du16Ev5TiHA/viewform) (no account needed) or [GitHub Issues](https://github.com/arcitech-psp/atelier/issues/new/choose), rather than email. Never paste API keys, tokens or client material into a report.
+
+## Agent profiles
+
+- Adds Picaso for image concepts and moodboards using public canvas tools and user-configured services.
+- Adds Merlin for YouTube titles, storyboards and B-roll planning with optional canvas concepts.
+- Adds jurisdiction-neutral, source-first research for codes, regulations, documents and data.
+- Adds a jurisdiction-neutral bylaw research profile; no local bylaw library is bundled.
+- Private CAD application connectors are omitted; the profile works with supplied files and public tools.
+- Private 3D application connectors are omitted; no live scene editing is claimed.
+- Private CAD application connectors are omitted; the profile can prepare plans and scripts from supplied files.
+- Adds EMS as a flexible profile using public file and web tools configured by the user.
+- Adds Marco Polo for citation-first web research through the user's configured provider.
+- Adds DSH Assist for bounded file-based support work with public workspace tools.
+- Adds DSH Code Proposals as a no-tools profile for reviewed, packet-based coding work.
+- Updates Standard with portable file and configured web tools and no machine-specific assumptions.
+- atelier-fleet-config: add ETag catalog server and managed-fragment updater.
+
+- Signed Dev and Public release channels: manager publication, invitation access, verified automatic downloads, next-launch activation and rollback.
+- Workspace profiles: choose the default while adding a project; edit it later in Settings.

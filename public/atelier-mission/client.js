@@ -59,7 +59,7 @@ window.__ModuleLoader__.load({id: '@arcitech/atelier-mission', factory: require 
     };
 
     // ---- one store shared by the chip and the sheet ----------------------------------------------------------------------
-    const store = {models: null, snapshot: null, offset: 0, error: null, listeners: new Set()};
+    const store = {models: null, snapshot: null, control: null, offset: 0, error: null, listeners: new Set()};
     const emit = () => { for (const listener of store.listeners) listener(); };
     let version = 0;
     const subscribe = listener => { store.listeners.add(listener); return () => store.listeners.delete(listener); };
@@ -75,6 +75,9 @@ window.__ModuleLoader__.load({id: '@arcitech/atelier-mission', factory: require 
         const snapshot = await call('snapshot');
         set({snapshot, models: snapshot.models, offset: snapshot.now - Date.now(), error: null});
       } catch (error) { set({error: error.message}); }
+    };
+    const refreshControl = async () => {
+      try { set({control: await call('control')}); } catch (error) { set({error: error.message}); }
     };
 
     // ---- the header chip -----------------------------------------------------------------------------------------------------
@@ -125,8 +128,9 @@ window.__ModuleLoader__.load({id: '@arcitech/atelier-mission', factory: require 
       const [, tick] = useState(0);
       const closeRef = useRef(null);
       useEffect(() => {
-        void refreshSnapshot();
+        void refreshSnapshot(); void refreshControl();
         const poll = setInterval(() => { void refreshSnapshot(); }, 2000);
+        const controlPoll = setInterval(() => { void refreshControl(); }, 30_000);
         const clock = setInterval(() => tick(value => value + 1), 1000);
         const escape = event => {
           if (event.key === 'Escape') { onClose(); return; }
@@ -141,7 +145,7 @@ window.__ModuleLoader__.load({id: '@arcitech/atelier-mission', factory: require 
         };
         document.addEventListener('keydown', escape);
         closeRef.current?.focus();
-        return () => { clearInterval(poll); clearInterval(clock); document.removeEventListener('keydown', escape); };
+        return () => { clearInterval(poll); clearInterval(controlPoll); clearInterval(clock); document.removeEventListener('keydown', escape); };
       }, []);
       const snap = s.snapshot;
       const overall = !snap ? 'idle' : (snap.models?.summary?.state ?? 'idle');
@@ -150,11 +154,12 @@ window.__ModuleLoader__.load({id: '@arcitech/atelier-mission', factory: require 
           h('header', {className: 'msn-head'},
             h('span', {className: 'msn-dot', 'data-state': overall, 'aria-hidden': true}),
             h('h2', {id: 'msn-title', className: 'msn-title'}, 'Mission Control'),
-            h('span', {className: 'msn-meta'}, 'This computer'),
+            h('span', {className: 'msn-meta'}, 'Devices and services'),
             h('button', {type: 'button', ref: closeRef, className: 'msn-close', 'aria-label': 'Close Mission Control', onClick: onClose}, '×')),
           !snap
             ? h('p', {className: 'msn-empty', role: 'status'}, s.error ? `Mission Control could not be read: ${s.error}` : 'Reading this computer…')
             : h('div', {className: 'msn-body'},
+              h(ControlPanel),
               h(ModelsPanel, {snap}),
               h(MachinePanel, {snap}),
               h(ActivityPanel, {snap}),
@@ -169,6 +174,101 @@ window.__ModuleLoader__.load({id: '@arcitech/atelier-mission', factory: require 
     const Tile = ({label, value, note, tone}) => h('div', {className: 'msn-tile'},
       h('span', {className: 'msn-tile-value', 'data-tone': tone}, value), h('span', {className: 'msn-tile-label'}, label), note ? h('span', {className: 'msn-tile-note'}, note) : null);
     const Pill = ({state, children}) => h('span', {className: 'msn-pill', 'data-state': state}, h('span', {className: 'msn-dot', 'data-state': state, 'aria-hidden': true}), children);
+
+    const ControlPanel = () => {
+      const s = useStore(), control = s.control;
+      const [name, setName] = useState(''), [address, setAddress] = useState('');
+      const [service, setService] = useState('chat'), [deviceId, setDeviceId] = useState('');
+      const [endpoint, setEndpoint] = useState(''), [healthPath, setHealthPath] = useState('/health'), [model, setModel] = useState(''), [gpuId, setGpuId] = useState('');
+      const [server, setServer] = useState(''), [busy, setBusy] = useState(false), [message, setMessage] = useState('');
+      const devices = control?.devices ?? [], services = control?.services ?? [];
+      const chosenDevice = devices.find(row => row.id === deviceId) ?? devices[0];
+      const assigned = control?.assignments?.[service];
+      const assignmentKey = JSON.stringify(assigned ?? null);
+      useEffect(() => {
+        if (!deviceId && devices[0]) setDeviceId(devices[0].id);
+        if (assigned) { setDeviceId(assigned.deviceId); setEndpoint(assigned.endpoint); setHealthPath(assigned.healthPath || '/health'); setModel(assigned.model || ''); setGpuId(assigned.gpuId || ''); }
+        else { setEndpoint(''); setModel(''); setGpuId(''); setHealthPath('/health'); }
+      }, [service, assignmentKey]);
+      useEffect(() => { setServer(control?.configServer ?? ''); }, [control?.configServer]);
+      const action = async (op, payload) => {
+        setBusy(true); setMessage('');
+        try { const value = await call(op, payload); await refreshControl(); return value; }
+        catch (error) { setMessage(error.message); return null; }
+        finally { setBusy(false); }
+      };
+      const addDevice = async event => {
+        event.preventDefault(); const value = await action('addDevice', {name, address});
+        if (value) { setName(''); setAddress(''); setMessage('Device saved.'); }
+      };
+      const assignmentInput = {service, deviceId: chosenDevice?.id, endpoint, healthPath, model, gpuId};
+      const test = async () => { const value = await action('testAssignment', assignmentInput); if (value) setMessage(`Health check passed in ${value.result.latencyMs} ms. Save to assign this service.`); };
+      const save = async () => { const value = await action('assignService', assignmentInput); if (value) setMessage('Service tested and assignment saved.'); };
+      const deviceRows = devices.map(row => {
+        const assignedServices = services.filter(item => control.assignments?.[item.id]?.deviceId === row.id).map(item => item.name);
+        const accelerators = row.accelerators ?? [];
+        return h('li', {key: row.id, className: 'msn-control-device'},
+          h('div', {className: 'msn-control-row'}, h('strong', null, row.name), h(Pill, {state: row.reachable ? 'loaded' : 'offline'}, row.reachable ? 'Reachable' : 'Unreachable')),
+          h('p', {className: 'msn-muted'}, `${row.address}${Number.isFinite(row.latencyMs) ? ` · ${row.latencyMs} ms` : ''}${row.lastSeen ? ` · seen ${new Date(row.lastSeen).toLocaleTimeString()}` : ''}`),
+          accelerators.length ? h('ul', {className: 'msn-control-gpus', role: 'list'}, accelerators.map(gpu => h('li', {key: gpu.id}, `${gpu.name || gpu.id}${Number.isFinite(gpu.memoryUsedMiB) && Number.isFinite(gpu.memoryTotalMiB) ? ` · ${mib(gpu.memoryUsedMiB)} / ${mib(gpu.memoryTotalMiB)}` : ''}`))) : h('p', {className: 'msn-muted'}, 'No accelerator inventory reported.'),
+          h('p', {className: 'msn-muted'}, assignedServices.length ? `Assigned: ${assignedServices.join(', ')}` : 'No services assigned.'),
+          h('button', {type: 'button', className: 'msn-button msn-button-quiet', disabled: busy, onClick: async () => { await action('probeDevices'); setMessage('Device status refreshed.'); }}, 'Check device'),
+          h('button', {type: 'button', className: 'msn-button msn-button-quiet', disabled: busy, onClick: async () => { const ok = window.confirm(`Remove ${row.name} and its service assignments?`); if (ok) await action('removeDevice', {id: row.id}); }}, 'Remove'));
+      });
+      const serviceRows = services.map(item => {
+        const current = control?.assignments?.[item.id], health = control?.health?.[item.id];
+        const target = devices.find(row => row.id === current?.deviceId);
+        return h('li', {key: item.id, className: 'msn-control-row'}, h('span', null, item.name),
+          h(Pill, {state: health?.state === 'healthy' ? 'loaded' : health?.state === 'offline' ? 'offline' : 'idle'}, health?.state ?? (current ? 'Checking' : 'Unassigned')),
+          h('span', {className: 'msn-control-detail'}, current ? `${target?.name ?? 'Device'}${current.gpuId ? ` · ${current.gpuId}` : ''}${current.model ? ` · ${current.model}` : ''}` : ''));
+      });
+      if (!control) return h(Panel, {id: 'control', title: 'Devices and services'}, h('p', {className: 'msn-muted'}, 'Loading device assignments…'));
+      return h(Panel, {id: 'control', title: 'Devices and services', aside: 'saved in harness config'},
+        h('p', {className: 'msn-muted'}, 'Connect machines by address. If a device agent answers, Mission Control also shows its accelerators and memory. Service checks use the route you set and run no more often than every 30 seconds; failures back off.'),
+        h('ul', {className: 'msn-control-list', role: 'list'}, deviceRows.length ? deviceRows : [h('li', {key: 'empty', className: 'msn-muted'}, 'Connect this computer or another device to get started.')]),
+        h('form', {className: 'msn-form', onSubmit: addDevice}, h('div', {className: 'msn-fields'},
+          h('label', {className: 'msn-field'}, h('span', null, 'Device name'), h('input', {value: name, onChange: event => setName(event.target.value), placeholder: 'Workstation'})),
+          h('label', {className: 'msn-field'}, h('span', null, 'Device address'), h('input', {type: 'url', required: true, value: address, onChange: event => setAddress(event.target.value), placeholder: 'http://machine:41920'}))),
+          h('button', {type: 'submit', className: 'msn-button msn-button-primary', disabled: busy}, 'Connect device')),
+        h('div', {className: 'msn-form'}, h('h4', {className: 'msn-h4'}, 'Service assignments'),
+          h('div', {className: 'msn-fields'},
+            h('label', {className: 'msn-field'}, h('span', null, 'Service'), h('select', {value: service, onChange: event => setService(event.target.value)}, services.map(item => h('option', {key: item.id, value: item.id}, item.name)))),
+            h('label', {className: 'msn-field'}, h('span', null, 'Device'), h('select', {value: chosenDevice?.id ?? '', onChange: event => setDeviceId(event.target.value), disabled: !devices.length}, devices.map(row => h('option', {key: row.id, value: row.id}, row.name)))),
+            h('label', {className: 'msn-field'}, h('span', null, 'GPU / accelerator'), h('select', {value: gpuId, onChange: event => setGpuId(event.target.value)}, [h('option', {key: 'none', value: ''}, 'Not specified'), ...(chosenDevice?.accelerators ?? []).map(gpu => h('option', {key: gpu.id, value: gpu.id}, gpu.name || gpu.id))])),
+            h('label', {className: 'msn-field'}, h('span', null, 'Service address'), h('input', {type: 'url', value: endpoint, onChange: event => setEndpoint(event.target.value), placeholder: 'http://machine:port/v1'})),
+            h('label', {className: 'msn-field'}, h('span', null, 'Health route'), h('input', {value: healthPath, onChange: event => setHealthPath(event.target.value), placeholder: '/health'})),
+            h('label', {className: 'msn-field'}, h('span', null, 'Model (if used)'), h('input', {value: model, onChange: event => setModel(event.target.value), placeholder: 'Model id'}))),
+          h('div', {className: 'msn-form-row'}, h('button', {type: 'button', className: 'msn-button', disabled: busy || !chosenDevice || !endpoint, onClick: test}, 'Test service'),
+            h('button', {type: 'button', className: 'msn-button msn-button-primary', disabled: busy || !chosenDevice || !endpoint, onClick: save}, 'Save assignment'),
+            h('button', {type: 'button', className: 'msn-button msn-button-quiet', disabled: busy, onClick: async () => { const value = await action('undoControl'); if (value) setMessage('Last Mission Control change undone.'); }}, 'Undo last change')),
+          h('ul', {className: 'msn-control-list', role: 'list'}, serviceRows),
+          message ? h('p', {className: 'msn-form-message', role: 'status'}, message) : null),
+        h('div', {className: 'msn-form'}, h('h4', {className: 'msn-h4'}, 'Config server'),
+          h('label', {className: 'msn-field'}, h('span', null, 'Server address'), h('input', {type: 'url', value: server, onChange: event => setServer(event.target.value), placeholder: 'https://config.example'})),
+          h('div', {className: 'msn-form-row'}, h('button', {type: 'button', className: 'msn-button', disabled: busy, onClick: async () => { const value = await action('configureServer', {url: server}); if (value) setMessage('Config server saved.'); }}, 'Save server'),
+            h('button', {type: 'button', className: 'msn-button', disabled: busy || !control.configServer, onClick: async () => { const value = await action('publishConfig'); if (value) setMessage('Config published to clients.'); }}, 'Publish to clients'),
+            h('button', {type: 'button', className: 'msn-button', disabled: busy || !control.configServer, onClick: async () => { const value = await action('pullConfig'); if (value) setMessage('Config pulled from server.'); }}, 'Pull from server'))));
+    };
+
+    const MissionSettings = () => {
+      const [open, setOpen] = useState(false);
+      useEffect(() => {
+        if (!open) return undefined;
+        void refreshControl();
+        const timer = setInterval(() => { void refreshControl(); }, 30_000);
+        return () => clearInterval(timer);
+      }, [open]);
+      return h('section', {className: 'msn-settings-control'},
+        h('button', {type: 'button', className: 'msn-button', 'aria-expanded': open, onClick: () => setOpen(true)}, 'Devices and services'),
+        open ? createPortal(h('div', {className: 'msn-scope msn-backdrop msn-control-backdrop'},
+          h('section', {className: 'msn-sheet msn-control-sheet', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'msn-control-title'},
+            h('header', {className: 'msn-head'},
+              h('span', {className: 'msn-dot', 'data-state': 'idle', 'aria-hidden': true}),
+              h('h2', {id: 'msn-control-title', className: 'msn-title'}, 'Devices and services'),
+              h('span', {className: 'msn-meta'}, 'Mission Control'),
+              h('button', {type: 'button', className: 'msn-close', 'aria-label': 'Close device assignments', onClick: () => setOpen(false)}, '×')),
+            h('div', {className: 'msn-body'}, h(ControlPanel)))), document.body) : null);
+    };
 
     // ---- models on this GPU ------------------------------------------------------------------------------------------------------
     const ModelsPanel = ({snap}) => {
@@ -351,6 +451,7 @@ window.__ModuleLoader__.load({id: '@arcitech/atelier-mission', factory: require 
     };
 
     ctx.slots.inject('conversation.session.header.utilities', () => ctx.slots.register({name: 'conversation.session.header.utilities', id: 'atelier-mission', order: 70}, Chip));
+    ctx.slots.inject('settings.general.item', () => ctx.slots.register({name: 'settings.general.item', id: 'atelier-mission-control', order: 15}, MissionSettings));
 
     if (typeof document !== 'undefined' && !document.getElementById('atelier-mission-style')) {
       const style = document.createElement('style');
@@ -402,7 +503,7 @@ body[data-ds-dark-theme] .msn-chip, body[data-ds-dark-theme] .msn-scope { --msn-
 
 .msn-backdrop { position: fixed; inset: 0; z-index: 900; display: flex; justify-content: flex-end; background: color-mix(in srgb, var(--dsw-alias-bg-base, #11151d) 50%, transparent); color: var(--msn-ink); }
 .msn-sheet {
-  width: min(580px, 100vw); height: 100%; display: flex; flex-direction: column; min-height: 0; background: var(--msn-bg); border-left: 1px solid var(--msn-rule);
+  width: min(580px, 100vw); height: 100%; box-sizing: border-box; display: flex; flex-direction: column; min-height: 0; background: var(--msn-bg); border-left: 1px solid var(--msn-rule);
   box-shadow: -18px 0 48px rgb(0 0 0 / 28%); animation: msn-slide 160ms ease-out; font-size: 13px; line-height: 20px;
 }
 @keyframes msn-slide { from { transform: translateX(24px); opacity: 0; } }
@@ -416,6 +517,16 @@ body[data-ds-dark-theme] .msn-chip, body[data-ds-dark-theme] .msn-scope { --msn-
 .msn-body { flex: 1; overflow: auto; padding: 12px 16px 32px; display: flex; flex-direction: column; gap: 12px; overscroll-behavior: contain; }
 
 .msn-panel { flex: none; border: 1px solid var(--msn-rule); border-radius: 11px; background: var(--msn-bg-2); }
+.msn-settings-control { display: flex; flex-direction: column; gap: 10px; }
+.msn-control-backdrop { z-index: 12000; }
+.msn-control-sheet { width: min(900px, 100vw); box-sizing: border-box; }
+.msn-settings-control > .msn-button { align-self: flex-start; }
+.msn-control-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.msn-control-device { display: flex; flex-direction: column; gap: 5px; padding: 9px 0; border-bottom: 1px solid var(--msn-rule); }
+.msn-control-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.msn-control-detail { margin-left: auto; color: var(--msn-ink-3); font-size: 12px; overflow-wrap: anywhere; }
+.msn-control-gpus { margin: 0; padding-left: 18px; font-size: 12px; color: var(--msn-ink-2); }
+.msn-control-device .msn-button { align-self: flex-start; }
 .msn-panel-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 10px 12px 0; }
 .msn-h3 { margin: 0; font-size: 13px; line-height: 20px; font-weight: 600; }
 .msn-aside { font-size: 12px; color: var(--msn-ink-3); }

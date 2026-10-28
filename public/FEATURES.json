@@ -1,0 +1,40 @@
+{
+  "schema": "atelier.public-features.v1",
+  "channel": "public",
+  "modules": [
+    {
+      "id": "studio-fast-image",
+      "package": "@arcitech/atelier-studio-fast",
+      "included": true,
+      "enabledByDefault": false,
+      "reason": "Requires a user-configured renderer and upscaler adapter."
+    },
+    {
+      "id": "bimcraft-design",
+      "package": "@arcitech/atelier-bimcraft-design",
+      "included": true,
+      "enabledByDefault": false,
+      "reason": "Requires a compatible user-installed BIMCraft CLI."
+    },
+    {
+      "id": "solidcraft-recipes",
+      "package": "@arcitech/atelier-solidcraft-recipes",
+      "included": true,
+      "enabledByDefault": false,
+      "reason": "Recipe files are imported through a compatible SolidCraft installation."
+    },
+    {
+      "id": "virtual-staging",
+      "included": false
+    },
+    {
+      "id": "tripo-splat-viewer",
+      "included": false
+    },
+    {
+      "id": "video",
+      "included": false,
+      "enabled": false
+    }
+  ]
+}

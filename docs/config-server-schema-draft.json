@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/schemas/atelier-mission-config-v1.json",
+  "title": "Atelier Mission Control config draft",
+  "description": "Draft contract for sharing connected devices and service assignments with a config server. Replace this draft with the config server job's accepted schema when available.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "devices", "assignments"],
+  "properties": {
+    "schemaVersion": {"const": 1},
+    "devices": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name", "address"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1, "maxLength": 80},
+          "name": {"type": "string", "maxLength": 80},
+          "address": {"type": "string", "format": "uri", "pattern": "^https?://"}
+        }
+      }
+    },
+    "assignments": {
+      "type": "object",
+      "properties": {
+        "chat": {"$ref": "#/$defs/assignment"},
+        "image": {"$ref": "#/$defs/assignment"},
+        "video": {"$ref": "#/$defs/assignment"},
+        "speech-to-text": {"$ref": "#/$defs/assignment"},
+        "text-to-speech": {"$ref": "#/$defs/assignment"},
+        "embeddings": {"$ref": "#/$defs/assignment"},
+        "three-d": {"$ref": "#/$defs/assignment"},
+        "search": {"$ref": "#/$defs/assignment"}
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "assignment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["deviceId", "endpoint", "healthPath"],
+      "properties": {
+        "deviceId": {"type": "string", "minLength": 1, "maxLength": 80},
+        "gpuId": {"type": "string", "maxLength": 100},
+        "endpoint": {"type": "string", "format": "uri", "pattern": "^https?://"},
+        "healthPath": {"type": "string", "pattern": "^/", "maxLength": 200},
+        "model": {"type": "string", "maxLength": 200}
+      }
+    }
+  }
+}

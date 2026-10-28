@@ -2,7 +2,7 @@
   "name": "@arcitech/atelier-mission",
   "version": "0.1.0-preview",
   "private": true,
-  "description": "Mission Control for this computer: session timings, tokens, GPU use, energy cost at your own price, and which model is loaded now.",
+  "description": "Mission Control for local and connected devices: model and service assignments, GPU inventory, health, usage and energy.",
   "type": "module",
   "license": "PolyForm-Shield-1.0.0",
   "exports": {
@@ -12,7 +12,9 @@
     "./telemetry": "./telemetry.mjs",
     "./ledger": "./ledger.mjs",
     "./client": "./client.js",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./control": "./control.mjs",
+    "./agent": "./agent.mjs"
   },
   "scripts": {
     "test": "node --test test/*.test.mjs"

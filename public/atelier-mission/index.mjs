@@ -19,6 +19,7 @@ import {Ring, cpuPercent, cpuTicks, memoryNow, readGpus} from './telemetry.mjs';
 import {UsageTracker, addStep, bumpDay, describeUsage, emptyStopwatch, emptyUsage, pruneDays, sinceSnapshot, stopwatchAction, takeSnapshot} from './ledger.mjs';
 import {PROVIDER_NAMES, applyWaiting, buildStatus, collectRoles, probeServer} from './models.mjs';
 import {DEFAULT_WAIT_SECONDS, NO_LIMIT_SECONDS, clampWait, dispatcherOptions, planDisable, planEnable} from './swap.mjs';
+import {MissionControl, SERVICES} from './control.mjs';
 
 // Atelier guardrails (Settings > Safety, see atelier-start/guardrails.mjs): while they are off, the wait has no time limit.
 const guardrails = () => (globalThis[Symbol.for('arcitech.atelier.guardrails')] ??= {off: false, listeners: new Set()});
@@ -48,6 +49,26 @@ export function apply(ctx, config = {}) {
   const file = join(root, 'state.json');
   const rolesFile = config.rolesFile ?? join(dshHomePath('atelier-roles'), 'roles.json');
   const fetchImpl = config.fetch ?? fetch;
+  const profileRole = Object.fromEntries(SERVICES.filter(row => row.role).map(row => [row.id, row.role]));
+  const control = new MissionControl({file: join(root, 'control.json'), fetch: fetchImpl,
+    onAssign: async (service, assignment) => {
+      const roles = ctx.get('atelierRoles');
+      if (!roles) return null;
+      await roles.ready?.();
+      const role = profileRole[service], before = {mission: roles.missionAssignment(service), role: role ? roles.peek(role) : undefined};
+      await roles.setMissionAssignment(service, assignment);
+      if (role) await roles.assign(role, {...assignment, baseURL: assignment.endpoint});
+      return {service, role, before};
+    },
+    onRestore: async ({service, role, before}) => {
+      const roles = ctx.get('atelierRoles');
+      if (!roles) return;
+      await roles.ready?.();
+      await roles.setMissionAssignment(service, before?.mission);
+      if (role) { if (before?.role) await roles.assign(role, before.role); else await roles.reset(role); }
+    }});
+  const controlReady = control.start();
+  controlReady.catch(error => ctx.logger?.warn?.('atelier-mission: control config could not be loaded (%s)', error.message));
 
   // ---- state -------------------------------------------------------------------------------------------------------
   let state = defaultState();
@@ -137,8 +158,12 @@ export function apply(ctx, config = {}) {
       void tick();
       if (Date.now() - lastSave >= SAVE_MS) save();
     }, TICK_MS);
-    timer.unref?.();
-    return () => { clearInterval(timer); save(); };
+    const controlTimer = setInterval(() => {
+      void controlReady.then(() => Promise.all([control.probeAll(), control.checkAll()])).catch(error => ctx.logger?.debug?.('atelier-mission: control refresh failed (%s)', error.message));
+    }, 30_000);
+    timer.unref?.(); controlTimer.unref?.();
+    void controlReady.then(() => Promise.all([control.probeAll(), control.checkAll()]));
+    return () => { clearInterval(timer); clearInterval(controlTimer); save(); };
   }, 'atelier-mission sampler');
 
   // ---- which model is loaded ---------------------------------------------------------------------------------------
@@ -300,6 +325,17 @@ export function apply(ctx, config = {}) {
 
   const handlers = {
     snapshot: () => snapshot(),
+    async control() { await controlReady; return control.snapshot(); },
+    async addDevice(payload) { await controlReady; const result = await control.addDevice(payload); await control.probeAll(); return control.snapshot(); },
+    async removeDevice(payload) { await controlReady; return control.removeDevice(String(payload?.id ?? '')); },
+    async probeDevices() { await controlReady; return control.probeAll(); },
+    async assignService(payload) { await controlReady; return control.assign(payload); },
+    async testAssignment(payload) { await controlReady; return control.testAssignment(payload); },
+    async checkServices() { await controlReady; return control.checkAll(); },
+    async undoControl() { await controlReady; return control.undo(); },
+    async configureServer(payload) { await controlReady; return control.configureServer(payload?.url); },
+    async publishConfig() { await controlReady; return control.publish(); },
+    async pullConfig() { await controlReady; return control.pull(); },
     models: async () => ({models: await modelsNow(false)}),
     async prefs(payload) {
       const next = normalizePrefs({...state.prefs, ...payload}, state.prefs);

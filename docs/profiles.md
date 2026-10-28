@@ -1,21 +1,18 @@
 # Public assistant profiles
 
-Atelier includes three focused profiles alongside Vitruvius. Each profile uses the same connected Brain role and only public tools. Select a profile from the chat profile picker; the configured role endpoints and workspace still determine which services are available.
+Choose a profile from the chat profile picker. Profiles use the model selected in Settings; optional services use your own configuration.
 
-| Profile | Best for | Additional needs |
+| Profile | Purpose | Additional services |
 |---|---|---|
-| [Einsteinium](../harness/packages/preset/agent-presets/presets/einsteinium/README.md) | Researching codes, regulations and data for any jurisdiction you name | A configured web search provider; project files are optional |
-| [Picaso](../harness/packages/preset/agent-presets/presets/picaso/README.md) | Image concepts, moodboards and presentation direction | Image generation is optional; configure an image endpoint to generate images |
-| [Hydra](../harness/packages/preset/agent-presets/presets/hydra/README.md) | Planning, writing, debugging and reviewing code | A selected project workspace; web search is optional |
-
-## Einsteinium
-
-Name the jurisdiction and question you want researched. Einsteinium looks for current primary sources, reports the source edition or date, and cites the relevant section, page or dataset field. It separates sourced facts from interpretation and says when the available evidence does not settle the answer. Research is general guidance, not a formal compliance review.
-
-## Picaso
-
-Describe the audience and message for an image or presentation. Picaso can build a moodboard in the chat canvas and generate an image when you configure an image endpoint. Generated images are concepts; they are not evidence of a completed design. The public canvas supports moodboards and image placement, not a finished presentation-board workflow.
-
-## Hydra
-
-Choose a project workspace and describe the change or issue. Hydra uses the public shell and file tools available on your platform, works within that workspace, and reports checks based on their actual results. Follow the app's workspace and approval prompts when a command or file action needs approval.
+| [Picaso](../harness/packages/preset/agent-presets/presets/picaso/README.md) | Creates image concepts, moodboards and a clear visual direction. | Select a model in Settings. Configure a web provider there for research; image generation is optional and requires an endpoint configured by the user. |
+| [Merlin](../harness/packages/preset/agent-presets/presets/merlin/README.md) | Plans YouTube titles, B-roll and storyboards from supplied scripts. | Select a model in Settings. Configure a web provider for research; image generation is optional. Video editing and stock-footage services are not included. |
+| [Einsteinium](../harness/packages/preset/agent-presets/presets/einsteinium/README.md) | Researches regulations, codes and data for a jurisdiction the user names. | Select a model in Settings and configure a web provider. A project workspace is optional for supplied documents. |
+| [Bylaw Advisor](../harness/packages/preset/agent-presets/presets/bylaw/README.md) | Explains land-use rules and permitting steps for a named jurisdiction. | Select a model in Settings and configure a web provider. The user supplies the jurisdiction and any property or project documents. |
+| [CAD](../harness/packages/preset/agent-presets/presets/cad/README.md) | Plans 2D CAD drawings and helps review supplied drafting files. | Select a model in Settings; configure a web provider if standards or references need research. The user supplies CAD files and drawing requirements. |
+| [Blender](../harness/packages/preset/agent-presets/presets/blender/README.md) | Plans 3D assets, scene assembly and rendering workflows. | Select a model in Settings; configure a web provider for current references. The user supplies project files and any local application connection. |
+| [FreeCAD](../harness/packages/preset/agent-presets/presets/freecad/README.md) | Plans parametric models and drawing sets from checked requirements. | Select a model in Settings; configure a web provider for references. The user supplies project files, dimensions and any local application connection. |
+| [EMS](../harness/packages/preset/agent-presets/presets/ems/README.md) | A flexible workspace for general research, writing and file-based tasks. | Select a model in Settings. Configure a web provider only when online research is needed; project files are optional. |
+| [Marco Polo](../harness/packages/preset/agent-presets/presets/marco-polo/README.md) | Finds, checks and summarizes public web sources with citations. | Select a model in Settings and configure a web provider. A workspace is optional for user-supplied research files. |
+| [DSH Assist](../harness/packages/preset/agent-presets/presets/dsh-assist/README.md) | Completes bounded support tasks and reports verifiable results. | Select a model in Settings and choose a project workspace. No additional service is required. |
+| [DSH Code Proposals](../harness/packages/preset/agent-presets/presets/dsh-coder/README.md) | Proposes focused code changes from a supplied source packet; no tools. | Select a model in Settings and provide the source packet in the conversation. No additional service is required. |
+| [Standard](../harness/packages/preset/agent-presets/presets/standard/README.md) | A practical assistant for research, project files and general work. | Select a model in Settings and configure a web provider when online research is needed. Project file access follows the selected workspace and app guardrails. |

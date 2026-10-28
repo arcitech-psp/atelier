@@ -35,6 +35,9 @@ importers:
       '@arcitech/atelier-updates':
         specifier: workspace:*
         version: link:public/atelier-updates
+      '@arcitech/atelier-workspace-profiles':
+        specifier: workspace:*
+        version: link:public/atelier-workspace-profiles
       '@deepseek-ai/cordis':
         specifier: workspace:*
         version: link:harness/vendor/cordis
@@ -728,6 +731,9 @@ importers:
       '@arcitech/atelier-updates':
         specifier: workspace:*
         version: link:../../../public/atelier-updates
+      '@arcitech/atelier-workspace-profiles':
+        specifier: workspace:*
+        version: link:../../../public/atelier-workspace-profiles
       '@deepseek-ai/cordis':
         specifier: workspace:^
         version: link:../../vendor/cordis
@@ -7066,6 +7072,12 @@ importers:
         specifier: workspace:^
         version: link:../cosmokit
 
+  public/atelier-bimcraft-design:
+    dependencies:
+      '@deepseek-ai/cordis':
+        specifier: workspace:^
+        version: link:../../harness/vendor/cordis
+
   public/atelier-brains:
     dependencies:
       '@deepseek-ai/cordis':
@@ -7123,6 +7135,8 @@ importers:
       sharp:
         specifier: 0.35.3
         version: 0.35.3
+
+  public/atelier-fleet-config: {}
 
   public/atelier-ingetrazo:
     dependencies:
@@ -7196,6 +7210,8 @@ importers:
         specifier: workspace:^
         version: link:../../harness/packages/web/web
 
+  public/atelier-solidcraft-recipes: {}
+
   public/atelier-start:
     dependencies:
       '@arcitech/atelier-undo':
@@ -7219,6 +7235,8 @@ importers:
       yaml:
         specifier: 2.9.0
         version: 2.9.0
+
+  public/atelier-studio-fast: {}
 
   public/atelier-undo:
     dependencies:
@@ -7246,6 +7264,8 @@ importers:
       '@deepseek-ai/dsh-client-connection':
         specifier: workspace:^
         version: link:../../harness/packages/client/connection
+
+  public/atelier-workspace-profiles: {}
 
 packages:
 

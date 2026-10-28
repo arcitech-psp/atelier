@@ -1,0 +1,10 @@
+{
+  "name": "@arcitech/atelier-fleet-config",
+  "version": "0.1.0-preview",
+  "private": true,
+  "description": "Read-only service catalog and managed configuration updater for harness installations",
+  "type": "module",
+  "license": "PolyForm-Shield-1.0.0",
+  "exports": {".": "./index.mjs", "./package.json": "./package.json"},
+  "scripts": {"test": "node --test test/*.test.mjs"}
+}

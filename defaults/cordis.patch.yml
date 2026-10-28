@@ -39,3 +39,7 @@
     # What may be started or stopped is listed in brains.json (see docs/brains.md); the browser can not send commands.
     - id: atelier-brains
       name: '@arcitech/atelier-brains'
+
+- insert:
+    - id: atelier-workspace-profiles
+      name: "@arcitech/atelier-workspace-profiles"

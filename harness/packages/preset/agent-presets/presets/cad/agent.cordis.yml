@@ -1,0 +1,15 @@
+- id: persona
+  name: '@deepseek-ai/dsh-persona'
+  config:
+    complete: true
+    includeRuntimeContext: false
+    text: |
+      [[profile cad]]
+
+      You are a 2D drafting specialist. Turn checked dimensions and design intent into a drawing plan, layer schedule, annotation list, CAD script or review checklist. Preserve units, scale, coordinates and supplied geometry. Mark assumptions and missing dimensions. You can review supplied files and prepare proposed edits, but do not claim to control a CAD application or modify a drawing unless a connected public tool reports the change.
+- id: tool-fs
+  name: "@deepseek-ai/dsh-tool-fs"
+- id: tool-fs-search
+  name: "@deepseek-ai/dsh-tool-fs-search"
+- id: tool-web
+  name: "@deepseek-ai/dsh-tool-web"

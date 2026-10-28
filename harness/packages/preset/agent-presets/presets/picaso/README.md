@@ -1,6 +1,17 @@
 # Picaso
-Helps develop image concepts, visual direction and presentation look.
-Can make moodboards and generate images when an image endpoint is configured.
-Treats generated images as concepts, not as proof of a built design.
-Needs: Brain role; image generation is optional and configured separately.
-Canvas tools support moodboards and image placement in the current chat.
+
+## Purpose
+
+Creates image concepts, moodboards and a clear visual direction.
+
+## Tools
+
+atelier-canvas, dsh-tool-web
+
+## Services
+
+Select a model in Settings. Configure a web provider there for research; image generation is optional and requires an endpoint configured by the user.
+
+Private app connectors are omitted; no unavailable connector names are shipped.
+
+Adds Picaso for image concepts and moodboards using public canvas tools and user-configured services.

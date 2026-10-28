@@ -246,6 +246,7 @@
     "@arcitech/atelier-start": "workspace:*",
     "@arcitech/atelier-cli": "workspace:*",
     "react": "18.3.1",
-    "react-dom": "18.3.1"
+    "react-dom": "18.3.1",
+    "@arcitech/atelier-workspace-profiles": "workspace:*"
   }
 }

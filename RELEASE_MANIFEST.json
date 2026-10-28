@@ -11,7 +11,16 @@
     "vitruvius-zero",
     "einsteinium",
     "picaso",
-    "hydra"
+    "hydra",
+    "merlin",
+    "bylaw",
+    "cad",
+    "blender",
+    "freecad",
+    "ems",
+    "marco-polo",
+    "dsh-assist",
+    "dsh-coder"
   ],
   "launcherProfiles": [
     "web",
@@ -1381,6 +1390,36 @@
       "name": "@arcitech/atelier-undo",
       "version": "0.1.0-preview",
       "path": "public/atelier-undo",
+      "license": "PolyForm-Shield-1.0.0"
+    },
+    {
+      "name": "@arcitech/atelier-fleet-config",
+      "version": "0.1.0-preview",
+      "path": "public/atelier-fleet-config",
+      "license": "PolyForm-Shield-1.0.0"
+    },
+    {
+      "name": "@arcitech/atelier-workspace-profiles",
+      "version": "0.2.0",
+      "path": "public/atelier-workspace-profiles",
+      "license": "PolyForm-Shield-1.0.0"
+    },
+    {
+      "name": "@arcitech/atelier-studio-fast",
+      "version": "0.2.0-preview",
+      "path": "public/atelier-studio-fast",
+      "license": "PolyForm-Shield-1.0.0"
+    },
+    {
+      "name": "@arcitech/atelier-bimcraft-design",
+      "version": "0.2.0-preview",
+      "path": "public/atelier-bimcraft-design",
+      "license": "PolyForm-Shield-1.0.0"
+    },
+    {
+      "name": "@arcitech/atelier-solidcraft-recipes",
+      "version": "0.2.0-preview",
+      "path": "public/atelier-solidcraft-recipes",
       "license": "PolyForm-Shield-1.0.0"
     }
   ],
@@ -12236,7 +12275,7 @@
   ],
   "postBuildChanges": {
     "at": "2026-10-08",
-    "log": "Release-readiness pass: scrub, docs, licence/notice, onboarding launcher, Atelier UI strings, hidden hero badge, in-app workspace chooser, canvas headless fix, panel port.",
+    "log": "Release-readiness pass: scrub, docs, licence/notice, onboarding launcher, Atelier UI strings, hidden hero badge, in-app workspace chooser, canvas headless fix, panel port.; Mission Control device/service assignment and config-server hook",
     "removed": [
       "RELEASE_SLIDES.md"
     ],
@@ -12370,7 +12409,14 @@
             "sha256": "2837d53fcab82e8bcbab62b784cd36018c90b9f9cb554907fa692e27dbcf867a",
             "bytes": 5059
           }
-        }
+        },
+        "files": [
+          "docs/setup-walkthrough.html",
+          "start-preview.mjs",
+          "NOTICE.md",
+          "CONTRIBUTING.md",
+          "TRADEMARK.md"
+        ]
       },
       {
         "at": "2026-10-09",
@@ -12568,7 +12614,35 @@
           "docs/turn-undo.md",
           "packaging/RELEASE_NOTES.md"
         ]
+      },
+      {
+        "at": "2026-10-26",
+        "by": "public-build",
+        "summary": "Mission Control: connected device inventory and accelerator memory, service assignments with tested health routes, profile-backed role updates, backup and undo, and versioned config-server publish/pull draft.",
+        "files": [
+          "public/atelier-mission/control.mjs",
+          "public/atelier-mission/agent.mjs",
+          "public/atelier-mission/test/control.test.mjs",
+          "public/atelier-mission/test/agent.test.mjs",
+          "public/atelier-mission/client.js",
+          "public/atelier-mission/index.mjs",
+          "public/atelier-roles/index.mjs",
+          "public/atelier-mission/package.json",
+          "docs/mission-control.md",
+          "docs/config-server-schema-draft.json",
+          "packaging/RELEASE_NOTES.md"
+        ]
       }
     ]
+  },
+  "channelUpdates": {
+    "package": "@arcitech/atelier-updates",
+    "format": "atelier.channel-release.v1",
+    "channels": [
+      "dev",
+      "public"
+    ],
+    "activation": "next-launch",
+    "workspaceDefaults": "@arcitech/atelier-workspace-profiles"
   }
 }
