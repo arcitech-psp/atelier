@@ -1,0 +1,10 @@
+{
+  "schema": "atelier.solidcraft-recipes.v1",
+  "recipes": [
+    { "id": "dining-chair", "file": "dining_chair.solidcraft", "kind": "dining chair" },
+    { "id": "coffee-table", "file": "coffee_table.solidcraft", "kind": "coffee table" },
+    { "id": "round-side-table", "file": "round-side-table-600x650.solidcraft", "kind": "side table" },
+    { "id": "round-side-table-compact", "file": "round-side-table-resized-500x550.solidcraft", "kind": "side table variant" },
+    { "id": "shelf", "file": "shelf.solidcraft", "kind": "shelf" }
+  ]
+}

@@ -25,3 +25,7 @@
     # Mission Control for this computer: tokens, graphics card use, energy cost at your price, and which model is loaded now.
     - id: atelier-mission
       name: '@arcitech/atelier-mission'
+
+- insert:
+    - id: atelier-workspace-profiles
+      name: "@arcitech/atelier-workspace-profiles"

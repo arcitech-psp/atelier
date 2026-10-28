@@ -1,0 +1,14 @@
+{
+  "name": "@arcitech/atelier-studio-fast",
+  "version": "0.2.0-preview",
+  "private": true,
+  "type": "module",
+  "license": "PolyForm-Shield-1.0.0",
+  "exports": {
+    ".": "./fast-image.mjs",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  }
+}

@@ -2,6 +2,12 @@
 
 Atelier by ARCITECH is a design assistant for architects, interior designers and students. It is powered by DSH (DeepSeek Harness) 0.1.2-alpha.1 by DeepSeek-AI (MIT). This first public preview is now available, free to use: expect rough edges, and please tell us what breaks.
 
+## 27 Oct 2026 — public modules
+
+- Add optional fast image preset, BIMCraft design adapter, and five SolidCraft recipe containers.
+- Keep optional modules disabled until users configure their compatible service or application.
+- Keep video generation and its panel out of the public package.
+- Do not bundle local bylaw text, staging sources, or unqualified 3D assets.
 ## Download
 
 | File | Size | SHA-256 |
@@ -63,3 +69,6 @@ Feedback goes through the [feedback form](https://docs.google.com/forms/d/e/1FAI
 - Adds DSH Code Proposals as a no-tools profile for reviewed, packet-based coding work.
 - Updates Standard with portable file and configured web tools and no machine-specific assumptions.
 - atelier-fleet-config: add ETag catalog server and managed-fragment updater.
+
+- Signed Dev and Public release channels: manager publication, invitation access, verified automatic downloads, next-launch activation and rollback.
+- Workspace profiles: choose the default while adding a project; edit it later in Settings.

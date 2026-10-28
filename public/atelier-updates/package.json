@@ -1,6 +1,6 @@
 {
   "name": "@arcitech/atelier-updates",
-  "version": "0.1.0-preview",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "license": "PolyForm-Shield-1.0.0",
@@ -8,7 +8,9 @@
     ".": "./index.mjs",
     "./updater": "./updater.mjs",
     "./client": "./client.js",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./release": "./release.mjs",
+    "./channel-client": "./channel-client.mjs"
   },
   "dsh": {
     "client": {
@@ -22,5 +24,8 @@
   "peerDependencies": {
     "@deepseek-ai/cordis": "workspace:^",
     "@deepseek-ai/dsh-client-connection": "workspace:^"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
   }
 }

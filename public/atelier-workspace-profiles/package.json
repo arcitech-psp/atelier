@@ -1,0 +1,11 @@
+{
+  "name": "@arcitech/atelier-workspace-profiles",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "license": "PolyForm-Shield-1.0.0",
+  "description": "Workspace defaults for new chats, with explicit project creation and profile choice.",
+  "exports": {".": "./index.mjs", "./client": "./client.js", "./package.json": "./package.json"},
+  "scripts": {"test": "node --test test/*.test.mjs"},
+  "dsh": {"client": {"platform": "web", "inject": ["@deepseek-ai/dsh-client-connection", "@deepseek-ai/dsh-client-ui-settings-general"]}}
+}

@@ -1,0 +1,19 @@
+{
+  "name": "@arcitech/atelier-bimcraft-design",
+  "version": "0.2.0-preview",
+  "private": true,
+  "type": "module",
+  "license": "PolyForm-Shield-1.0.0",
+  "exports": {
+    ".": "./index.mjs",
+    "./design-method": "./design-method.mjs",
+    "./design-route": "./at-bimcraft-design-route.mjs",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "workspace:^"
+  }
+}

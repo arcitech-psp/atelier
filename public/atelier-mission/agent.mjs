@@ -1,7 +1,7 @@
 import {createServer} from 'node:http';
 import {pathToFileURL} from 'node:url';
 import os from 'node:os';
-import {readGpus} from './telemetry.mjs';
+import {readNvidia as readGpus} from './telemetry.mjs';
 
 export async function deviceReport({name = os.hostname(), readGpu = readGpus} = {}) {
   let accelerators = [];

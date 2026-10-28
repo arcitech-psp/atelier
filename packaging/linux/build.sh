@@ -5,7 +5,7 @@
 # The archive bundles the official Node.js runtime (SHA-256 checked) and the installed packages, so users need
 # no Node.js, pnpm or internet connection to install. Needs: curl, tar, xz, sha256sum.
 set -eu
-src=$1; out=$2; work=${3:-$HOME/atelier-ship-build}
+src=${1:?Usage: $0 <source.tar> <out-dir> [work-dir]}; out=${2:?Usage: $0 <source.tar> <out-dir> [work-dir]}; work=${3:-${TMPDIR:-/tmp}/atelier-public-build}
 here=$(cd "$(dirname "$0")" && pwd)
 say() { printf '%s\n' "== $*"; }
 

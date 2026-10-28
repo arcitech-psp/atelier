@@ -1,11 +1,15 @@
 // Atelier updates: the "Updates" section in Settings (About, Check for updates, automatic updates, roll back).
 // Atelier contacts GitHub only when the person presses "Check for updates" or turns automatic updates on.
 import * as updater from './updater.mjs';
+import {channelContext} from './channel-client.mjs';
+import {applyChannel} from './channel-plugin.mjs';
 
 export const name = 'atelier-updates';
 export const inject = [];
 
-export function apply(ctx) {
+export function apply(ctx, config = {}) {
+  const channel = channelContext({...process.env, ...config.env});
+  if (channel) return applyChannel(ctx, channel);
   const env = updater.context();
   const job = {state: 'idle', progress: null, error: null, lastCheck: null};
   let restarting = false;

@@ -1372,6 +1372,30 @@
       "version": "0.1.0-preview",
       "path": "public/atelier-fleet-config",
       "license": "PolyForm-Shield-1.0.0"
+    },
+    {
+      "name": "@arcitech/atelier-workspace-profiles",
+      "version": "0.2.0",
+      "path": "public/atelier-workspace-profiles",
+      "license": "PolyForm-Shield-1.0.0"
+    },
+    {
+      "name": "@arcitech/atelier-studio-fast",
+      "version": "0.2.0-preview",
+      "path": "public/atelier-studio-fast",
+      "license": "PolyForm-Shield-1.0.0"
+    },
+    {
+      "name": "@arcitech/atelier-bimcraft-design",
+      "version": "0.2.0-preview",
+      "path": "public/atelier-bimcraft-design",
+      "license": "PolyForm-Shield-1.0.0"
+    },
+    {
+      "name": "@arcitech/atelier-solidcraft-recipes",
+      "version": "0.2.0-preview",
+      "path": "public/atelier-solidcraft-recipes",
+      "license": "PolyForm-Shield-1.0.0"
     }
   ],
   "transformations": [
@@ -12530,5 +12554,15 @@
         ]
       }
     ]
+  },
+  "channelUpdates": {
+    "package": "@arcitech/atelier-updates",
+    "format": "atelier.channel-release.v1",
+    "channels": [
+      "dev",
+      "public"
+    ],
+    "activation": "next-launch",
+    "workspaceDefaults": "@arcitech/atelier-workspace-profiles"
   }
 }
