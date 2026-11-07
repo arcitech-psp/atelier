@@ -1847,7 +1847,17 @@ var PiAiAdapter = class extends LlmAdapter {
 							exhausted = true;
 							return;
 						}
-						yield result.value;
+						const chunk = result.value;
+						if (chunk.type === "finish" && this.config.onLengthStop !== void 0) {
+							const overflow = chunk.reason.kind === "error" && chunk.reason.failure.code === CONTEXT_WINDOW_EXCEEDED_CODE;
+							if (overflow || chunk.reason.kind === "max-tokens") this.config.onLengthStop({
+								provider: options.provider,
+								model: options.model,
+								reason: overflow ? "context-overflow" : "max-tokens",
+								contextWindow: model.contextWindow
+							});
+						}
+						yield chunk;
 					}
 				} finally {
 					if (!exhausted) {
@@ -2165,7 +2175,7 @@ function readListing(body) {
 		const id = label(entry?.id);
 		if (id === void 0) continue;
 		const name = label(entry?.name, entry?.display_name);
-		const contextWindow = capacity(entry?.max_model_len, entry?.context_window, entry?.context_length);
+		const contextWindow = capacity(entry?.max_model_len, entry?.context_window, entry?.context_length, entry?.meta?.n_ctx);
 		const maxTokens = capacity(entry?.max_output_tokens, entry?.max_tokens);
 		models.push({
 			id,
@@ -2460,6 +2470,18 @@ const name = "llm-pi-ai";
 const inject = ["llm"];
 const NS = settingsNamespace("llm-pi-ai");
 /**
+* Apply engine-reported windows to a detached copy of the provider dict before resolution.
+* Only models a route lists carry a window; the report replaces that entry's `contextWindow`.
+*/
+function withEngineWindows(providers, engine) {
+	const detached = structuredClone(providers ?? {});
+	for (const [provider, profile] of Object.entries(detached)) for (const model of profile.models ?? []) {
+		const reported = engine.window(provider, model.id);
+		if (reported !== void 0 && Number.isInteger(reported) && reported > 0) model.contextWindow = reported;
+	}
+	return detached;
+}
+/**
 * The registry captures these per route; a change here must re-register.
 * Sorted by provider so a settings document that merely reorders its keys is
 * not mistaken for a route change.
@@ -2504,11 +2526,13 @@ function directoryEntries(profiles, catalogProviders) {
 function apply(ctx, config) {
 	let current = () => config;
 	let lastRaw;
+	let lastEngineRevision;
 	let memoized;
 	/**
 	* The resolved profiles for the current configuration, memoized by the raw
-	* snapshot's identity — which is also what makes the adapter's own snapshot
-	* stable across operations that observe no change.
+	* snapshot's identity and the engine-reported windows' revision — which is
+	* also what makes the adapter's own snapshot stable across operations that
+	* observe no change.
 	*
 	* No fallback for an unserviceable snapshot lives here: the section schema
 	* resolves the whole profile set, so a write that could not be served is
@@ -2518,9 +2542,12 @@ function apply(ctx, config) {
 	*/
 	const profiles = () => {
 		const raw = current();
-		if (raw === lastRaw && memoized !== void 0) return memoized;
-		const next = resolveProfiles(raw.providers);
+		const engine = ctx.get("engineContext");
+		const engineRevision = engine?.revision;
+		if (raw === lastRaw && engineRevision === lastEngineRevision && memoized !== void 0) return memoized;
+		const next = resolveProfiles(engine === void 0 ? raw.providers : withEngineWindows(raw.providers, engine));
 		lastRaw = raw;
+		lastEngineRevision = engineRevision;
 		memoized = next;
 		return next;
 	};
@@ -2543,6 +2570,9 @@ function apply(ctx, config) {
 		auth,
 		resolveAttachments: () => ctx.get("attachments"),
 		resolveImageAccess: (attachments, ref) => resolveImageAttachmentAccess(attachments, (hostPath) => ctx.get("fs")?.processPathFromHostPath(hostPath), ref),
+		onLengthStop: (stop) => {
+			ctx.emit("llm-pi-ai/length-stop", stop);
+		},
 		onReplayDegrade: ({ provider, model, reason }) => {
 			ctx.logger.warn(`llm-pi-ai: unusable replay state on assistant history for route "${provider}/${model}"; sending that message as provider-neutral content (${reason})`);
 		}

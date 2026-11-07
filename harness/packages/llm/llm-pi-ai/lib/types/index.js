@@ -71,6 +71,21 @@ export const name = 'llm-pi-ai';
 export const inject = ['llm'];
 const NS = settingsNamespace('llm-pi-ai');
 /**
+ * Apply engine-reported windows to a detached copy of the provider dict before resolution.
+ * Only models a route lists carry a window; the report replaces that entry's `contextWindow`.
+ */
+function withEngineWindows(providers, engine) {
+    const detached = structuredClone(providers ?? {});
+    for (const [provider, profile] of Object.entries(detached)) {
+        for (const model of profile.models ?? []) {
+            const reported = engine.window(provider, model.id);
+            if (reported !== undefined && Number.isInteger(reported) && reported > 0)
+                model.contextWindow = reported;
+        }
+    }
+    return detached;
+}
+/**
  * The registry captures these per route; a change here must re-register.
  * Sorted by provider so a settings document that merely reorders its keys is
  * not mistaken for a route change.
@@ -125,11 +140,13 @@ function directoryEntries(profiles, catalogProviders) {
 export function apply(ctx, config) {
     let current = () => config;
     let lastRaw;
+    let lastEngineRevision;
     let memoized;
     /**
      * The resolved profiles for the current configuration, memoized by the raw
-     * snapshot's identity — which is also what makes the adapter's own snapshot
-     * stable across operations that observe no change.
+     * snapshot's identity and the engine-reported windows' revision — which is
+     * also what makes the adapter's own snapshot stable across operations that
+     * observe no change.
      *
      * No fallback for an unserviceable snapshot lives here: the section schema
      * resolves the whole profile set, so a write that could not be served is
@@ -139,10 +156,13 @@ export function apply(ctx, config) {
      */
     const profiles = () => {
         const raw = current();
-        if (raw === lastRaw && memoized !== undefined)
+        const engine = ctx.get('engineContext');
+        const engineRevision = engine?.revision;
+        if (raw === lastRaw && engineRevision === lastEngineRevision && memoized !== undefined)
             return memoized;
-        const next = resolveProfiles(raw.providers);
+        const next = resolveProfiles(engine === undefined ? raw.providers : withEngineWindows(raw.providers, engine));
         lastRaw = raw;
+        lastEngineRevision = engineRevision;
         memoized = next;
         return next;
     };
@@ -177,6 +197,7 @@ export function apply(ctx, config) {
         auth,
         resolveAttachments: () => ctx.get('attachments'),
         resolveImageAccess: (attachments, ref) => resolveImageAttachmentAccess(attachments, hostPath => ctx.get('fs')?.processPathFromHostPath(hostPath), ref),
+        onLengthStop: (stop) => { ctx.emit('llm-pi-ai/length-stop', stop); },
         onReplayDegrade: ({ provider, model, reason }) => {
             ctx.logger.warn(`llm-pi-ai: unusable replay state on assistant history for route "${provider}/${model}";`
                 + ` sending that message as provider-neutral content (${reason})`);

@@ -131,7 +131,7 @@ function readListing(body) {
         if (id === undefined)
             continue;
         const name = label(entry?.name, entry?.display_name);
-        const contextWindow = capacity(entry?.max_model_len, entry?.context_window, entry?.context_length);
+        const contextWindow = capacity(entry?.max_model_len, entry?.context_window, entry?.context_length, entry?.meta?.n_ctx);
         const maxTokens = capacity(entry?.max_output_tokens, entry?.max_tokens);
         models.push({
             id,

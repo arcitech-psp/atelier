@@ -106,6 +106,7 @@
     "@arcitech/atelier-updates": "workspace:*",
     "@arcitech/atelier-mission": "workspace:*",
     "@arcitech/atelier-roles": "workspace:*",
+    "@arcitech/atelier-engine-context": "workspace:*",
     "@arcitech/atelier-workspace-profiles": "workspace:*"
   }
 }

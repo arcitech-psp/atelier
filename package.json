@@ -245,6 +245,7 @@
     "@arcitech/atelier-roles": "workspace:*",
     "@arcitech/atelier-start": "workspace:*",
     "@arcitech/atelier-cli": "workspace:*",
+    "@arcitech/atelier-engine-context": "workspace:*",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "@arcitech/atelier-workspace-profiles": "workspace:*"

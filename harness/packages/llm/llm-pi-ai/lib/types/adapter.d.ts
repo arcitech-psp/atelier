@@ -30,6 +30,7 @@ import { LlmAdapter } from '@deepseek-ai/dsh-llm';
 import type { GenerateOptions, ImageAttachmentAccess, LlmModelInfo, LlmProviderInfo, LlmResolvedModelInfo, PreparedAdapterCall, ResolvedRetryPolicy, StreamChunk } from '@deepseek-ai/dsh-llm';
 import type { AttachmentStore, ImageAttachmentRef } from '@deepseek-ai/dsh-attachment';
 import type { ResolvedPiAiProviderProfile } from './config.ts';
+import type { PiAiLengthStop } from './types.ts';
 /** Constructor options for {@link PiAiAdapter}: the two resolution hooks the plugin owns. */
 export interface PiAiAdapterOptions {
     /** Current validated profiles by provider route; called once per operation. */
@@ -65,6 +66,8 @@ export interface PiAiAdapterOptions {
         model: string;
         reason: string;
     }) => void;
+    /** Observe a stream that ended at its token limit or with a context overflow; the engine window may have changed. */
+    onLengthStop?: (stop: PiAiLengthStop) => void;
 }
 /** The two auth injectables a pi-ai collection is built with. */
 export interface PiAiAuthInjection {

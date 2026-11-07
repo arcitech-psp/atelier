@@ -40,6 +40,7 @@ import type {
 } from '@earendil-works/pi-ai'
 import {
   attributionHeaders,
+  CONTEXT_WINDOW_EXCEEDED_CODE,
   contentHasImage,
   LlmAdapter,
   LlmError,
@@ -61,6 +62,7 @@ import { idleWatchdog, timeoutOf } from '@deepseek-ai/dsh-timeout'
 import type { ResolvedPiAiProviderProfile } from './config.ts'
 import { toPiContext } from './context.ts'
 import { toStreamChunks } from './stream.ts'
+import type { PiAiLengthStop } from './types.ts'
 
 /** One resolution's frozen view: the profiles and the collection built from them. */
 interface PiAiSnapshot {
@@ -101,6 +103,8 @@ export interface PiAiAdapterOptions {
    * conversion because its stored replay state is unusable by this build.
    */
   onReplayDegrade?: (detail: { provider: string; model: string; reason: string }) => void
+  /** Observe a stream that ended at its token limit or with a context overflow; the engine window may have changed. */
+  onLengthStop?: (stop: PiAiLengthStop) => void
 }
 
 /** The two auth injectables a pi-ai collection is built with. */
@@ -455,7 +459,19 @@ export class PiAiAdapter extends LlmAdapter {
             exhausted = true
             return
           }
-          yield result.value
+          const chunk = result.value
+          if (chunk.type === 'finish' && this.config.onLengthStop !== undefined) {
+            const overflow = chunk.reason.kind === 'error' && chunk.reason.failure.code === CONTEXT_WINDOW_EXCEEDED_CODE
+            if (overflow || chunk.reason.kind === 'max-tokens') {
+              this.config.onLengthStop({
+                provider: options.provider,
+                model: options.model,
+                reason: overflow ? 'context-overflow' : 'max-tokens',
+                contextWindow: model.contextWindow,
+              })
+            }
+          }
+          yield chunk
         }
       } finally {
         if (!exhausted) {

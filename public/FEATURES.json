@@ -24,6 +24,13 @@
       "reason": "Recipe files are imported through a compatible SolidCraft installation."
     },
     {
+      "id": "engine-context",
+      "package": "@arcitech/atelier-engine-context",
+      "included": true,
+      "enabledByDefault": false,
+      "reason": "Opt-in: asks the user's own local engines which context window they serve. See docs/engine-context.md."
+    },
+    {
       "id": "virtual-staging",
       "included": false
     },

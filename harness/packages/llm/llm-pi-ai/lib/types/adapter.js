@@ -78,7 +78,7 @@ var __disposeResources = (this && this.__disposeResources) || (function (Suppres
     return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
 });
 import { createModels, getSupportedThinkingLevels } from '@earendil-works/pi-ai';
-import { attributionHeaders, contentHasImage, LlmAdapter, LlmError, ReasoningEffortId, } from '@deepseek-ai/dsh-llm';
+import { attributionHeaders, CONTEXT_WINDOW_EXCEEDED_CODE, contentHasImage, LlmAdapter, LlmError, ReasoningEffortId, } from '@deepseek-ai/dsh-llm';
 import { idleWatchdog, timeoutOf } from '@deepseek-ai/dsh-timeout';
 import { toPiContext } from "./context.js";
 import { toStreamChunks } from "./stream.js";
@@ -383,7 +383,19 @@ export class PiAiAdapter extends LlmAdapter {
                             exhausted = true;
                             return;
                         }
-                        yield result.value;
+                        const chunk = result.value;
+                        if (chunk.type === 'finish' && this.config.onLengthStop !== undefined) {
+                            const overflow = chunk.reason.kind === 'error' && chunk.reason.failure.code === CONTEXT_WINDOW_EXCEEDED_CODE;
+                            if (overflow || chunk.reason.kind === 'max-tokens') {
+                                this.config.onLengthStop({
+                                    provider: options.provider,
+                                    model: options.model,
+                                    reason: overflow ? 'context-overflow' : 'max-tokens',
+                                    contextWindow: model.contextWindow,
+                                });
+                            }
+                        }
+                        yield chunk;
                     }
                 }
                 finally {

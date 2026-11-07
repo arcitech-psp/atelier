@@ -68,9 +68,11 @@ import { assertServiceable, Config, resolveProfiles } from './config.ts'
 import type { ResolvedPiAiProviderProfile } from './config.ts'
 import { discoverModels } from './discovery.ts'
 import { registerPiAiFlows } from './login.ts'
+import type { PiAiEngineContextSource, PiAiLengthStop } from './types.ts'
 
 export { PiAiAdapter } from './adapter.ts'
 export type { PiAiAdapterOptions } from './adapter.ts'
+export type { PiAiEngineContextSource, PiAiLengthStop } from './types.ts'
 export { Config } from './config.ts'
 export type {
   PiAiCompatProfile,
@@ -88,7 +90,47 @@ export { supportedProtocols } from './provider.ts'
 export const name = 'llm-pi-ai'
 export const inject = ['llm']
 
+declare module '@deepseek-ai/cordis' {
+  interface Events {
+    /**
+     * A pi-ai stream ended at its token limit or with a context overflow, so the
+     * serving engine's window may differ from the configured one.
+     * @mode emit
+     * @param stop - the route and the finish that ended the stream.
+     */
+    'llm-pi-ai/length-stop'(stop: PiAiLengthStop): void
+  }
+
+  interface Context {
+    /**
+     * Optional deployment source of engine-reported context windows. When
+     * present, a window it reports replaces the configured `contextWindow` of
+     * that route's listed model on the next request; `revision` changes whenever
+     * any reported value changes. Absent or silent, the configured value applies.
+     */
+    engineContext?: PiAiEngineContextSource
+  }
+}
+
 const NS = settingsNamespace('llm-pi-ai')
+
+/**
+ * Apply engine-reported windows to a detached copy of the provider dict before resolution.
+ * Only models a route lists carry a window; the report replaces that entry's `contextWindow`.
+ */
+function withEngineWindows(
+  providers: Config['providers'],
+  engine: PiAiEngineContextSource,
+): Config['providers'] {
+  const detached = structuredClone(providers ?? {}) as NonNullable<Config['providers']>
+  for (const [provider, profile] of Object.entries(detached)) {
+    for (const model of profile.models ?? []) {
+      const reported = engine.window(provider, model.id)
+      if (reported !== undefined && Number.isInteger(reported) && reported > 0) model.contextWindow = reported
+    }
+  }
+  return detached
+}
 
 /**
  * The registry captures these per route; a change here must re-register.
@@ -148,11 +190,13 @@ function directoryEntries(
 export function apply(ctx: Context, config: Config): void {
   let current: () => Config = () => config
   let lastRaw: Config | undefined
+  let lastEngineRevision: number | undefined
   let memoized: ReadonlyMap<string, ResolvedPiAiProviderProfile> | undefined
   /**
    * The resolved profiles for the current configuration, memoized by the raw
-   * snapshot's identity — which is also what makes the adapter's own snapshot
-   * stable across operations that observe no change.
+   * snapshot's identity and the engine-reported windows' revision — which is
+   * also what makes the adapter's own snapshot stable across operations that
+   * observe no change.
    *
    * No fallback for an unserviceable snapshot lives here: the section schema
    * resolves the whole profile set, so a write that could not be served is
@@ -162,9 +206,12 @@ export function apply(ctx: Context, config: Config): void {
    */
   const profiles = (): ReadonlyMap<string, ResolvedPiAiProviderProfile> => {
     const raw = current()
-    if (raw === lastRaw && memoized !== undefined) return memoized
-    const next = resolveProfiles(raw.providers)
+    const engine = ctx.get('engineContext')
+    const engineRevision = engine?.revision
+    if (raw === lastRaw && engineRevision === lastEngineRevision && memoized !== undefined) return memoized
+    const next = resolveProfiles(engine === undefined ? raw.providers : withEngineWindows(raw.providers, engine))
     lastRaw = raw
+    lastEngineRevision = engineRevision
     memoized = next
     return next
   }
@@ -209,6 +256,7 @@ export function apply(ctx: Context, config: Config): void {
       hostPath => ctx.get('fs')?.processPathFromHostPath(hostPath),
       ref,
     ),
+    onLengthStop: (stop) => { ctx.emit('llm-pi-ai/length-stop', stop) },
     onReplayDegrade: ({ provider, model, reason }) => {
       ctx.logger.warn(
         `llm-pi-ai: unusable replay state on assistant history for route "${provider}/${model}";`

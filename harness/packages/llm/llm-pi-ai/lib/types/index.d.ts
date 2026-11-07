@@ -56,13 +56,35 @@
  */
 import type { Context } from '@deepseek-ai/cordis';
 import { Config } from './config.ts';
+import type { PiAiEngineContextSource, PiAiLengthStop } from './types.ts';
 export { PiAiAdapter } from './adapter.ts';
 export type { PiAiAdapterOptions } from './adapter.ts';
+export type { PiAiEngineContextSource, PiAiLengthStop } from './types.ts';
 export { Config } from './config.ts';
 export type { PiAiCompatProfile, PiAiModality, PiAiModelOverride, PiAiModelProfile, PiAiProviderProfile, PiAiReasoningEfforts, PiAiThinkingFormat, ResolvedPiAiProviderProfile, } from './config.ts';
 export { recordKeyFor } from './auth.ts';
 export { supportedProtocols } from './provider.ts';
 export declare const name = "llm-pi-ai";
 export declare const inject: string[];
+declare module '@deepseek-ai/cordis' {
+    interface Events {
+        /**
+         * A pi-ai stream ended at its token limit or with a context overflow, so the
+         * serving engine's window may differ from the configured one.
+         * @mode emit
+         * @param stop - the route and the finish that ended the stream.
+         */
+        'llm-pi-ai/length-stop'(stop: PiAiLengthStop): void;
+    }
+    interface Context {
+        /**
+         * Optional deployment source of engine-reported context windows. When
+         * present, a window it reports replaces the configured `contextWindow` of
+         * that route's listed model on the next request; `revision` changes whenever
+         * any reported value changes. Absent or silent, the configured value applies.
+         */
+        engineContext?: PiAiEngineContextSource;
+    }
+}
 /** Register one generic pi-ai adapter for all configured provider routes. */
 export declare function apply(ctx: Context, config: Config): void;

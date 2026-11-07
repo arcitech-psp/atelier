@@ -17,6 +17,9 @@ importers:
       '@arcitech/atelier-cli':
         specifier: workspace:*
         version: link:public/atelier-cli
+      '@arcitech/atelier-engine-context':
+        specifier: workspace:*
+        version: link:public/atelier-engine-context
       '@arcitech/atelier-ingetrazo':
         specifier: workspace:*
         version: link:public/atelier-ingetrazo
@@ -713,6 +716,9 @@ importers:
       '@arcitech/atelier-canvas':
         specifier: workspace:*
         version: link:../../../public/atelier-canvas
+      '@arcitech/atelier-engine-context':
+        specifier: workspace:*
+        version: link:../../../public/atelier-engine-context
       '@arcitech/atelier-ingetrazo':
         specifier: workspace:*
         version: link:../../../public/atelier-ingetrazo
@@ -7135,6 +7141,18 @@ importers:
       sharp:
         specifier: 0.35.3
         version: 0.35.3
+
+  public/atelier-engine-context:
+    dependencies:
+      '@deepseek-ai/cordis':
+        specifier: workspace:^
+        version: link:../../harness/vendor/cordis
+      '@deepseek-ai/dsh-home-paths':
+        specifier: workspace:^
+        version: link:../../harness/packages/util/home-paths
+      '@deepseek-ai/dsh-settings':
+        specifier: workspace:^
+        version: link:../../harness/packages/settings/settings
 
   public/atelier-fleet-config: {}
 

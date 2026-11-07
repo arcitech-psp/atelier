@@ -9,6 +9,7 @@ Read in this order the first time:
    Then [Model roles](ROLES_SETUP.md): which model does what (brain, vision, speech, embeddings, images, helper), bring your own for each, or the one-click Set me up.
    Only one 16 GB graphics card? The models take turns: each loads when its job comes up, and Atelier waits for it and shows what is loading ([One graphics card, several models](ONE_GPU.md)). More cards, a bigger card or a model server keep them loaded side by side, so everything is faster. No GPU? Point the roles at a cloud endpoint.
    Start your own model servers (llama.cpp, vLLM)? [Brains](brains.md): see what is really loaded and Load, Unload or Reload it from Settings.
+   Want the context window your server really runs? [Context window from your engine](engine-context.md) (optional module).
 3. [Your first chat](first-chat.md): workspace, Vitruvius, the canvas and moodboards.
 4. [Public assistant profiles](profiles.md): Einsteinium for research, Picaso for visual direction and Hydra for coding.
 5. [Knowledge shelf](knowledge.md): save source-backed notes locally and recall them in later chats.

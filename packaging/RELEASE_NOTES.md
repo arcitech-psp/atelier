@@ -2,6 +2,12 @@
 
 Atelier by ARCITECH is a design assistant for architects, interior designers and students. It is powered by DSH (DeepSeek Harness) 0.1.2-alpha.1 by DeepSeek-AI (MIT). This first public preview is now available, free to use: expect rough edges, and please tell us what breaks.
 
+## 7 Nov 2026 — context window from your engine
+
+- Model listings now read `meta.n_ctx` (llama.cpp-style servers) besides vLLM's `max_model_len`, so a discovered model gets the window the server really runs.
+- New optional module `@arcitech/atelier-engine-context` (off by default): asks your own local engines which context window they serve and lets the route follow it on the next request, with no restart and no settings write. GET only; internet hosts are never asked. See docs/engine-context.md.
+- For plugin authors: `ctx.engineContext` window source and the `llm-pi-ai/length-stop` event in `@deepseek-ai/dsh-llm-pi-ai`.
+
 ## 27 Oct 2026 — public modules
 
 - Add optional fast image preset, BIMCraft design adapter, and five SolidCraft recipe containers.

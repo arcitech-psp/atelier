@@ -1421,6 +1421,12 @@
       "version": "0.2.0-preview",
       "path": "public/atelier-solidcraft-recipes",
       "license": "PolyForm-Shield-1.0.0"
+    },
+    {
+      "name": "@arcitech/atelier-engine-context",
+      "version": "0.1.0-preview",
+      "path": "public/atelier-engine-context",
+      "license": "PolyForm-Shield-1.0.0"
     }
   ],
   "transformations": [
@@ -12630,6 +12636,26 @@
           "public/atelier-mission/package.json",
           "docs/mission-control.md",
           "docs/config-server-schema-draft.json",
+          "packaging/RELEASE_NOTES.md"
+        ]
+      },
+      {
+        "at": "2026-11-07",
+        "by": "public-build",
+        "summary": "Engine-reported context windows: llm-pi-ai reads meta.n_ctx in listings, an optional ctx.engineContext window source and a llm-pi-ai/length-stop event; optional module atelier-engine-context probes local engines (GET only) and lets routes follow the served window without a restart.",
+        "files": [
+          "harness/packages/llm/llm-pi-ai/src/adapter.ts",
+          "harness/packages/llm/llm-pi-ai/src/discovery.ts",
+          "harness/packages/llm/llm-pi-ai/src/index.ts",
+          "harness/packages/llm/llm-pi-ai/src/types.ts",
+          "harness/packages/llm/llm-pi-ai/lib",
+          "public/atelier-engine-context",
+          "harness/apps/cli/package.json",
+          "package.json",
+          "pnpm-lock.yaml",
+          "public/FEATURES.json",
+          "docs/engine-context.md",
+          "docs/README.md",
           "packaging/RELEASE_NOTES.md"
         ]
       }

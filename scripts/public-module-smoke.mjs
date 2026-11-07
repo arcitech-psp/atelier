@@ -9,6 +9,7 @@ const expected = [
   ['@arcitech/atelier-studio-fast', 'public/atelier-studio-fast'],
   ['@arcitech/atelier-bimcraft-design', 'public/atelier-bimcraft-design'],
   ['@arcitech/atelier-solidcraft-recipes', 'public/atelier-solidcraft-recipes'],
+  ['@arcitech/atelier-engine-context', 'public/atelier-engine-context'],
 ];
 for (const [name, path] of expected) assert.ok(manifest.packages.some((pkg) => pkg.name === name && pkg.path === path), `${name} is in the release manifest`);
 assert.equal(features.channel, 'public');
@@ -20,6 +21,7 @@ const tests = [
   'public/atelier-studio-fast/test/*.test.mjs',
   'public/atelier-bimcraft-design/test/*.test.mjs',
   'public/atelier-solidcraft-recipes/test/*.test.mjs',
+  'public/atelier-engine-context/test/*.test.mjs',
 ];
 const expanded = tests.flatMap((pattern) => {
   const folder = pattern.slice(0, pattern.lastIndexOf('/'));
